@@ -1,0 +1,29 @@
+--- templates/layouts/base.html
++++ templates/layouts/base.html
+@@ -280,8 +280,24 @@
+ 
+     /* CSRF token from cookie */
+     function getCsrf() {
+-      const meta = document.querySelector('meta[name="csrf-token"]');
+-      return meta ? meta.getAttribute('content') : '';
++      let cookieValue = null;
++      if (document.cookie && document.cookie !== '') {
++          const cookies = document.cookie.split(';');
++          for (let i = 0; i < cookies.length; i++) {
++              const cookie = cookies[i].trim();
++              if (cookie.substring(0, 10) === ('csrftoken=')) {
++                  cookieValue = decodeURIComponent(cookie.substring(10));
++                  break;
++              }
++          }
++      }
++      if (!cookieValue) {
++        const meta = document.querySelector('meta[name="csrf-token"]');
++        if (meta) {
++            return meta.getAttribute('content');
++        }
++      }
++      return cookieValue || '';
+     }
+ 
+     /* Simple debounce */

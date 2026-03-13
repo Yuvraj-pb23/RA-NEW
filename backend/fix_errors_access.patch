@@ -1,0 +1,11 @@
+--- templates/dashboard/access/list.html
++++ templates/dashboard/access/list.html
+@@ -321,7 +321,7 @@
+ function _fmtErr(d) {
+   if (!d) return 'Unknown error';
+   if (typeof d === 'string') return d;
+-  if (d.detail) return d.detail;
++  if (d.detail) { if (typeof d.detail === 'string') return d.detail; return Object.values(d.detail).flat().join(', '); }
+   if (d.message) return d.message;
+   return Object.values(d).flat().join(', ');
+ }

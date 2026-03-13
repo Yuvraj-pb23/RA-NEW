@@ -1,0 +1,321 @@
+{% extends "layouts/base.html" %}
+{% block title %}Access Control{% endblock %}
+{% block page_title %}Access Control{% endblock %}
+
+{% block content %}
+<div x-data="accessPage()">
+
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+    <p class="text-sm text-slate-500">RBAC access grants — which users can access which org units.</p>
+    <button @click="openCreate()" class="btn-primary self-start sm:self-auto">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+      </svg>
+      Grant Access
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="card p-3 mb-4">
+    <div class="flex flex-col sm:flex-row gap-2.5">
+      <div class="relative flex-1">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <input type="text" x-model="search" @input="onSearch()"
+               placeholder="Search by user or org unit…" class="input-base pl-9">
+      </div>
+      <select x-model="roleFilter" @change="applyFilter()" class="input-base sm:w-44">
+        <option value="">All Roles</option>
+        <option value="admin">Admin</option>
+        <option value="ho">HO</option>
+        <option value="ro">RO</option>
+        <option value="piu">PIU</option>
+        <option value="project">Project</option>
+      </select>
+      <select x-model="activeFilter" @change="applyFilter()" class="input-base sm:w-36">
+        <option value="">All Status</option>
+        <option value="true">Active</option>
+        <option value="false">Inactive</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="card overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead class="bg-slate-50 border-b border-slate-200">
+          <tr>
+            <th class="table-th">User</th>
+            <th class="table-th hidden sm:table-cell">Org Unit</th>
+            <th class="table-th">Role</th>
+            <th class="table-th hidden md:table-cell">Organization</th>
+            <th class="table-th hidden xl:table-cell">Granted</th>
+            <th class="table-th text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+
+          <template x-if="loading">
+            <template x-for="i in 7" :key="i">
+              <tr class="animate-pulse">
+                <td class="table-td">
+                  <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded-full bg-slate-200 shrink-0"></div>
+                    <div class="h-3.5 bg-slate-200 rounded w-28"></div>
+                  </div>
+                </td>
+                <td class="table-td hidden sm:table-cell"><div class="h-3.5 bg-slate-200 rounded w-32"></div></td>
+                <td class="table-td"><div class="h-5 bg-slate-200 rounded-full w-20"></div></td>
+                <td class="table-td hidden md:table-cell"><div class="h-3.5 bg-slate-200 rounded w-28"></div></td>
+                <td class="table-td hidden xl:table-cell"><div class="h-3.5 bg-slate-200 rounded w-20"></div></td>
+                <td class="table-td"><div class="h-6 bg-slate-200 rounded w-16 ml-auto"></div></td>
+              </tr>
+            </template>
+          </template>
+
+          <template x-if="!loading && error">
+            <tr><td colspan="6" class="table-td text-center text-red-500 py-8" x-text="error"></td></tr>
+          </template>
+
+          <template x-if="!loading && !error && items.length === 0">
+            <tr>
+              <td colspan="6" class="py-12 text-center">
+                <div class="flex flex-col items-center gap-2 text-slate-400">
+                  <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                  </svg>
+                  <span class="text-sm font-medium">No access grants found</span>
+                </div>
+              </td>
+            </tr>
+          </template>
+
+          <template x-if="!loading && !error">
+            <template x-for="ac in items" :key="ac.id">
+              <tr class="hover:bg-slate-50 transition-colors" :class="!ac.is_active ? 'opacity-60' : ''">
+                <td class="table-td">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-bold text-indigo-700 shrink-0" 
+                         x-text="(ac.user_name || ac.user_email || '?').charAt(0).toUpperCase()"></div>
+                    <span class="text-sm font-medium text-slate-800 truncate max-w-[130px]" 
+                          x-text="ac.user_name || ac.user_email || '—'"></span>
+                  </div>
+                </td>
+                <td class="table-td hidden sm:table-cell text-slate-600" 
+                    x-text="ac.org_unit_name ?? '—'"></td>
+                <td class="table-td">
+                  <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full" 
+                        :class="roleColor(ac.role)"
+                        x-text="roleLabel(ac.role)"></span>
+                </td>
+                <td class="table-td hidden md:table-cell text-slate-500" 
+                    x-text="ac.organization_name ?? '—'"></td>
+                <td class="table-td hidden xl:table-cell text-slate-400 text-xs" 
+                    x-text="ac.created_at ? new Date(ac.created_at).toLocaleDateString() : '—'"></td>
+                <td class="table-td">
+                  <div class="flex items-center justify-end gap-1.5">
+                    <button @click="openEdit(ac)" class="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors">
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                      </svg>
+                    </button>
+                    <button @click="askDelete(ac.id, ac.user_name || ac.user_email)" 
+                            class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors">
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </template>
+          </template>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex items-center justify-between px-4 py-3 border-t border-slate-100 bg-slate-50">
+      <p class="text-xs text-slate-500">
+        Showing <span x-text="from"></span>–<span x-text="to"></span> of <span x-text="total"></span>
+      </p>
+      <div class="flex items-center gap-1.5">
+        <button @click="prevPage()" :disabled="page===1" class="px-3 py-1.5 text-xs font-medium rounded-md border border-slate-300 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed">Previous</button>
+        <span class="text-xs text-slate-500 px-1">Page <span x-text="page"></span> / <span x-text="pages"></span></span>
+        <button @click="nextPage()" :disabled="page>=pages" class="px-3 py-1.5 text-xs font-medium rounded-md border border-slate-300 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed">Next</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create/Edit Modal -->
+  <div x-show="formOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" x-transition:enter="transition duration-150" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+    <form class="bg-white rounded-2xl shadow-2xl w-full max-w-md" @click.stop @submit.prevent="save">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+        <h2 class="text-base font-semibold text-slate-800" x-text="editId ? 'Edit Access Grant' : 'Grant Access'"></h2>
+        <button @click="formOpen=false" class="p-1 rounded hover:bg-slate-100 text-slate-400">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <div class="px-6 py-5 space-y-4">
+        <div x-show="saveError" class="text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2" x-text="saveError"></div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">User <span class="text-red-500">*</span></label>
+          <select x-model="form.user" class="input-base" :disabled="!!editId">
+            <option value="">— Select user —</option>
+            <template x-for="u in formUsers" :key="u.id">
+              <option :value="u.id" x-text="(u.first_name ? u.first_name + ' ' + u.last_name : u.email) + ' (' + u.email + ')'"></option>
+            </template>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Org Unit <span class="text-red-500">*</span></label>
+          <select x-model="form.org_unit" @change="autoRole()" class="input-base" :disabled="!!editId">
+            <option value="">— Select org unit —</option>
+            <template x-for="o in formOrgUnits" :key="o.id">
+              <option :value="o.id" x-text="o.name + ' (' + (o.level_name||'') + ')'"></option>
+            </template>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Role <span class="text-red-500">*</span></label>
+          <input x-model="form.role" type="text" class="input-base" placeholder="e.g. ho, ro, piu, admin">
+          <p class="text-[11px] text-slate-400 mt-1">Must match the Org Unit's hierarchy level exactly.</p>
+        </div>
+      </div>
+      <div class="flex gap-3 justify-end px-6 py-4 border-t bg-slate-50 rounded-b-2xl">
+        <button @click="formOpen=false" class="btn-secondary">Cancel</button>
+        <button type="submit" :disabled="saving || !form.user || !form.org_unit || !form.role" class="btn-primary">
+          <span x-text="saving ? 'Saving…' : (editId ? 'Save Changes' : 'Grant Access')"></span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Delete Modal -->
+  <div x-show="confirmDelete" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" x-transition.opacity>
+    <div class="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full">
+      <h3 class="text-sm font-semibold text-slate-800 mb-2">Revoke Access</h3>
+      <p class="text-sm text-slate-500 mb-5">Permanently revoke access for <strong x-text="deleteLabel"></strong>?</p>
+      <div class="flex gap-3 justify-end">
+        <button @click="confirmDelete=false" class="btn-secondary">Cancel</button>
+        <button @click="doDelete()" class="btn-danger">Revoke</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function accessPage() {
+  return Object.assign(listPage({ url: '/api/v1/user-access/' }), {
+    roleFilter: '', activeFilter: '',
+    formOpen: false, editId: null,
+    form: { user: '', org_unit: '', role: '' },
+    formUsers: [], formOrgUnits: [],
+    saving: false, saveError: null,
+
+    applyFilter() { this.page = 1; this.load(); },
+    
+    init() {
+      this._debouncedSearch = debounce(() => { this.page = 1; this.load(); }, 350);
+      this.load();
+      this._fetchDependencies();
+    },
+
+    async _fetchDependencies() {
+      const p1 = fetch('/api/v1/users/?page_size=200', { credentials: 'include' }).then(r=>r.json());
+      const p2 = fetch('/api/v1/org-units/?page_size=200', { credentials: 'include' }).then(r=>r.json());
+      const [d1, d2] = await Promise.all([p1, p2]);
+      this.formUsers = d1.results ?? [];
+      this.formOrgUnits = d2.results ?? [];
+    },
+
+    autoRole() {
+       const ou = this.formOrgUnits.find(o => o.id == this.form.org_unit);
+       if (ou && ou.level_name) {
+           this.form.role = ou.level_name.toLowerCase();
+       }
+    },
+
+    openCreate() {
+      this.editId = null;
+      this.form = { user: '', org_unit: '', role: '' };
+      this.saveError = null;
+      this.formOpen = true;
+    },
+
+    openEdit(ac) {
+      this.editId = ac.id;
+      this.saveError = null;
+      this.form = {
+        user: ac.user,
+        org_unit: ac.org_unit,
+        role: ac.role
+      };
+      this.formOpen = true;
+    },
+
+    async save() {
+      if (!this.form.user || !this.form.org_unit || !this.form.role) return;
+      this.saving = true; this.saveError = null;
+      try {
+        const body = {
+          user: this.form.user,
+          org_unit: this.form.org_unit,
+          role: this.form.role.toLowerCase().trim()
+        };
+        const url = this.editId ? `/api/v1/user-access/${this.editId}/` : '/api/v1/user-access/';
+        const method = this.editId ? 'PATCH' : 'POST';
+        const r = await fetch(url, {
+          method, credentials: 'include',
+          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrf() },
+          body: JSON.stringify(body)
+        });
+        if (!r.ok) { this.saveError = _fmtErr(await r.json()); return; }
+        this.formOpen = false;
+        this.page = 1;
+        this.load();
+      } catch(e) { this.saveError = e.message; }
+      finally { this.saving = false; }
+    },
+    
+    roleColor(r) {
+      return { 'admin': 'bg-red-100 text-red-700', 'ho': 'bg-indigo-100 text-indigo-700', 
+               'ro': 'bg-blue-100 text-blue-700', 'piu': 'bg-teal-100 text-teal-700', 
+               'project': 'bg-orange-100 text-orange-700' }[r?.toLowerCase()] || 'bg-slate-100 text-slate-600';
+    },
+
+    roleLabel(r) {
+      return (r || '').toUpperCase();
+    },
+
+    async load() {
+      this.loading = true; this.error = null;
+      try {
+        const p = new URLSearchParams({ page: this.page, page_size: this.pageSize });
+        if (this.search)       p.set('search', this.search);
+        if (this.roleFilter)   p.set('role', this.roleFilter);
+        if (this.activeFilter) p.set('is_active', this.activeFilter);
+        const r = await fetch(`${this.apiUrl}?${p}`, { credentials: 'include' });
+        if (!r.ok) throw new Error('Server error ' + r.status);
+        const d = await r.json();
+        this.items = d.results ?? []; this.total = d.count ?? this.items.length;
+      } catch(e) { this.error = e.message; this.items = []; }
+      finally    { this.loading = false; }
+    }
+  });
+}
+function _fmtErr(d) {
+  if (!d) return 'Unknown error';
+  if (typeof d === 'string') return d;
+  if (d.detail) return d.detail;
+  if (d.message) return d.message;
+  return Object.values(d).flat().join(', ');
+}
+</script>
+{% endblock %}

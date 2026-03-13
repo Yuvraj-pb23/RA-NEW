@@ -1,0 +1,146 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Overview{% endblock %}
+
+{% block content %}
+
+<!-- ── Stat Cards ── -->
+<div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
+
+  {% with cards=stat_cards %}
+  {% for card in cards %}
+  <div class="card p-5" x-data="statCard('{{ card.url }}')" x-init="load()">
+    <div class="flex items-start justify-between">
+      <div>
+        <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">{{ card.label }}</p>
+        <div class="mt-2">
+          <template x-if="loading">
+            <div class="h-7 w-12 bg-slate-200 rounded animate-pulse"></div>
+          </template>
+          <template x-if="!loading && !error">
+            <p class="text-2xl font-bold text-slate-800" x-text="count.toLocaleString()"></p>
+          </template>
+          <template x-if="error">
+            <p class="text-lg font-bold text-slate-400">—</p>
+          </template>
+        </div>
+      </div>
+      <span class="w-9 h-9 rounded-lg {{ card.bg }} flex items-center justify-center shrink-0">
+        {{ card.icon|safe }}
+      </span>
+    </div>
+    <a href="{{ card.link }}" class="mt-3 inline-flex items-center gap-1 text-xs font-medium {{ card.text }} hover:underline">
+      View all
+      <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+      </svg>
+    </a>
+  </div>
+  {% endfor %}
+  {% endwith %}
+
+</div>
+
+<!-- ── Two-column tables ── -->
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+
+  <!-- Recent Projects -->
+  <div class="card overflow-hidden"
+       x-data="listPage({ url: '/api/v1/projects/', pageSize: 5 })">
+
+    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+      <h2 class="text-sm font-semibold text-slate-800">Recent Projects</h2>
+      <a href="{% url 'dashboard:projects' %}" class="text-xs text-indigo-600 font-medium hover:underline">View all →</a>
+    </div>
+
+    <!-- Loading skeleton -->
+    <template x-if="loading">
+      <div class="divide-y divide-slate-100">
+        <template x-for="i in 5" :key="i">
+          <div class="px-5 py-3.5 flex items-center gap-3 animate-pulse">
+            <div class="w-2 h-2 rounded-full bg-slate-200 shrink-0"></div>
+            <div class="flex-1 h-3.5 bg-slate-200 rounded"></div>
+            <div class="w-16 h-4 bg-slate-200 rounded-full"></div>
+          </div>
+        </template>
+      </div>
+    </template>
+
+    <!-- Data -->
+    <template x-if="!loading && items.length > 0">
+      <div class="divide-y divide-slate-100">
+        <template x-for="p in items" :key="p.id">
+          <div class="px-5 py-3.5 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <span class="w-2 h-2 rounded-full shrink-0"
+                    :class="{
+                      'bg-green-500':  p.status === 'active',
+                      'bg-yellow-500': p.status === 'on_hold' || p.status === 'planning',
+                      'bg-blue-500':   p.status === 'completed',
+                      'bg-red-400':    p.status === 'cancelled'
+                    }"></span>
+              <span class="text-sm text-slate-700 truncate font-medium" x-text="p.name"></span>
+            </div>
+            <span class="shrink-0 text-[11px] font-semibold px-2 py-0.5 rounded-full capitalize"
+                  :class="{
+                    'bg-green-100 text-green-700':  p.status === 'active',
+                    'bg-yellow-100 text-yellow-700': p.status === 'on_hold',
+                    'bg-slate-100 text-slate-600':  p.status === 'planning',
+                    'bg-blue-100 text-blue-700':    p.status === 'completed',
+                    'bg-red-100 text-red-700':      p.status === 'cancelled'
+                  }"
+                  x-text="p.status.replace('_',' ')"></span>
+          </div>
+        </template>
+      </div>
+    </template>
+
+    <template x-if="!loading && items.length === 0">
+      <div class="px-5 py-10 text-center text-sm text-slate-400">No projects found.</div>
+    </template>
+  </div>
+
+  <!-- Recent Roads -->
+  <div class="card overflow-hidden"
+       x-data="listPage({ url: '/api/v1/roads/', pageSize: 5 })">
+
+    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+      <h2 class="text-sm font-semibold text-slate-800">Recent Roads</h2>
+      <a href="{% url 'dashboard:roads' %}" class="text-xs text-indigo-600 font-medium hover:underline">View all →</a>
+    </div>
+
+    <template x-if="loading">
+      <div class="divide-y divide-slate-100">
+        <template x-for="i in 5" :key="i">
+          <div class="px-5 py-3.5 flex items-center gap-3 animate-pulse">
+            <div class="w-10 h-4 bg-slate-200 rounded-full shrink-0"></div>
+            <div class="flex-1 h-3.5 bg-slate-200 rounded"></div>
+            <div class="w-14 h-3.5 bg-slate-200 rounded"></div>
+          </div>
+        </template>
+      </div>
+    </template>
+
+    <template x-if="!loading && items.length > 0">
+      <div class="divide-y divide-slate-100">
+        <template x-for="r in items" :key="r.id">
+          <div class="px-5 py-3.5 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <span class="shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700"
+                    x-text="r.road_type || '—'"></span>
+              <span class="text-sm text-slate-700 truncate" x-text="r.name"></span>
+            </div>
+            <span class="text-xs text-slate-500 shrink-0" x-text="r.length_km ? r.length_km + ' km' : '—'"></span>
+          </div>
+        </template>
+      </div>
+    </template>
+
+    <template x-if="!loading && items.length === 0">
+      <div class="px-5 py-10 text-center text-sm text-slate-400">No roads found.</div>
+    </template>
+  </div>
+
+</div><!-- end two-column -->
+{% endblock %}

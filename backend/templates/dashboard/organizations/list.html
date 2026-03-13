@@ -1,0 +1,331 @@
+{% extends "layouts/base.html" %}
+{% block title %}Organizations{% endblock %}
+{% block page_title %}Organizations{% endblock %}
+
+{% block content %}
+<div x-data="orgPage()">
+
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+    <p class="text-sm text-slate-500">Manage all registered organizations in the platform.</p>
+    <button @click="openCreate()" class="btn-primary self-start sm:self-auto">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+      </svg>
+      Add Organization
+    </button>
+  </div>
+
+  <!-- Search -->
+  <div class="card p-3 mb-4">
+    <div class="relative">
+      <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"
+           fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+      </svg>
+      <input x-model="search" @input="onSearch()" type="text"
+             placeholder="Search organizations…" class="input-base pl-9">
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="card overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead class="bg-slate-50 border-b border-slate-200">
+          <tr>
+            <th class="table-th">Organization</th>
+            <th class="table-th">Country</th>
+            <th class="table-th hidden sm:table-cell">Org Units</th>
+            <th class="table-th hidden md:table-cell">Projects</th>
+            <th class="table-th hidden lg:table-cell">Created</th>
+            <th class="table-th text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+
+          <template x-if="loading">
+            <template x-for="i in 6" :key="i">
+              <tr class="animate-pulse">
+                <td class="table-td"><div class="h-3.5 bg-slate-200 rounded w-3/4"></div></td>
+                <td class="table-td"><div class="h-3.5 bg-slate-200 rounded w-1/2"></div></td>
+                <td class="table-td hidden sm:table-cell"><div class="h-3.5 bg-slate-200 rounded w-8"></div></td>
+                <td class="table-td hidden md:table-cell"><div class="h-3.5 bg-slate-200 rounded w-8"></div></td>
+                <td class="table-td hidden lg:table-cell"><div class="h-3.5 bg-slate-200 rounded w-20"></div></td>
+                <td class="table-td"><div class="h-6 bg-slate-200 rounded w-16 ml-auto"></div></td>
+              </tr>
+            </template>
+          </template>
+
+          <template x-if="!loading && error">
+            <tr><td colspan="6" class="table-td text-center text-red-500 py-8" x-text="error"></td></tr>
+          </template>
+
+          <template x-if="!loading && !error && items.length === 0">
+            <tr>
+              <td colspan="6" class="py-14 text-center">
+                <svg class="w-10 h-10 mx-auto text-slate-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"/>
+                </svg>
+                <p class="text-sm text-slate-500 font-medium">No organizations yet</p>
+                <button @click="openCreate()" class="btn-primary mt-3 text-xs">Add your first organization</button>
+              </td>
+            </tr>
+          </template>
+
+          <template x-if="!loading && !error && items.length > 0">
+            <template x-for="org in items" :key="org.id">
+              <tr class="hover:bg-slate-50 transition-colors">
+                <td class="table-td">
+                  <div class="flex items-center gap-3">
+                    <div class="w-7 h-7 rounded-md bg-indigo-100 flex items-center justify-center shrink-0">
+                      <span class="text-xs font-bold text-indigo-600"
+                            x-text="org.name.charAt(0).toUpperCase()"></span>
+                    </div>
+                    <span class="font-medium text-slate-800" x-text="org.name"></span>
+                  </div>
+                </td>
+                <td class="table-td text-slate-500" x-text="org.country || '—'"></td>
+                <td class="table-td hidden sm:table-cell">
+                  <span class="text-xs font-semibold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full"
+                        x-text="org.unit_count ?? 0"></span>
+                </td>
+                <td class="table-td hidden md:table-cell">
+                  <span class="text-xs font-semibold bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full"
+                        x-text="org.project_count ?? 0"></span>
+                </td>
+                <td class="table-td hidden lg:table-cell text-slate-400"
+                    x-text="org.created_at ? new Date(org.created_at).toLocaleDateString('en-IN') : '—'"></td>
+                <td class="table-td">
+                  <div class="flex items-center justify-end gap-1">
+                    <button @click="openEdit(org)"
+                            class="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors"
+                            title="Edit">
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                      </svg>
+                    </button>
+                    <button @click="askDelete(org.id, org.name)"
+                            class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                            title="Delete">
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </template>
+          </template>
+
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex items-center justify-between px-4 py-3 border-t border-slate-100 bg-slate-50">
+      <p class="text-xs text-slate-500">
+        Showing <span x-text="from"></span>–<span x-text="to"></span>
+        of <span x-text="total"></span> results
+      </p>
+      <div class="flex items-center gap-1.5">
+        <button @click="prevPage()" :disabled="page===1"
+                class="px-3 py-1.5 text-xs font-medium rounded-md border border-slate-300 bg-white
+                       text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed">
+          Previous
+        </button>
+        <span class="text-xs text-slate-500 px-1">
+          Page <span x-text="page"></span> of <span x-text="pages"></span>
+        </span>
+        <button @click="nextPage()" :disabled="page>=pages"
+                class="px-3 py-1.5 text-xs font-medium rounded-md border border-slate-300 bg-white
+                       text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed">
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Create / Edit Modal ── -->
+  <div x-show="formOpen" x-cloak
+       class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+       x-transition:enter="transition duration-150"
+       x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+       x-transition:leave="transition duration-100"
+       x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md" @click.stop
+         x-transition:enter="transition duration-150"
+         x-transition:enter-start="opacity-0 scale-95"
+         x-transition:enter-end="opacity-100 scale-100">
+
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+        <h2 class="text-base font-semibold text-slate-800"
+            x-text="editId ? 'Edit Organization' : 'New Organization'"></h2>
+        <button @click="formOpen=false"
+                class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="px-6 py-5 space-y-4">
+        <div x-show="saveError"
+             class="text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2"
+             x-text="saveError"></div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">
+            Name <span class="text-red-500">*</span>
+          </label>
+          <input x-model="form.name" type="text" placeholder="e.g. NHAI, UP PWD" class="input-base">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">
+            Country <span class="text-red-500">*</span>
+          </label>
+          <input x-model="form.country" type="text" placeholder="India" class="input-base">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Description</label>
+          <textarea x-model="form.description" rows="3"
+                    placeholder="Optional description…"
+                    class="input-base resize-none"></textarea>
+        </div>
+
+        <label class="flex items-center gap-2 cursor-pointer select-none">
+          <input type="checkbox" x-model="form.is_active" class="w-4 h-4 rounded accent-indigo-600">
+          <span class="text-sm text-slate-700">Active</span>
+        </label>
+      </div>
+
+      <div class="flex gap-3 justify-end px-6 py-4 border-t border-slate-100 bg-slate-50 rounded-b-2xl">
+        <button @click="formOpen=false" class="btn-secondary">Cancel</button>
+        <button @click="save()"
+                :disabled="saving || !form.name.trim() || !form.country.trim()"
+                class="btn-primary disabled:opacity-50 disabled:cursor-not-allowed">
+          <svg x-show="saving" class="w-3.5 h-3.5 animate-spin mr-1" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+          </svg>
+          <span x-text="saving ? 'Saving…' : (editId ? 'Save Changes' : 'Create')"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Delete Confirmation ── -->
+  <div x-show="confirmDelete" x-cloak
+       class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+       x-transition:enter="transition duration-150"
+       x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+       x-transition:leave="transition duration-100"
+       x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+    <div class="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full" @click.stop
+         x-transition:enter="transition duration-150"
+         x-transition:enter-start="opacity-0 scale-95"
+         x-transition:enter-end="opacity-100 scale-100">
+      <div class="flex items-start gap-4 mb-5">
+        <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-sm font-semibold text-slate-800">Delete Organization</h3>
+          <p class="text-sm text-slate-500 mt-1">
+            Delete <strong x-text="deleteLabel"></strong>? All org units, projects, and
+            roads will be permanently removed.
+          </p>
+        </div>
+      </div>
+      <div class="flex gap-3 justify-end">
+        <button @click="confirmDelete=false" class="btn-secondary">Cancel</button>
+        <button @click="doDelete()" class="btn-danger">Delete</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function orgPage() {
+  return Object.assign(listPage({ url: '/api/v1/organizations/' }), {
+    formOpen:  false,
+    editId:    null,
+    form:      { name: '', country: 'India', description: '', is_active: true },
+    saving:    false,
+    saveError: null,
+
+    openCreate() {
+      this.editId    = null;
+      this.form      = { name: '', country: 'India', description: '', is_active: true };
+      this.saveError = null;
+      this.formOpen  = true;
+    },
+
+    openEdit(item) {
+      this.editId    = item.id;
+      this.form      = {
+        name:        item.name,
+        country:     item.country || 'India',
+        description: item.description || '',
+        is_active:   item.is_active !== false,
+      };
+      this.saveError = null;
+      this.formOpen  = true;
+    },
+
+    async save() {
+      if (!this.form.name.trim() || !this.form.country.trim()) return;
+      this.saving = true; this.saveError = null;
+      try {
+        const url    = this.editId
+          ? `/api/v1/organizations/${this.editId}/`
+          : '/api/v1/organizations/';
+        const method = this.editId ? 'PATCH' : 'POST';
+        const r = await fetch(url, {
+          method, credentials: 'include',
+          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrf() },
+          body: JSON.stringify(this.form),
+        });
+        if (!r.ok) { this.saveError = _fmtErr(await r.json()); return; }
+        this.formOpen = false;
+        this.page = 1;
+        this.load();
+      } catch (e) { this.saveError = e.message; }
+      finally     { this.saving = false; }
+    },
+  });
+}
+
+function _fmtErr(d) {
+  if (!d) return 'Unknown error';
+  if (typeof d === 'string') return d;
+  function flat(v) {
+    if (v === null || v === undefined) return '';
+    if (typeof v === 'string') return v;
+    if (typeof v === 'number' || typeof v === 'boolean') return String(v);
+    if (Array.isArray(v)) return v.map(flat).filter(Boolean).join(', ');
+    if (typeof v === 'object') {
+      return Object.entries(v)
+        .map(([k, val]) => (k === 'non_field_errors' ? '' : k + ': ') + flat(val))
+        .filter(Boolean).join(' | ');
+    }
+    return String(v);
+  }
+  if (d.detail)  return flat(d.detail);
+  if (d.message) return flat(d.message);
+  return flat(d);
+}
+</script>
+{% endblock %}
