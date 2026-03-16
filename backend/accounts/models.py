@@ -4,6 +4,13 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+class SystemRole(models.TextChoices):
+    SUPER_ADMIN = "SUPER_ADMIN", _("Super Admin")
+    ORG_ADMIN = "ORG_ADMIN", _("Org Admin")
+    HO_USER = "HO_USER", _("HO User")
+    RO_USER = "RO_USER", _("RO User")
+    PIU_USER = "PIU_USER", _("PIU User")
+    PROJECT_USER = "PROJECT_USER", _("Project User")
 
 class UserManager(BaseUserManager):
     """
@@ -24,6 +31,7 @@ class UserManager(BaseUserManager):
     def create_superuser(self, email, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
+        extra_fields.setdefault("role", "SUPER_ADMIN")
 
         if extra_fields.get("is_staff") is not True:
             raise ValueError(_("Superuser must have is_staff=True."))
@@ -82,6 +90,24 @@ class User(AbstractUser):
         _("phone number"),
         max_length=20,
         blank=True,
+    )
+    
+    # -------------------------------------------------------------------------
+    # Multi-Organization Role-Based Access
+    # -------------------------------------------------------------------------
+    role = models.CharField(
+        _("role"),
+        max_length=20,
+        choices=SystemRole.choices,
+        default=SystemRole.PROJECT_USER,
+    )
+    organization = models.ForeignKey(
+        'orgs.Organization',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="users",
+        help_text=_("The organization this user belongs to. Null for Super Admins."),
     )
 
     # -------------------------------------------------------------------------

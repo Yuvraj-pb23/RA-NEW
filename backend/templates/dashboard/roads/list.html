@@ -3,16 +3,18 @@
 {% block page_title %}Roads{% endblock %}
 
 {% block content %}
-<div x-data="roadsPage()">
+<div x-data="roadsPage()" @hierarchy-changed.window="filterUnit = $event.detail; page = 1; load()">
 
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
     <p class="text-sm text-slate-500">All road segments across all projects.</p>
-    <button @click="openCreate()" class="btn-primary self-start sm:self-auto">
+    {% if request.user.role in 'SUPER_ADMIN,ORG_ADMIN,HO_USER,RO_USER,PIU_USER,PROJECT_USER' %}
+        <button @click="openCreate()" class="btn-primary self-start sm:self-auto">
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
       </svg>
       Add Road
     </button>
+        {% endif %}
   </div>
 
   <!-- Filters -->
@@ -37,6 +39,29 @@
   </div>
 
   <!-- Table -->
+  
+  <!-- Hierarchy Filter Bar -->
+  <div class="card p-3 mb-4" x-data="hierarchyFilter()" @hierarchy-changed.window="onFilterChange($event.detail)">
+    <div class="flex flex-wrap items-center gap-3">
+      <span class="text-sm font-medium text-slate-600">Filter by Level:</span>
+      <template x-for="(level, idx) in levels" :key="level.id">
+        <div class="flex items-center gap-2">
+            <template x-if="idx > 0">
+                <svg class="w-4 h-4 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </template>
+            <select x-model="selected[level.id]" @change="selectLevel(idx)" class="input-base text-sm py-1.5 min-w-[120px]">
+              <option value="">-- All <span x-text="level.level_name"></span> --</option>
+              <template x-for="unit in (unitsByLevel[level.id] || [])" :key="unit.id">
+                <option :value="unit.id" x-text="unit.name"></option>
+              </template>
+            </select>
+        </div>
+      </template>
+    </div>
+  </div>
+
   <div class="card overflow-hidden">
     <div class="overflow-x-auto">
       <table class="w-full">
@@ -285,5 +310,50 @@ function _fmtErr(d) {
   if (d.message) return d.message;
   return Object.values(d).flat().join(', ');
 }
+
+function hierarchyFilter() {
+  return {
+    levels: [],
+    unitsByLevel: {},
+    selected: {},
+    
+    async init() {
+      // Just fetch all units available to user
+      const r = await fetch('/api/v1/org-units/?page_size=1000', { credentials: 'include' });
+      const d = await r.json();
+      const units = d.results || [];
+      
+      const levelMap = {};
+      units.forEach(u => {
+        if (!u.level_detail) return;
+        if (!levelMap[u.level]) levelMap[u.level] = {...u.level_detail, units: []};
+        levelMap[u.level].units.push(u);
+      });
+      
+      this.levels = Object.values(levelMap).sort((a,b) => a.level_order - b.level_order);
+      this.levels.forEach(l => {
+        this.unitsByLevel[l.id] = l.units;
+        this.selected[l.id] = '';
+      });
+    },
+    
+    selectLevel(idx) {
+      const level = this.levels[idx];
+      const val = this.selected[level.id];
+      // clear children
+      for(let i = idx + 1; i < this.levels.length; i++) {
+         this.selected[this.levels[i].id] = '';
+      }
+      
+      // Dispatch event to parent listPage
+      let chosenUnit = val;
+      if (!val && idx > 0) {
+          chosenUnit = this.selected[this.levels[idx-1].id];
+      }
+      window.dispatchEvent(new CustomEvent('hierarchy-changed', { detail: chosenUnit }));
+    }
+  };
+}
+
 </script>
 {% endblock %}

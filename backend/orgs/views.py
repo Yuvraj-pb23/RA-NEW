@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from access.permissions import IsAdminOrReadOnly
+from core.permissions import IsOrgAdminOrReadOnly
 from .models import Organization, HierarchyLevel, OrgUnit
 from .serializers import (
     OrganizationSerializer,
@@ -43,16 +44,28 @@ class OrganizationViewSet(viewsets.ModelViewSet):
     ordering_fields  = ["name", "country", "created_at"]
     ordering         = ["name"]
 
+    def get_permissions(self):
+        from accounts.models import SystemRole
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            from core.permissions import IsSuperAdmin
+            return [IsAuthenticated(), IsSuperAdmin()]
+        return [IsAuthenticated()]
+
     def get_queryset(self):
         """
         Annotate each org with unit_count and project_count
         to avoid N+1 in the list view.
         """
-        return Organization.objects.annotate(
+        qs = Organization.objects.annotate(
             unit_count=Count("org_units", distinct=True),
             project_count=Count("org_units__org_unit_projects", distinct=True),
             road_count=Count("org_units__org_unit_projects__roads", distinct=True),
         )
+        from accounts.models import SystemRole
+        user = self.request.user
+        if user.role == SystemRole.SUPER_ADMIN:
+            return qs
+        return qs.filter(id=user.organization_id)
 
     @action(detail=True, methods=["get"], url_path="stats")
     def stats(self, request, pk=None):
@@ -98,11 +111,19 @@ class HierarchyLevelViewSet(viewsets.ModelViewSet):
 
     queryset = HierarchyLevel.objects.select_related("organization", "parent_level")
     serializer_class = HierarchyLevelSerializer
-    permission_classes = [IsAuthenticated, IsAdminOrReadOnly]
+    permission_classes = [IsAuthenticated, IsOrgAdminOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ["organization"]
     ordering_fields  = ["level_order", "level_name"]
     ordering         = ["organization", "level_order"]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        from accounts.models import SystemRole
+        user = self.request.user
+        if user.role == SystemRole.SUPER_ADMIN:
+            return qs
+        return qs.filter(organization=user.organization)
 
     def destroy(self, request, *args, **kwargs):
         """
@@ -150,12 +171,21 @@ class OrgUnitViewSet(viewsets.ModelViewSet):
         "organization", "level", "parent_unit", "parent_unit__level"
     )
     serializer_class = OrgUnitSerializer
-    permission_classes = [IsAuthenticated, IsAdminOrReadOnly]
+    permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["organization", "level", "parent_unit", "is_active"]
     search_fields    = ["name"]
     ordering_fields  = ["name", "level__level_order", "created_at"]
     ordering         = ["level__level_order", "name"]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        from accounts.models import SystemRole
+        if self.request.user.role == SystemRole.SUPER_ADMIN:
+            return qs
+        from access.utils import get_user_accessible_units
+        accessible_units = get_user_accessible_units(self.request.user)
+        return qs.filter(id__in=accessible_units)
 
     @action(detail=False, methods=["get"], url_path="tree")
     def tree(self, request):

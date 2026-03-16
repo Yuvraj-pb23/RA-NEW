@@ -86,6 +86,15 @@ class UserOrgAccessViewSet(
     ordering_fields  = ["created_at", "role"]
     ordering         = ["-created_at"]
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        from accounts.models import SystemRole
+        if self.request.user.role == SystemRole.SUPER_ADMIN:
+            return qs
+        from access.utils import get_user_accessible_units
+        accessible_units = get_user_accessible_units(self.request.user)
+        return qs.filter(org_unit__in=accessible_units)
+
     # ── Extra read actions ─────────────────────────────────────────────────
 
     @action(detail=False, methods=["get"], url_path="by-org-unit")
