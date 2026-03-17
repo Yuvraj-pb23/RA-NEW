@@ -1,0 +1,169 @@
+{% extends "layouts/base.html" %}
+{% block title %}{{ road.name }} - Details{% endblock %}
+{% block page_title %}Road Details{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<style>
+  .leaflet-container { z-index: 1; }
+  /* Optional: Tab active state styles */
+  .tab-active { border-bottom-color: #4f46e5; color: #4f46e5; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mb-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+        <a href="{% url 'dashboard:roads' %}" class="p-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-500 transition-colors">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+        </a>
+        <h1 class="text-xl font-bold text-slate-800">{{ road.name }}</h1>
+        <span class="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs font-bold rounded-md uppercase tracking-wider">{{ road.get_road_type_display|default:road.road_type }}</span>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Left panel (Details) -->
+    <div class="lg:col-span-1 space-y-6">
+        <!-- Info Card -->
+        <div class="card p-5">
+            <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 border-b border-slate-100 pb-2">Information</h2>
+            <div class="space-y-4">
+                <div>
+                    <span class="text-xs font-medium text-slate-500 uppercase tracking-wide block mb-1">Project</span>
+                    <span class="text-sm text-slate-800 font-semibold">{{ road.project.name|default:"-" }}</span>
+                </div>
+                <div>
+                    <span class="text-xs font-medium text-slate-500 uppercase tracking-wide block mb-1">Organization Unit</span>
+                    <span class="text-sm text-slate-800 font-semibold">{{ road.project.org_unit.name|default:"-" }}</span>
+                </div>
+                <div>
+                    <span class="text-xs font-medium text-slate-500 uppercase tracking-wide block mb-1">Length</span>
+                    <div class="flex items-end gap-1">
+                        <span class="text-2xl font-bold text-slate-800 leading-none" id="road-length">{{ road.length|default:"0.00" }}</span>
+                        <span class="text-sm text-slate-500 font-medium mb-0.5">km</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Optional: Tabs Section for future data -->
+        <div class="card overflow-hidden" x-data="{ tab: 'inventory' }">
+            <div class="flex border-b border-slate-100 bg-slate-50/50">
+                <button @click="tab = 'inventory'" :class="tab === 'inventory' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700'" class="flex-1 py-3 text-sm font-medium border-b-2 transition-colors">Inventory</button>
+                <button @click="tab = 'ris'" :class="tab === 'ris' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700'" class="flex-1 py-3 text-sm font-medium border-b-2 transition-colors">RIS</button>
+                <button @click="tab = 'pms'" :class="tab === 'pms' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700'" class="flex-1 py-3 text-sm font-medium border-b-2 transition-colors">PMS</button>
+            </div>
+            <div class="p-5">
+                <div x-show="tab === 'inventory'" class="text-sm text-slate-600">
+                    <p class="mb-2">Road segment inventory data will appear here.</p>
+                    <ul class="space-y-2 list-disc pl-4 text-xs">
+                        <li>Surface type: Flexible</li>
+                        <li>Lanes: 2</li>
+                        <li>Carriageway width: 7.0m</li>
+                    </ul>
+                </div>
+                <div x-show="tab === 'ris'" style="display: none;" class="text-sm text-slate-600">
+                    <p>Road Information System details.</p>
+                </div>
+                <div x-show="tab === 'pms'" style="display: none;" class="text-sm text-slate-600">
+                    <p>Pavement Management System metrics.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right panel (Map) -->
+    <div class="lg:col-span-2">
+        <div class="card p-4 h-full min-h-[500px] flex flex-col">
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider">Map Visualization</h2>
+                <div class="flex gap-2">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-green-50 text-green-700 text-xs font-semibold border border-green-200" id="gpx-status">
+                        <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                        Loading GPX...
+                    </span>
+                </div>
+            </div>
+            
+            <div id="map" class="w-full flex-1 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden relative min-h-[450px]">
+                <!-- Placeholder if no map -->
+                <div id="no-map-overlay" class="absolute inset-0 z-10 bg-slate-50/90 hidden flex-col items-center justify-center text-slate-500 gap-2">
+                    <svg class="w-12 h-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                    </svg>
+                    <p class="font-medium">No GPX data available for this road.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const map = L.map('map').setView([28.6, 77.2], 5);
+    
+    // Add default OpenStreetMap layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    const roadId = "{{ road.id }}";
+    const statusEl = document.getElementById("gpx-status");
+    const noMapOverlay = document.getElementById("no-map-overlay");
+    const lenEl = document.getElementById("road-length");
+
+    // Fetch GPX data
+    fetch(`/api/road/${roadId}/gpx/`)
+        .then(res => {
+            if (!res.ok) throw new Error('GPX data not found');
+            return res.json();
+        })
+        .then(data => {
+            if (!data.points || data.points.length === 0) {
+                throw new Error('Empty GPX data');
+            }
+
+            const latlngs = data.points.map(p => [p.lat, p.lng]);
+            const polyline = L.polyline(latlngs, { 
+                color: '#4f46e5', 
+                weight: 5,
+                opacity: 0.8,
+                lineJoin: 'round'
+            }).addTo(map);
+
+            // Fit the map to the complete bounds of the line
+            map.fitBounds(polyline.getBounds(), {
+                padding: [40, 40]
+            });
+
+            // Update stats from parsed data if length is missing on model
+            // Uncomment if you prefer to use GPX dynamically calculated length
+            // if (data.length_km) {
+            //     lenEl.innerText = data.length_km.toFixed(2);
+            // }
+
+            // Update status UI
+            statusEl.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700 text-xs font-semibold border border-indigo-200";
+            statusEl.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> GPX Loaded`;
+
+        })
+        .catch(err => {
+            console.warn("Map Error:", err);
+            
+            // Show error/empty UI
+            noMapOverlay.classList.remove('hidden');
+            noMapOverlay.classList.add('flex');
+            
+            statusEl.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 text-slate-600 text-xs font-semibold border border-slate-200";
+            statusEl.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg> No GPX`;
+        });
+});
+</script>
+{% endblock %}

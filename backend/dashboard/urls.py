@@ -27,6 +27,7 @@ from dashboard.views import (
     OrgUnitListView,
     ProjectListView,
     RoadListView,
+    RoadDetailView,
     UserListView,
 )
 
@@ -55,6 +56,8 @@ urlpatterns = [
     path("org-units/",        OrgUnitListView.as_view(),       name="org_units"),
     path("projects/",         ProjectListView.as_view(),       name="projects"),
     path("roads/",            RoadListView.as_view(),          name="roads"),
+    path("roads/<uuid:road_id>/view/", RoadDetailView.as_view(), name="road_detail"),
+
     path("users/",            UserListView.as_view(),          name="users"),
     path("access/",           AccessListView.as_view(),        name="access"),
 ]

@@ -23,6 +23,8 @@ from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from access.permissions import IsAdminOrReadOnly
+from django.http import JsonResponse
+from .utils import parse_gpx
 
 from .models import Road
 from .serializers import RoadSerializer
@@ -77,3 +79,24 @@ class RoadViewSet(ModelViewSet):
         from access.utils import get_user_accessible_units
         accessible_units = get_user_accessible_units(self.request.user)
         return qs.filter(project__org_unit__in=accessible_units)
+
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def road_gpx_view(request, road_id):
+    try:
+        from accounts.models import SystemRole
+        from access.utils import get_user_accessible_units
+        
+        qs = Road.objects.all()
+        if request.user.role != SystemRole.SUPER_ADMIN:
+            accessible_units = get_user_accessible_units(request.user)
+            qs = qs.filter(project__org_unit__in=accessible_units)
+            
+        road = qs.get(id=road_id)
+        if road.gpx_file:
+            data = parse_gpx(road.gpx_file.path)
+            return JsonResponse(data)
+        return JsonResponse({"error": "No GPX file found"}, status=404)
+    except Road.DoesNotExist:
+        return JsonResponse({"error": "Road not found"}, status=404)

@@ -41,6 +41,7 @@ class RoadSerializer(serializers.ModelSerializer):
             "project_name",
             "organization_name",
             "length",
+            "gpx_file",
             "geometry",
             "road_type",
             "road_type_display",

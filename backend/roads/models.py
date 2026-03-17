@@ -47,6 +47,13 @@ class Road(BaseModel):
         db_index=True,
         help_text=_("The project this road belongs to."),
     )
+    gpx_file = models.FileField(
+        _("GPX File"),
+        upload_to="gpx/",
+        null=True,
+        blank=True,
+        help_text=_("Upload a GPX file for this road segment."),
+    )
     length = models.DecimalField(
         _("length (km)"),
         max_digits=10,

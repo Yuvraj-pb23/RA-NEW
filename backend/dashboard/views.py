@@ -1,8 +1,9 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, DetailView
 from django.shortcuts import redirect
 from django.core.exceptions import PermissionDenied
 from accounts.models import SystemRole
+from roads.models import Road
 
 # ── Shared mixins ────────────────────────────────────────────────────────────
 
@@ -194,3 +195,20 @@ class UserListView(OrgAdminRequiredMixin, DashboardMixin, TemplateView):
 class AccessListView(OrgAdminRequiredMixin, DashboardMixin, TemplateView):
     template_name = "dashboard/access/list.html"
     active_page   = "access"
+
+
+class RoadDetailView(DashboardMixin, DetailView):
+    model = Road
+    template_name = "dashboard/roads/road_detail.html"
+    active_page = "roads"
+    context_object_name = "road"
+    pk_url_kwarg = "road_id"
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        user_role = getattr(self.request.user, 'role', None)
+        if user_role == SystemRole.SUPER_ADMIN:
+            return qs
+        from access.utils import get_user_accessible_units
+        accessible_units = get_user_accessible_units(self.request.user)
+        return qs.filter(project__org_unit__in=accessible_units)

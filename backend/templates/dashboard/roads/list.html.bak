@@ -1,18 +1,18 @@
 {% extends "layouts/base.html" %}
-{% block title %}Projects{% endblock %}
-{% block page_title %}Projects{% endblock %}
+{% block title %}Roads{% endblock %}
+{% block page_title %}Roads{% endblock %}
 
 {% block content %}
-<div x-data="projectsPage()" @hierarchy-changed.window="filterUnit = $event.detail; page = 1; load()">
+<div x-data="roadsPage()" @hierarchy-changed.window="filterUnit = $event.detail; page = 1; load()">
 
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
-    <p class="text-sm text-slate-500">Road projects across all org units.</p>
-    {% if request.user.role in 'SUPER_ADMIN,ORG_ADMIN,HO_USER' %}
+    <p class="text-sm text-slate-500">All road segments across all projects.</p>
+    {% if request.user.role in 'SUPER_ADMIN,ORG_ADMIN' %}
         <button @click="openCreate()" class="btn-primary self-start sm:self-auto">
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
       </svg>
-      New Project
+      Add Road
     </button>
         {% endif %}
   </div>
@@ -25,8 +25,16 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
         </svg>
         <input type="text" x-model="search" @input="onSearch()"
-               placeholder="Search projects…" class="input-base pl-9">
+               placeholder="Search roads by name…" class="input-base pl-9">
       </div>
+      <select x-model="typeFilter" @change="applyFilter()" class="input-base sm:w-44">
+        <option value="">All Types</option>
+        <option value="NH">National Highway</option>
+        <option value="SH">State Highway</option>
+        <option value="MDR">Major District Road</option>
+        <option value="ODR">Other District Road</option>
+        <option value="VR">Village Road</option>
+      </select>
     </div>
   </div>
 
@@ -59,22 +67,21 @@
       <table class="w-full">
         <thead class="bg-slate-50 border-b border-slate-200">
           <tr>
-            <th class="table-th">Project Name</th>
-            <th class="table-th hidden sm:table-cell">Organization</th>
-            <th class="table-th hidden sm:table-cell">Org Unit</th>
-            <th class="table-th">Description</th>
+            <th class="table-th">Road Name</th>
+            <th class="table-th">Type</th>
+            <th class="table-th hidden md:table-cell">Project</th>
+            <th class="table-th hidden lg:table-cell">Length (km)</th>
             <th class="table-th text-right">Actions</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-100">
-
           <template x-if="loading">
-            <template x-for="i in 7" :key="i">
+            <template x-for="i in 8" :key="i">
               <tr class="animate-pulse">
-                <td class="table-td"><div class="h-3.5 bg-slate-200 rounded w-3/4"></div></td>
-                <td class="table-td hidden sm:table-cell"><div class="h-3.5 bg-slate-200 rounded w-1/2"></div></td>
-                <td class="table-td hidden sm:table-cell"><div class="h-3.5 bg-slate-200 rounded w-20"></div></td>
-                <td class="table-td"><div class="h-3.5 bg-slate-200 rounded w-20"></div></td>
+                <td class="table-td"><div class="h-3.5 bg-slate-200 rounded w-2/3"></div></td>
+                <td class="table-td"><div class="h-5 bg-slate-200 rounded-full w-10"></div></td>
+                <td class="table-td hidden md:table-cell"><div class="h-3.5 bg-slate-200 rounded w-1/2"></div></td>
+                <td class="table-td hidden lg:table-cell"><div class="h-3.5 bg-slate-200 rounded w-12"></div></td>
                 <td class="table-td"><div class="h-6 bg-slate-200 rounded w-16 ml-auto"></div></td>
               </tr>
             </template>
@@ -89,37 +96,37 @@
               <td colspan="5" class="py-12 text-center">
                 <div class="flex flex-col items-center gap-2 text-slate-400">
                   <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20H5a2 2 0 01-2-2V6a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M9 20l2-2m-2 2l2 2"/>
                   </svg>
-                  <span class="text-sm font-medium">No projects found</span>
+                  <span class="text-sm font-medium">No roads found</span>
                 </div>
               </td>
             </tr>
           </template>
 
           <template x-if="!loading && !error">
-            <template x-for="proj in items" :key="proj.id">
+            <template x-for="road in items" :key="road.id">
               <tr class="hover:bg-slate-50 transition-colors">
-                <td class="table-td font-medium text-slate-800" x-text="proj.name"></td>
-                <td class="table-td hidden sm:table-cell text-slate-500" x-text="proj.organization_name ?? '—'"></td>
-                <td class="table-td hidden sm:table-cell text-slate-500" x-text="proj.org_unit_name ?? '—'"></td>
-                <td class="table-td text-slate-500 truncate max-w-xs" x-text="proj.description ?? '—'"></td>
+                <td class="table-td font-medium text-slate-800 max-w-[200px] truncate" x-text="road.name"></td>
+                <td class="table-td">
+                  <span class="text-[11px] font-bold px-2 py-0.5 rounded-full"
+                        :class="typeColor(road.road_type)"
+                        x-text="road.road_type || '—'"></span>
+                </td>
+                <td class="table-td hidden md:table-cell text-slate-500" x-text="road.project_name ?? '—'"></td>
+                <td class="table-td hidden lg:table-cell text-slate-700 font-medium tabular-nums" x-text="road.length ? parseFloat(road.length).toFixed(3) : '—'"></td>
                 <td class="table-td">
                   <div class="flex items-center justify-end gap-1.5">
-                    {% if request.user.role in 'SUPER_ADMIN,ORG_ADMIN,HO_USER' %}
-                    <button @click="openEdit(proj)" class="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors">
+                    <button @click="openEdit(road)" class="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors">
                       <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                       </svg>
                     </button>
-                    <button @click="askDelete(proj.id, proj.name)" class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors">
+                    <button @click="askDelete(road.id, road.name)" class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors">
                       <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                       </svg>
                     </button>
-                    {% endif %}
                   </div>
                 </td>
               </tr>
@@ -129,6 +136,7 @@
       </table>
     </div>
 
+    <!-- Pagination -->
     <div class="flex items-center justify-between px-4 py-3 border-t border-slate-100 bg-slate-50">
       <p class="text-xs text-slate-500">
         Showing <span x-text="from"></span>–<span x-text="to"></span> of <span x-text="total"></span>
@@ -145,7 +153,7 @@
   <div x-show="formOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" x-transition:enter="transition duration-150" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
     <form class="bg-white rounded-2xl shadow-2xl w-full max-w-md" @click.stop @submit.prevent="save">
       <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-        <h2 class="text-base font-semibold text-slate-800" x-text="editId ? 'Edit Project' : 'New Project'"></h2>
+        <h2 class="text-base font-semibold text-slate-800" x-text="editId ? 'Edit Road' : 'New Road'"></h2>
         <button @click="formOpen=false" class="p-1 rounded hover:bg-slate-100 text-slate-400">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -155,35 +163,37 @@
       <div class="px-6 py-5 space-y-4">
         <div x-show="saveError" class="text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2" x-text="saveError"></div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Project Name <span class="text-red-500">*</span></label>
-          <input x-model="form.name" type="text" class="input-base" placeholder="Enter project name">
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Road Name <span class="text-red-500">*</span></label>
+          <input x-model="form.name" type="text" class="input-base" placeholder="Enter road name">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Organization <span class="text-red-500">*</span></label>
-          <select x-model="form.organization" @change="onOrgChange()" class="input-base" :disabled="!!editId">
-            <option value="">— Select organization —</option>
-            <template x-for="org in formOrgs" :key="org.id">
-              <option :value="org.id" x-text="org.name"></option>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Project <span class="text-red-500">*</span></label>
+          <select x-model="form.project" class="input-base">
+            <option value="">— Select project —</option>
+            <template x-for="p in formProjects" :key="p.id">
+              <option :value="p.id" x-text="p.name"></option>
             </template>
           </select>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Org Unit <span class="text-red-500">*</span></label>
-          <select x-model="form.org_unit" class="input-base" :disabled="!form.organization">
-            <option value="">— Select org unit (Project level) —</option>
-            <template x-for="u in formUnits" :key="u.id">
-              <option :value="u.id" x-text="u.name"></option>
-            </template>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Road Type</label>
+          <select x-model="form.road_type" class="input-base">
+            <option value="">— Select type —</option>
+            <option value="NH">National Highway</option>
+            <option value="SH">State Highway</option>
+            <option value="MDR">Major District Road</option>
+            <option value="ODR">Other District Road</option>
+            <option value="VR">Village Road</option>
           </select>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Description</label>
-          <textarea x-model="form.description" class="input-base" rows="3" placeholder="Optional description"></textarea>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Length (km) <span class="text-red-500">*</span></label>
+          <input x-model.number="form.length" type="number" step="0.001" min="0" class="input-base" placeholder="Length in km">
         </div>
       </div>
       <div class="flex gap-3 justify-end px-6 py-4 border-t bg-slate-50 rounded-b-2xl">
         <button @click="formOpen=false" class="btn-secondary">Cancel</button>
-        <button type="submit" :disabled="saving || !form.name.trim() || !form.organization || !form.org_unit" class="btn-primary">
+        <button type="submit" :disabled="saving || !form.name.trim() || !form.project || form.length === ''" class="btn-primary">
           <span x-text="saving ? 'Saving…' : (editId ? 'Save Changes' : 'Create')"></span>
         </button>
       </div>
@@ -193,8 +203,8 @@
   <!-- Delete Modal -->
   <div x-show="confirmDelete" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" x-transition.opacity>
     <div class="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full">
-      <h3 class="text-sm font-semibold text-slate-800 mb-2">Delete Project</h3>
-      <p class="text-sm text-slate-500 mb-5">Delete <strong x-text="deleteLabel"></strong> and all its roads?</p>
+      <h3 class="text-sm font-semibold text-slate-800 mb-2">Delete Road</h3>
+      <p class="text-sm text-slate-500 mb-5">Delete road <strong x-text="deleteLabel"></strong>?</p>
       <div class="flex gap-3 justify-end">
         <button @click="confirmDelete=false" class="btn-secondary">Cancel</button>
         <button @click="doDelete()" class="btn-danger">Delete</button>
@@ -206,67 +216,58 @@
 
 {% block extra_js %}
 <script>
-function projectsPage() {
-  return Object.assign(listPage({ url: '/api/v1/projects/' }), {
+function roadsPage() {
+  return Object.assign(listPage({ url: '/api/v1/roads/' }), {
+    typeFilter: '',
     formOpen: false, editId: null,
-    form: { name: '', organization: '', org_unit: '', description: '' },
+    form: { name: '', project: '', road_type: '', length: 0 },
     saving: false, saveError: null,
-    formOrgs: [], formUnits: [],
+    formProjects: [],
 
+    applyFilter() { this.page = 1; this.load(); },
+    
     init() {
       this._debouncedSearch = debounce(() => { this.page = 1; this.load(); }, 350);
       this.load();
-      this._fetchOrgs();
+      this._fetchProjects();
     },
-    async _fetchOrgs() {
-      const r = await fetch('/api/v1/organizations/?page_size=200', { credentials: 'include' });
+
+    async _fetchProjects() {
+      const r = await fetch('/api/v1/projects/?page_size=200', { credentials: 'include' });
       const d = await r.json();
-      this.formOrgs = d.results ?? [];
+      this.formProjects = d.results ?? [];
     },
-    async onOrgChange() {
-      this.form.org_unit = '';
-      this.formUnits = [];
-      if (!this.form.organization) return;
-      // Fetch org units belonging to this organization and which have Project level. We just fetch all for this org.
-      const r = await fetch(`/api/v1/org-units/?organization=${this.form.organization}&page_size=200`, { credentials: 'include' });
-      const d = await r.json();
-      // Filter for units that are at the 'Project' level (case-insensitive checking in model)
-      this.formUnits = (d.results ?? []).filter(u => u.level_name && u.level_name.toLowerCase() === 'project');
-    },
+
     openCreate() {
       this.editId = null;
-      this.form = { name: '', organization: '', org_unit: '', description: '' };
-      this.formUnits = [];
+      this.form = { name: '', project: '', road_type: '', length: 0 };
       this.saveError = null;
       this.formOpen = true;
     },
-    async openEdit(proj) {
-      this.editId = proj.id;
+
+    openEdit(road) {
+      this.editId = road.id;
       this.saveError = null;
       this.form = {
-        name: proj.name,
-        organization: proj.organization,
-        org_unit: proj.org_unit,
-        description: proj.description || ''
+        name: road.name,
+        project: road.project,
+        road_type: road.road_type || '',
+        length: parseFloat(road.length || 0)
       };
-      
-      const r = await fetch(`/api/v1/org-units/?organization=${proj.organization}&page_size=200`, { credentials: 'include' });
-      const d = await r.json();
-      this.formUnits = (d.results ?? []).filter(u => u.level_name && u.level_name.toLowerCase() === 'project');
-      
       this.formOpen = true;
     },
+
     async save() {
-      if (!this.form.name.trim() || !this.form.organization || !this.form.org_unit) return;
+      if (!this.form.name.trim() || !this.form.project || this.form.length === '') return;
       this.saving = true; this.saveError = null;
       try {
         const body = {
           name: this.form.name.trim(),
-          organization: this.form.organization,
-          org_unit: this.form.org_unit,
-          description: this.form.description.trim()
+          project: this.form.project,
+          road_type: this.form.road_type || null,
+          length: parseFloat(this.form.length)
         };
-        const url = this.editId ? `/api/v1/projects/${this.editId}/` : '/api/v1/projects/';
+        const url = this.editId ? `/api/v1/roads/${this.editId}/` : '/api/v1/roads/';
         const method = this.editId ? 'PATCH' : 'POST';
         const r = await fetch(url, {
           method, credentials: 'include',
@@ -279,13 +280,33 @@ function projectsPage() {
         this.load();
       } catch(e) { this.saveError = e.message; }
       finally { this.saving = false; }
+    },
+    
+    typeColor(t) {
+      return { NH:'bg-red-100 text-red-700', SH:'bg-orange-100 text-orange-700',
+               MDR:'bg-yellow-100 text-yellow-700', ODR:'bg-teal-100 text-teal-700',
+               VR:'bg-slate-100 text-slate-600' }[t] || 'bg-slate-100 text-slate-600';
+    },
+
+    async load() {
+      this.loading = true; this.error = null;
+      try {
+        const p = new URLSearchParams({ page: this.page, page_size: this.pageSize });
+        if (this.search)     p.set('search', this.search);
+        if (this.typeFilter) p.set('road_type', this.typeFilter);
+        const r = await fetch(`${this.apiUrl}?${p}`, { credentials: 'include' });
+        if (!r.ok) throw new Error('Server error ' + r.status);
+        const d = await r.json();
+        this.items = d.results ?? []; this.total = d.count ?? this.items.length;
+      } catch(e) { this.error = e.message; this.items = []; }
+      finally    { this.loading = false; }
     }
   });
 }
 function _fmtErr(d) {
   if (!d) return 'Unknown error';
   if (typeof d === 'string') return d;
-  if (d.detail) { if (typeof d.detail === 'string') return d.detail; return Object.values(d.detail).flat().join(', '); }
+  if (d.detail) return d.detail;
   if (d.message) return d.message;
   return Object.values(d).flat().join(', ');
 }

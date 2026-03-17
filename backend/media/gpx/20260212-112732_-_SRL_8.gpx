@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<gpx version="1.1" creator="Dummy">
+  <trk>
+    <name>Dummy Track</name>
+    <trkseg>
+      <trkpt lat="28.6139" lon="77.2090"><time>2023-01-01T00:00:00Z</time></trkpt>
+      <trkpt lat="28.6149" lon="77.2100"><time>2023-01-01T00:01:00Z</time></trkpt>
+      <trkpt lat="28.6159" lon="77.2110"><time>2023-01-01T00:02:00Z</time></trkpt>
+    </trkseg>
+  </trk>
+</gpx>

@@ -30,6 +30,7 @@ from rest_framework_simplejwt.views import (
 from api.v1.router import router
 from api.v1.views import dashboard_stats
 from api.views import DashboardStatsAPIView
+from roads.views import road_gpx_view
 
 app_name = "api"
 
@@ -55,5 +56,6 @@ urlpatterns = [
     path("dashboard/", DashboardStatsAPIView.as_view(), name="dashboard-stats"),
 
     # Developer documentation (schema lives at /api/ level for easy discoverability)
+    path("road/<uuid:road_id>/gpx/", road_gpx_view, name="road-gpx"),
     *schema_patterns,
 ]

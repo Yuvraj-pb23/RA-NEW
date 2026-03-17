@@ -22,7 +22,7 @@ def get_descendant_units(org_unit):
         SELECT id FROM subtree;
     """
     with connection.cursor() as cursor:
-        cursor.execute(sql, [str(org_unit.pk)])
+        cursor.execute(sql, [org_unit.pk.hex])
         rows = cursor.fetchall()
     
     ids = [str(row[0]) for row in rows]
@@ -58,7 +58,9 @@ def get_user_accessible_units(user):
         SELECT DISTINCT id FROM subtree;
     """
     with connection.cursor() as cursor:
-        cursor.execute(sql, [str(user.pk)])
+        # We use .hex because SQLite stores UUIDs as char(32) without dashes
+        # Postgres accepts UUIDs without dashes as well.
+        cursor.execute(sql, [user.pk.hex])
         rows = cursor.fetchall()
         
     ids = [str(row[0]) for row in rows]
