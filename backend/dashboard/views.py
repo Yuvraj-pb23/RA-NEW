@@ -250,6 +250,11 @@ class AccessListView(OrgAdminRequiredMixin, DashboardMixin, TemplateView):
     active_page   = "access"
 
 
+class GISMapView(UpperTierRequiredMixin, DashboardMixin, TemplateView):
+    template_name = "dashboard/gis.html"
+    active_page   = "gis"
+
+
 class RoadDetailView(DashboardMixin, DetailView):
     model = Road
     template_name = "dashboard/roads/road_detail.html"

@@ -22,6 +22,7 @@ from django.urls import path
 from dashboard.views import (
     AccessListView,
     DashboardHomeView,
+    GISMapView,
     HierarchyTreeView,
     OrganizationListView,
     OrgUnitListView,
@@ -57,6 +58,7 @@ urlpatterns = [
     path("projects/",         ProjectListView.as_view(),       name="projects"),
     path("roads/",            RoadListView.as_view(),          name="roads"),
     path("roads/<uuid:road_id>/view/", RoadDetailView.as_view(), name="road_detail"),
+    path("gis/",              GISMapView.as_view(),            name="gis"),
 
     path("users/",            UserListView.as_view(),          name="users"),
     path("access/",           AccessListView.as_view(),        name="access"),

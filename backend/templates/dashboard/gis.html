@@ -1,0 +1,953 @@
+{% extends "layouts/base.html" %}
+{% block title %}GIS Map{% endblock %}
+{% block page_title %}
+{% if user_unit %}{{ user_unit.name }} — GIS Map{% else %}GIS Map{% endif %}
+{% endblock %}
+
+{% block head %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<style>
+    /* ── Page layout: no padding, edge-to-edge ── */
+    body {
+        overflow: hidden;
+    }
+
+    /* ── GIS Left sidebar ── */
+    .gis-sidebar {
+        width: 220px;
+        min-width: 220px;
+        background: #fff;
+        border-right: 1px solid #e8edf2;
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 64px);
+        overflow-y: auto;
+    }
+
+    .gis-nav-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 16px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #4b5563;
+        cursor: pointer;
+        border-radius: 0;
+        transition: all 140ms ease;
+        border-left: 3px solid transparent;
+        background: none;
+        border-top: none;
+        border-right: none;
+        border-bottom: none;
+        width: 100%;
+        text-align: left;
+    }
+
+    .gis-nav-item:hover {
+        background: #f8fafc;
+        color: #111827;
+    }
+
+    .gis-nav-item.active {
+        background: #f0fdf4;
+        color: #15803d;
+        border-left: 3px solid #16a34a;
+        font-weight: 600;
+    }
+
+    .gis-nav-item .nav-icon {
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+    }
+
+    .gis-beta {
+        font-size: 9px;
+        font-weight: 700;
+        padding: 1px 5px;
+        border-radius: 4px;
+        background: #fef3c7;
+        color: #92400e;
+        letter-spacing: .04em;
+        margin-left: auto;
+    }
+
+    .gis-section-label {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+        color: #9ca3af;
+        padding: 14px 16px 6px;
+        margin: 0;
+    }
+
+    .gis-filter-label {
+        font-size: 11px;
+        font-weight: 600;
+        color: #6b7280;
+        padding: 0 16px 4px;
+    }
+
+    .gis-select {
+        margin: 0 12px 10px;
+        padding: 6px 10px;
+        font-size: 12px;
+        color: #374151;
+        border: 1px solid #e5e7eb;
+        border-radius: 7px;
+        background: #fff;
+        cursor: pointer;
+        width: calc(100% - 24px);
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 8px center;
+        background-size: 14px;
+        padding-right: 28px;
+        transition: border-color 140ms;
+    }
+
+    .gis-select:focus {
+        outline: none;
+        border-color: #16a34a;
+        box-shadow: 0 0 0 2px rgba(22, 163, 74, .12);
+    }
+
+    .gis-divider {
+        border: none;
+        border-top: 1px solid #f1f5f9;
+        margin: 6px 0;
+    }
+
+    /* Existing links at bottom of GIS sidebar */
+    .gis-existing-link {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 16px;
+        font-size: 12.5px;
+        font-weight: 500;
+        color: #6b7280;
+        cursor: pointer;
+        width: 100%;
+        text-align: left;
+        background: none;
+        border: none;
+        border-left: 3px solid transparent;
+        transition: all 120ms ease;
+        text-decoration: none;
+    }
+
+    .gis-existing-link:hover {
+        background: #f8fafc;
+        color: #374151;
+    }
+
+    .gis-existing-link.active-link {
+        background: #eef2ff;
+        color: #4f46e5;
+        border-left: 3px solid #4f46e5;
+        font-weight: 600;
+    }
+
+    /* ── Main content area ── */
+    .gis-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        min-width: 0;
+    }
+
+    /* ── Filter bar ── */
+    .gis-filter-bar {
+        background: #fff;
+        border-bottom: 1px solid #e8edf2;
+        padding: 14px 20px;
+        flex-shrink: 0;
+    }
+
+    .gis-filter-title {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .08em;
+        color: #16a34a;
+        text-transform: uppercase;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .gis-filter-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+    }
+
+    .gis-filter-col label {
+        display: block;
+        font-size: 11px;
+        font-weight: 600;
+        color: #4b5563;
+        margin-bottom: 4px;
+    }
+
+    .gis-dropdown {
+        width: 100%;
+        padding: 7px 32px 7px 10px;
+        font-size: 12.5px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        background: #fff;
+        color: #374151;
+        appearance: none;
+        cursor: pointer;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 8px center;
+        background-size: 14px;
+        transition: border-color 140ms;
+    }
+
+    .gis-dropdown:focus {
+        outline: none;
+        border-color: #16a34a;
+        box-shadow: 0 0 0 2px rgba(22, 163, 74, .1);
+    }
+
+    /* ── Map ── */
+    #gis-map {
+        flex: 1;
+        min-height: 0;
+    }
+
+    /* ── Statistics panel ── */
+    .stats-panel {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+    }
+
+    .stat-kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .stat-kpi-card {
+        background: #fff;
+        border: 1px solid #e8edf2;
+        border-radius: 12px;
+        padding: 16px;
+        position: relative;
+    }
+
+    .stat-kpi-label {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: #6b7280;
+        margin-bottom: 4px;
+    }
+
+    .stat-kpi-value {
+        font-size: 28px;
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    .stat-kpi-sub {
+        font-size: 11px;
+        color: #9ca3af;
+        margin-top: 2px;
+    }
+
+    .stat-kpi-bar {
+        height: 3px;
+        border-radius: 2px;
+        margin-top: 12px;
+    }
+
+    .stat-kpi-icon {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        width: 28px;
+        height: 28px;
+    }
+
+    /* Download button */
+    .btn-download {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 9px 18px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #16a34a, #15803d);
+        color: #fff;
+        font-size: 13px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 150ms ease;
+        box-shadow: 0 2px 8px rgba(22, 163, 74, .25);
+        text-decoration: none;
+    }
+
+    .btn-download:hover {
+        background: linear-gradient(135deg, #15803d, #166534);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(22, 163, 74, .35);
+    }
+
+    /* Leaflet overrides */
+    .leaflet-control-zoom {
+        border: none !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, .15) !important;
+    }
+
+    .leaflet-control-zoom a {
+        border-radius: 6px !important;
+        color: #374151 !important;
+        font-weight: 700 !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="margin: -1.5rem -1.5rem 0; height: calc(100vh - 64px); display: flex; overflow: hidden;" x-data="gisApp()"
+    x-init="init()">
+
+    <!-- ══ GIS LEFT SIDEBAR ══ -->
+    <div class="gis-sidebar">
+
+        <!-- Nav: Home/GIS and Statistics -->
+        <div style="padding: 10px 0;">
+
+            <!-- Home / GIS -->
+            <button class="gis-nav-item" :class="{'active': view === 'map'}" @click="view='map'">
+                <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+                Home / GIS
+                <svg :class="view === 'map' ? 'rotate-180' : ''" class="w-3 h-3 ml-auto transition-transform"
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+
+            <!-- Inline filters (always visible) -->
+            <div x-show="view === 'map'" x-cloak
+                style="background: #f8fafc; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; padding: 10px 0 6px;">
+                <p class="gis-section-label" style="padding-top: 0;">Filters</p>
+                <p class="gis-filter-label">HO Unit</p>
+                <select class="gis-select" x-model="filters.ho" @change="onHoChange()">
+                    <option value="">All HOs</option>
+                    <template x-for="u in hoUnits" :key="u.id">
+                        <option :value="u.id" x-text="u.name"></option>
+                    </template>
+                </select>
+                <p class="gis-filter-label">RO Unit</p>
+                <select class="gis-select" x-model="filters.ro" @change="onRoChange()"
+                    :disabled="!filters.ho && hoUnits.length > 1">
+                    <option value="">All ROs</option>
+                    <template x-for="u in roUnits" :key="u.id">
+                        <option :value="u.id" x-text="u.name"></option>
+                    </template>
+                </select>
+                <p class="gis-filter-label">PIU</p>
+                <select class="gis-select" x-model="filters.piu" @change="onPiuChange()" :disabled="!filters.ro">
+                    <option value="">All PIUs</option>
+                    <template x-for="u in piuUnits" :key="u.id">
+                        <option :value="u.id" x-text="u.name"></option>
+                    </template>
+                </select>
+                <p class="gis-filter-label">Road</p>
+                <select class="gis-select" x-model="filters.road" @change="onRoadChange()">
+                    <option value="">All Roads</option>
+                    <template x-for="r in filteredRoads" :key="r.id">
+                        <option :value="r.id" x-text="r.name"></option>
+                    </template>
+                </select>
+                <template x-if="filters.ho || filters.ro || filters.piu || filters.road">
+                    <button @click="clearFilters()"
+                        style="margin: 4px 12px 0; font-size: 11px; color: #16a34a; font-weight: 600; background: none; border: none; cursor: pointer; padding: 2px 0;">
+                        Clear all filters
+                    </button>
+                </template>
+            </div>
+
+            <hr class="gis-divider">
+
+            <!-- Statistics -->
+            <button class="gis-nav-item" :class="{'active': view === 'statistics'}" @click="view='statistics'">
+                <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                Statistics
+                <svg :class="view === 'statistics' ? 'rotate-180' : ''" class="w-3 h-3 ml-auto transition-transform"
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+
+            <!-- RSA -->
+            <button class="gis-nav-item" :class="{'active': view === 'rsa'}" @click="view='rsa'">
+                <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                RSA
+                <span class="gis-beta">BETA</span>
+            </button>
+
+            <!-- Surveys -->
+            <button class="gis-nav-item" :class="{'active': view === 'surveys'}" @click="view='surveys'">
+                <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Surveys
+            </button>
+
+            <!-- Digital Twin -->
+            <button class="gis-nav-item" :class="{'active': view === 'digital'}" @click="view='digital'">
+                <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 10V7" />
+                </svg>
+                Digital Twin
+            </button>
+        </div>
+
+        <!-- System status -->
+        <div style="padding: 10px 16px; border-top: 1px solid #f1f5f9; display: flex; align-items: center; gap: 6px;">
+            <span style="width: 7px; height: 7px; background: #16a34a; border-radius: 50%; flex-shrink: 0;"></span>
+            <span style="font-size: 11px; color: #6b7280;">System Online</span>
+            <span style="font-size: 10px; color: #9ca3af; margin-left: auto;">v2.1</span>
+        </div>
+    </div>
+
+    <!-- ══ MAIN CONTENT ══ -->
+    <div class="gis-main">
+
+        <!-- ── MAP VIEW ── -->
+        <div x-show="view === 'map'" class="gis-main" style="display: flex; flex-direction: column;">
+
+            <!-- Top: page header + download button -->
+            <div
+                style="background: #fff; border-bottom: 1px solid #e8edf2; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div
+                        style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #16a34a, #15803d); display: flex; align-items: center; justify-content: center;">
+                        <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 style="font-size: 15px; font-weight: 700; color: #111827; margin: 0;">Home / GIS Map</h2>
+                        <p style="font-size: 12px; color: #6b7280; margin: 0;">Road Network — Geospatial Intelligence
+                            System</p>
+                    </div>
+                </div>
+                <button class="btn-download" @click="downloadExcel()">
+                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Download Excel
+                </button>
+            </div>
+
+            <!-- Filter Roads bar -->
+            <div class="gis-filter-bar">
+                <div class="gis-filter-title">
+                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                    </svg>
+                    Filter Roads
+                </div>
+                <div class="gis-filter-grid">
+                    <div class="gis-filter-col">
+                        <label>HO / Agency</label>
+                        <select class="gis-dropdown" x-model="filters.ho" @change="onHoChange()">
+                            <option value="">Select HO</option>
+                            <template x-for="u in hoUnits" :key="u.id">
+                                <option :value="u.id" x-text="u.name"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div class="gis-filter-col">
+                        <label>RO / District</label>
+                        <select class="gis-dropdown" x-model="filters.ro" @change="onRoChange()">
+                            <option value="">Select RO</option>
+                            <template x-for="u in roUnits" :key="u.id">
+                                <option :value="u.id" x-text="u.name"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div class="gis-filter-col">
+                        <label>PIU / Market Committee</label>
+                        <select class="gis-dropdown" x-model="filters.piu" @change="onPiuChange()">
+                            <option value="">Select PIU</option>
+                            <template x-for="u in piuUnits" :key="u.id">
+                                <option :value="u.id" x-text="u.name"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div class="gis-filter-col">
+                        <label>Road</label>
+                        <select class="gis-dropdown" x-model="filters.road" @change="onRoadChange()">
+                            <option value="">Select Road</option>
+                            <template x-for="r in filteredRoads" :key="r.id">
+                                <option :value="r.id" x-text="r.name"></option>
+                            </template>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map switches -->
+            <div style="position: relative; flex: 1; min-height: 0;">
+                <div
+                    style="position: absolute; top: 12px; left: 12px; z-index: 1000; display: flex; background: rgba(255,255,255,0.95); border-radius: 9px; padding: 3px; box-shadow: 0 2px 12px rgba(0,0,0,.12); gap: 2px;">
+                    <button @click="mapType='street'"
+                        :class="mapType==='street' ? 'bg-slate-800 text-white' : 'text-slate-600'"
+                        style="padding: 5px 14px; border-radius: 7px; font-size: 12px; font-weight: 600; border: none; cursor: pointer; transition: all 150ms; display: flex; align-items: center; gap: 5px;">
+                        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7" />
+                        </svg>
+                        Map
+                    </button>
+                    <button @click="mapType='satellite'"
+                        :class="mapType==='satellite' ? 'bg-slate-800 text-white' : 'text-slate-600'"
+                        style="padding: 5px 14px; border-radius: 7px; font-size: 12px; font-weight: 600; border: none; cursor: pointer; transition: all 150ms;">
+                        Satellite
+                    </button>
+                </div>
+                <div id="gis-map" style="width: 100%; height: 100%;"></div>
+
+                <!-- Road count badge -->
+                <div style="position: absolute; bottom: 16px; right: 16px; z-index: 1000;">
+                    <div
+                        style="background: rgba(255,255,255,.95); border-radius: 10px; padding: 8px 14px; box-shadow: 0 2px 12px rgba(0,0,0,.12); font-size: 12px;">
+                        <span style="font-weight: 700; color: #16a34a;" x-text="shownRoads"></span>
+                        <span style="color: #6b7280;"> roads shown</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── STATISTICS VIEW ── -->
+        <div x-show="view === 'statistics'" class="gis-main" x-cloak>
+            <div
+                style="background: #fff; border-bottom: 1px solid #e8edf2; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div
+                        style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #16a34a, #15803d); display: flex; align-items: center; justify-content: center;">
+                        <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 style="font-size: 15px; font-weight: 700; color: #111827; margin: 0;">Road Statistics</h2>
+                        <p style="font-size: 12px; color: #6b7280; margin: 0;">Section Statistics Dashboard</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter by region -->
+            <div class="gis-filter-bar">
+                <div class="gis-filter-title">
+                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                    </svg>
+                    Filter by Region
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                    <div class="gis-filter-col"><label>HO / Agency</label>
+                        <select class="gis-dropdown" x-model="filters.ho" @change="onHoChange()">
+                            <option value="">Select HO</option>
+                            <template x-for="u in hoUnits" :key="u.id">
+                                <option :value="u.id" x-text="u.name"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div class="gis-filter-col"><label>RO / District</label>
+                        <select class="gis-dropdown" x-model="filters.ro" @change="onRoChange()">
+                            <option value="">Select RO</option>
+                            <template x-for="u in roUnits" :key="u.id">
+                                <option :value="u.id" x-text="u.name"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div class="gis-filter-col"><label>PIU / Market Committee</label>
+                        <select class="gis-dropdown" x-model="filters.piu" @change="onPiuChange()">
+                            <option value="">Select PIU</option>
+                            <template x-for="u in piuUnits" :key="u.id">
+                                <option :value="u.id" x-text="u.name"></option>
+                            </template>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="stats-panel">
+                <div class="stat-kpi-grid" style="grid-template-columns: repeat(4, 1fr);">
+                    <div class="stat-kpi-card">
+                        <div class="stat-kpi-label">Total Projects</div>
+                        <div class="stat-kpi-value" style="color: #16a34a;" x-text="stats.projects.toLocaleString()">
+                        </div>
+                        <div class="stat-kpi-sub">projects</div>
+                        <div class="stat-kpi-bar" style="background: #16a34a;"></div>
+                        <svg class="stat-kpi-icon" fill="none" viewBox="0 0 24 24" stroke="#d1fae5">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" />
+                        </svg>
+                    </div>
+                    <div class="stat-kpi-card">
+                        <div class="stat-kpi-label">Total Roads</div>
+                        <div class="stat-kpi-value" style="color: #2563eb;" x-text="stats.roads.toLocaleString()"></div>
+                        <div class="stat-kpi-sub">roads</div>
+                        <div class="stat-kpi-bar" style="background: #2563eb;"></div>
+                        <svg class="stat-kpi-icon" fill="none" viewBox="0 0 24 24" stroke="#dbeafe">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7" />
+                        </svg>
+                    </div>
+                    <div class="stat-kpi-card">
+                        <div class="stat-kpi-label">Total Length</div>
+                        <div class="stat-kpi-value" style="color: #d97706;" x-text="stats.length.toLocaleString()">
+                        </div>
+                        <div class="stat-kpi-sub">km</div>
+                        <div class="stat-kpi-bar" style="background: #f59e0b;"></div>
+                        <svg class="stat-kpi-icon" fill="none" viewBox="0 0 24 24" stroke="#fef3c7">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                        </svg>
+                    </div>
+                    <div class="stat-kpi-card">
+                        <div class="stat-kpi-label">Org Units</div>
+                        <div class="stat-kpi-value" style="color: #7c3aed;" x-text="stats.orgUnits.toLocaleString()">
+                        </div>
+                        <div class="stat-kpi-sub">units</div>
+                        <div class="stat-kpi-bar" style="background: #7c3aed;"></div>
+                        <svg class="stat-kpi-icon" fill="none" viewBox="0 0 24 24" stroke="#ede9fe">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5z" />
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Road type breakdown -->
+                <div class="card" style="padding: 20px; margin-bottom: 16px;">
+                    <h3
+                        style="font-size: 13px; font-weight: 700; color: #111827; margin: 0 0 16px; display: flex; align-items: center; gap: 8px;">
+                        <span
+                            style="width: 4px; height: 16px; background: #16a34a; border-radius: 2px; display: inline-block;"></span>
+                        Road Type Breakdown
+                    </h3>
+                    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px;">
+                        <template x-for="[type, data] in Object.entries(stats.byType)" :key="type">
+                            <div style="text-align: center; padding: 12px; background: #f8fafc; border-radius: 10px;">
+                                <div style="font-size: 20px; font-weight: 800;" :style="{color: data.color}"
+                                    x-text="data.count.toLocaleString()"></div>
+                                <div style="font-size: 10px; font-weight: 700; color: #6b7280; margin-top: 2px;"
+                                    x-text="type"></div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Recent roads table -->
+                <div class="card" style="overflow: hidden;">
+                    <div
+                        style="padding: 14px 18px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between;">
+                        <h3
+                            style="font-size: 13px; font-weight: 700; color: #111827; margin: 0; display: flex; align-items: center; gap: 8px;">
+                            <span
+                                style="width: 4px; height: 16px; background: #16a34a; border-radius: 2px; display: inline-block;"></span>
+                            Roads in Scope
+                        </h3>
+                    </div>
+                    <div style="overflow-x: auto; max-height: 300px; overflow-y: auto;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead style="background: #f8fafc; position: sticky; top: 0;">
+                                <tr>
+                                    <th
+                                        style="padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: .05em;">
+                                        Road</th>
+                                    <th
+                                        style="padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: .05em;">
+                                        Type</th>
+                                    <th
+                                        style="padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: .05em;">
+                                        Project</th>
+                                    <th
+                                        style="padding: 10px 16px; text-align: right; font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: .05em;">
+                                        Length (km)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template x-if="allRoads.length === 0">
+                                    <tr>
+                                        <td colspan="4"
+                                            style="padding: 28px; text-align: center; color: #9ca3af; font-size: 13px;">
+                                            No roads in scope</td>
+                                    </tr>
+                                </template>
+                                <template x-for="r in allRoads.slice(0, 50)" :key="r.id">
+                                    <tr style="border-top: 1px solid #f1f5f9;"
+                                        @mouseover="$el.style.background='#f8fafc'"
+                                        @mouseleave="$el.style.background='transparent'">
+                                        <td style="padding: 10px 16px; font-size: 13px; font-weight: 500; color: #111827;"
+                                            x-text="r.name"></td>
+                                        <td style="padding: 10px 16px;">
+                                            <span
+                                                style="font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; background: #e0f2fe; color: #0369a1;"
+                                                x-text="r.road_type || '—'"></span>
+                                        </td>
+                                        <td style="padding: 10px 16px; font-size: 12px; color: #6b7280;"
+                                            x-text="r.project_name || '—'"></td>
+                                        <td style="padding: 10px 16px; font-size: 13px; font-weight: 500; color: #374151; text-align: right;"
+                                            x-text="r.length_km ? r.length_km + ' km' : '—'"></td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── PLACEHOLDER VIEWS ── -->
+        <template x-if="view === 'rsa' || view === 'surveys' || view === 'digital'">
+            <div
+                style="flex: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 12px; color: #9ca3af; background: #f8fafc;">
+                <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+                <p style="font-size: 15px; font-weight: 600;"
+                    x-text="view === 'rsa' ? 'RSA Module' : view === 'surveys' ? 'Surveys Module' : 'Digital Twin'"></p>
+                <p style="font-size: 13px;">Coming soon — module under development</p>
+            </div>
+        </template>
+
+    </div><!-- end gis-main -->
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script>
+    function gisApp() {
+        return {
+            view: 'map',
+            mapType: 'street',
+            map: null,
+            tileLayer: null,
+            roadLayers: [],
+            shownRoads: 0,
+
+            // Filter state
+            filters: { ho: '', ro: '', piu: '', road: '' },
+
+            // Data
+            allOrgUnits: [],
+            hoUnits: [],
+            roUnits: [],
+            piuUnits: [],
+            allRoads: [],
+            filteredRoads: [],
+
+            // Stats
+            stats: {
+                projects: 0, roads: 0, length: 0, orgUnits: 0,
+                byType: {
+                    'NH': { count: 0, color: '#1d4ed8' },
+                    'SH': { count: 0, color: '#15803d' },
+                    'MDR': { count: 0, color: '#b45309' },
+                    'ODR': { count: 0, color: '#7c3aed' },
+                    'VR': { count: 0, color: '#0369a1' },
+                }
+            },
+
+            async init() {
+                // Init Leaflet map
+                this.$nextTick(() => { this.initMap(); });
+                // Load data
+                await Promise.all([this.loadOrgUnits(), this.loadRoads()]);
+            },
+
+            initMap() {
+                const mapEl = document.getElementById('gis-map');
+                if (!mapEl || this.map) return;
+
+                this.map = L.map('gis-map', {
+                    center: [28.6, 77.2],  // Default: India
+                    zoom: 6,
+                    zoomControl: false,
+                });
+
+                L.control.zoom({ position: 'bottomleft' }).addTo(this.map);
+
+                this.tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                    maxZoom: 19
+                });
+                this.tileLayer.addTo(this.map);
+
+                this.$watch('mapType', (type) => {
+                    if (!this.map) return;
+                    this.map.removeLayer(this.tileLayer);
+                    if (type === 'satellite') {
+                        this.tileLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                            attribution: 'Tiles &copy; Esri', maxZoom: 19
+                        });
+                    } else {
+                        this.tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            attribution: '© OpenStreetMap contributors', maxZoom: 19
+                        });
+                    }
+                    this.tileLayer.addTo(this.map);
+                });
+            },
+
+            async loadOrgUnits() {
+                try {
+                    const r = await fetch('/api/v1/org-units/?page_size=500', { credentials: 'include' });
+                    const d = await r.json();
+                    this.allOrgUnits = d.results || [];
+
+                    // Classify by level name
+                    this.hoUnits = this.allOrgUnits.filter(u => u.level_detail?.level_name?.toUpperCase() === 'HO');
+                    this.roUnits = this.allOrgUnits.filter(u => u.level_detail?.level_name?.toUpperCase() === 'RO');
+                    this.piuUnits = this.allOrgUnits.filter(u => u.level_detail?.level_name?.toUpperCase() === 'PIU');
+
+                    this.stats.orgUnits = this.allOrgUnits.length;
+                } catch (e) { console.error('loadOrgUnits', e); }
+            },
+
+            async loadRoads() {
+                try {
+                    const r = await fetch('/api/v1/roads/?page_size=1000', { credentials: 'include' });
+                    const d = await r.json();
+                    this.allRoads = d.results || [];
+                    this.filteredRoads = [...this.allRoads];
+                    this.computeStats();
+                    this.renderMapRoads();
+                } catch (e) { console.error('loadRoads', e); }
+            },
+
+            onHoChange() {
+                this.filters.ro = ''; this.filters.piu = ''; this.filters.road = '';
+                if (this.filters.ho) {
+                    this.roUnits = this.allOrgUnits.filter(u => u.level_detail?.level_name?.toUpperCase() === 'RO');
+                    this.piuUnits = this.allOrgUnits.filter(u => u.level_detail?.level_name?.toUpperCase() === 'PIU');
+                }
+                this.applyFilters();
+            },
+            onRoChange() {
+                this.filters.piu = ''; this.filters.road = '';
+                this.applyFilters();
+            },
+            onPiuChange() {
+                this.filters.road = '';
+                this.applyFilters();
+            },
+            onRoadChange() { this.applyFilters(); },
+
+            applyFilters() {
+                let roads = [...this.allRoads];
+                if (this.filters.road) {
+                    roads = roads.filter(r => r.id === this.filters.road);
+                }
+                this.filteredRoads = roads;
+                this.computeStats(roads);
+                this.renderMapRoads(roads);
+            },
+
+            clearFilters() {
+                this.filters = { ho: '', ro: '', piu: '', road: '' };
+                this.filteredRoads = [...this.allRoads];
+                this.computeStats();
+                this.renderMapRoads();
+            },
+
+            computeStats(roads) {
+                const r = roads || this.allRoads;
+                this.stats.roads = r.length;
+                this.stats.length = Math.round(r.reduce((s, rd) => s + parseFloat(rd.length_km || 0), 0));
+                // count by type
+                const byType = { NH: 0, SH: 0, MDR: 0, ODR: 0, VR: 0 };
+                r.forEach(rd => { if (rd.road_type && byType.hasOwnProperty(rd.road_type)) byType[rd.road_type]++; });
+                Object.keys(byType).forEach(k => { this.stats.byType[k].count = byType[k]; });
+            },
+
+            renderMapRoads(roads) {
+                if (!this.map) return;
+                // Clear existing
+                this.roadLayers.forEach(l => this.map.removeLayer(l));
+                this.roadLayers = [];
+                const toRender = roads || this.allRoads;
+                let count = 0;
+                const bounds = [];
+
+                toRender.forEach(r => {
+                    if (!r.geometry || !r.geometry.coordinates) return;
+                    try {
+                        const coords = r.geometry.type === 'LineString'
+                            ? r.geometry.coordinates.map(c => [c[1], c[0]])
+                            : [];
+                        if (coords.length < 2) return;
+
+                        const colors = { NH: '#1d4ed8', SH: '#15803d', MDR: '#b45309', ODR: '#7c3aed', VR: '#0369a1' };
+                        const color = colors[r.road_type] || '#4f46e5';
+
+                        const poly = L.polyline(coords, { color, weight: 3, opacity: 0.85 });
+                        poly.bindPopup(`<b>${r.name}</b><br>Type: ${r.road_type || '—'}<br>Length: ${r.length_km || '—'} km`);
+                        poly.addTo(this.map);
+                        this.roadLayers.push(poly);
+                        bounds.push(...coords);
+                        count++;
+                    } catch (e) { }
+                });
+
+                this.shownRoads = count;
+
+                if (bounds.length > 0) {
+                    try { this.map.fitBounds(bounds, { padding: [40, 40] }); } catch (e) { }
+                }
+            },
+
+            async downloadExcel() {
+                // Placeholder - would generate and download CSV
+                const rows = [['Road Name', 'Type', 'Length (km)', 'Project']];
+                this.filteredRoads.forEach(r => {
+                    rows.push([r.name, r.road_type || '', r.length_km || '', r.project_name || '']);
+                });
+                const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+                a.download = 'roads_export.csv'; a.click();
+            }
+        };
+    }
+</script>
+{% endblock %}
