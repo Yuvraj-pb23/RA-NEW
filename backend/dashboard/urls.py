@@ -46,7 +46,7 @@ urlpatterns = [
     ),
     path(
         "logout/",
-        LogoutView.as_view(next_page="dashboard:login"),
+        LogoutView.as_view(next_page="/"),
         name="logout",
     ),
 

@@ -1,0 +1,608 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome — Road Management Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --indigo: #6366f1;
+            --indigo-dark: #4f46e5;
+            --indigo-deeper: #3730a3;
+            --slate-900: #0f172a;
+            --slate-800: #1e293b;
+            --slate-700: #334155;
+            --slate-400: #94a3b8;
+            --slate-200: #e2e8f0;
+        }
+
+        html,
+        body {
+            height: 100%;
+            font-family: 'Inter', sans-serif;
+            background: var(--slate-900);
+            overflow: hidden;
+        }
+
+        /* ── animated background ── */
+        .bg-anim {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background: radial-gradient(ellipse at 20% 50%, rgba(99, 102, 241, .18) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(79, 70, 229, .14) 0%, transparent 55%),
+                radial-gradient(ellipse at 60% 80%, rgba(55, 48, 163, .12) 0%, transparent 50%),
+                var(--slate-900);
+        }
+
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: .45;
+            animation: drift 12s ease-in-out infinite alternate;
+            pointer-events: none;
+        }
+
+        .orb1 {
+            width: 520px;
+            height: 520px;
+            top: -140px;
+            left: -120px;
+            background: radial-gradient(circle, #6366f1 0%, transparent 70%);
+            animation-delay: 0s;
+        }
+
+        .orb2 {
+            width: 400px;
+            height: 400px;
+            bottom: -100px;
+            right: -80px;
+            background: radial-gradient(circle, #4f46e5 0%, transparent 70%);
+            animation-delay: -4s;
+        }
+
+        .orb3 {
+            width: 300px;
+            height: 300px;
+            top: 40%;
+            left: 55%;
+            background: radial-gradient(circle, #818cf8 0%, transparent 70%);
+            animation-delay: -8s;
+            opacity: .25;
+        }
+
+        @keyframes drift {
+            from {
+                transform: translate(0, 0) scale(1);
+            }
+
+            to {
+                transform: translate(30px, 20px) scale(1.08);
+            }
+        }
+
+        /* ── layout ── */
+        .page {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .card {
+            background: rgba(30, 41, 59, .72);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, .08);
+            border-radius: 24px;
+            width: 100%;
+            max-width: 520px;
+            padding: 48px 44px;
+            box-shadow: 0 32px 80px rgba(0, 0, 0, .55);
+            transition: all .35s ease;
+        }
+
+        /* ── logo / brand ── */
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 36px;
+        }
+
+        .brand-logo {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+
+        .brand-text h1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.2;
+            letter-spacing: -.3px;
+        }
+
+        .brand-text p {
+            font-size: 12px;
+            color: var(--slate-400);
+            margin-top: 2px;
+            font-weight: 400;
+        }
+
+        /* ── step heading ── */
+        .step-heading {
+            margin-bottom: 28px;
+        }
+
+        .step-heading h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -.4px;
+        }
+
+        .step-heading p {
+            font-size: 13.5px;
+            color: var(--slate-400);
+            margin-top: 6px;
+            line-height: 1.5;
+        }
+
+        /* ── role grid ── */
+        .role-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .role-card {
+            cursor: pointer;
+            border: 1.5px solid rgba(255, 255, 255, .09);
+            border-radius: 14px;
+            padding: 18px 16px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+            background: rgba(255, 255, 255, .04);
+            transition: all .2s ease;
+            user-select: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .role-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(99, 102, 241, .18) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity .2s;
+        }
+
+        .role-card:hover {
+            border-color: rgba(99, 102, 241, .5);
+            background: rgba(99, 102, 241, .08);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .3);
+        }
+
+        .role-card:hover::before {
+            opacity: 1;
+        }
+
+        .role-card.selected {
+            border-color: var(--indigo);
+            background: rgba(99, 102, 241, .14);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, .25);
+        }
+
+        .role-card.selected::before {
+            opacity: 1;
+        }
+
+        .role-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .role-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+            line-height: 1.2;
+        }
+
+        .role-desc {
+            font-size: 11px;
+            color: var(--slate-400);
+            line-height: 1.4;
+        }
+
+        /* ── primary btn ── */
+        .btn-primary {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(135deg, var(--indigo), var(--indigo-dark));
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 14.5px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all .2s ease;
+            box-shadow: 0 4px 16px rgba(99, 102, 241, .45);
+            letter-spacing: .1px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(99, 102, 241, .55);
+            background: linear-gradient(135deg, #818cf8, var(--indigo));
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-ghost {
+            background: none;
+            border: none;
+            color: var(--slate-400);
+            font-size: 13px;
+            font-family: inherit;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 0;
+            margin-bottom: 20px;
+            transition: color .2s;
+        }
+
+        .btn-ghost:hover {
+            color: #fff;
+        }
+
+        .btn-ghost svg {
+            width: 15px;
+            height: 15px;
+        }
+
+        /* ── login form ── */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12.5px;
+            font-weight: 500;
+            color: var(--slate-400);
+            margin-bottom: 7px;
+            letter-spacing: .2px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 14px;
+            background: rgba(255, 255, 255, .06);
+            border: 1.5px solid rgba(255, 255, 255, .1);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color .2s, background .2s;
+        }
+
+        .form-group input::placeholder {
+            color: var(--slate-700);
+        }
+
+        .form-group input:focus {
+            border-color: var(--indigo);
+            background: rgba(99, 102, 241, .07);
+        }
+
+        .form-group input:-webkit-autofill {
+            -webkit-box-shadow: 0 0 0 1000px rgba(30, 41, 59, .95) inset;
+            -webkit-text-fill-color: #fff;
+        }
+
+        .error-msg {
+            background: rgba(239, 68, 68, .12);
+            border: 1px solid rgba(239, 68, 68, .3);
+            border-radius: 10px;
+            padding: 10px 14px;
+            color: #fca5a5;
+            font-size: 13px;
+            margin-bottom: 18px;
+            display: none;
+        }
+
+        .error-msg.show {
+            display: block;
+        }
+
+        /* ── role badge shown on step 2 ── */
+        .role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(99, 102, 241, .15);
+            border: 1px solid rgba(99, 102, 241, .3);
+            border-radius: 20px;
+            padding: 5px 12px 5px 8px;
+            font-size: 12px;
+            color: #a5b4fc;
+            font-weight: 500;
+            margin-bottom: 24px;
+        }
+
+        /* ── step transitions ── */
+        .step {
+            transition: opacity .3s ease, transform .3s ease;
+        }
+
+        .step.hidden {
+            opacity: 0;
+            transform: translateX(20px);
+            pointer-events: none;
+            display: none;
+        }
+
+        .step.visible {
+            opacity: 1;
+            transform: translateX(0);
+            display: block;
+        }
+
+        .step.exit {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+
+        /* ── bottom note ── */
+        .bottom-note {
+            text-align: center;
+            font-size: 11.5px;
+            color: var(--slate-400);
+            margin-top: 24px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-anim"></div>
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+
+    <div class="page">
+        <div class="card" id="main-card">
+
+            <!-- ════ BRAND ════ -->
+            <div class="brand">
+                <img src="{% static 'img/logo.png' %}" alt="Logo" class="brand-logo">
+                <div class="brand-text">
+                    <h1>Road Management</h1>
+                    <p>Platform — Intelligent Infrastructure</p>
+                </div>
+            </div>
+
+            <!-- ════ STEP 1: ROLE PICKER ════ -->
+            <div id="step1" class="step visible">
+                <div class="step-heading">
+                    <h2>Who are you?</h2>
+                    <p>Select your role to continue to the login screen.</p>
+                </div>
+
+                <div class="role-grid">
+                    <div class="role-card" data-role="SUPER_ADMIN" onclick="selectRole(this)">
+                        <div class="role-icon" style="background: rgba(99,102,241,.18);">🛡️</div>
+                        <div>
+                            <div class="role-name">Super Admin</div>
+                            <div class="role-desc">Platform-wide control</div>
+                        </div>
+                    </div>
+                    <div class="role-card" data-role="ORG_ADMIN" onclick="selectRole(this)">
+                        <div class="role-icon" style="background: rgba(59,130,246,.18);">🏢</div>
+                        <div>
+                            <div class="role-name">Org Admin</div>
+                            <div class="role-desc">Organisation management</div>
+                        </div>
+                    </div>
+                    <div class="role-card" data-role="HO_USER" onclick="selectRole(this)">
+                        <div class="role-icon" style="background: rgba(16,185,129,.18);">🏛️</div>
+                        <div>
+                            <div class="role-name">HO User</div>
+                            <div class="role-desc">Head Office dashboard</div>
+                        </div>
+                    </div>
+                    <div class="role-card" data-role="RO_USER" onclick="selectRole(this)">
+                        <div class="role-icon" style="background: rgba(245,158,11,.18);">📍</div>
+                        <div>
+                            <div class="role-name">RO User</div>
+                            <div class="role-desc">Regional Office view</div>
+                        </div>
+                    </div>
+                    <div class="role-card" data-role="PIU_USER" onclick="selectRole(this)">
+                        <div class="role-icon" style="background: rgba(236,72,153,.18);">📋</div>
+                        <div>
+                            <div class="role-name">PIU User</div>
+                            <div class="role-desc">Project Impl. Unit</div>
+                        </div>
+                    </div>
+                    <div class="role-card" data-role="PROJECT_USER" onclick="selectRole(this)">
+                        <div class="role-icon" style="background: rgba(168,85,247,.18);">🔧</div>
+                        <div>
+                            <div class="role-name">Project User</div>
+                            <div class="role-desc">Project-level access</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-primary" id="next-btn" onclick="goToLogin()" disabled>
+                    Continue →
+                </button>
+                <div class="bottom-note">All roles share the same login portal.<br>Your access level is determined by
+                    your account.</div>
+            </div>
+
+            <!-- ════ STEP 2: LOGIN FORM ════ -->
+            <div id="step2" class="step hidden">
+                <button class="btn-ghost" onclick="goBack()">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Choose a different role
+                </button>
+
+                <div id="role-badge-container"></div>
+
+                <div class="step-heading">
+                    <h2>Sign in</h2>
+                    <p>Enter your credentials to access the dashboard.</p>
+                </div>
+
+                <div class="error-msg" id="error-msg">
+                    Invalid email or password. Please try again.
+                </div>
+
+                <form method="post" action="{% url 'dashboard:login' %}" id="login-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="/dashboard/">
+                    <div class="form-group">
+                        <label for="id_username">Email address</label>
+                        <input type="email" name="username" id="id_username" placeholder="you@example.com" required
+                            autocomplete="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="id_password">Password</label>
+                        <input type="password" name="password" id="id_password" placeholder="••••••••" required
+                            autocomplete="current-password">
+                    </div>
+                    <button type="submit" class="btn-primary">Sign in to Dashboard</button>
+                </form>
+
+                <div class="bottom-note" style="margin-top: 18px;">
+                    Need access? Contact your system administrator.
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // ── Check if login failed (Django re-renders / redirects back to us) ──
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('error') === '1') {
+            showStep2WithError();
+        }
+
+        // ── Also check for Django login errors via session/cookie trick ──
+        // If we've been redirected back with a login error, show step 2 with error
+        {% if form.errors %}
+        document.addEventListener('DOMContentLoaded', showStep2WithError);
+        {% endif %}
+
+        let selectedRole = null;
+
+        const ROLE_LABELS = {
+            SUPER_ADMIN: { label: 'Super Admin', emoji: '🛡️' },
+            ORG_ADMIN: { label: 'Org Admin', emoji: '🏢' },
+            HO_USER: { label: 'HO User', emoji: '🏛️' },
+            RO_USER: { label: 'RO User', emoji: '📍' },
+            PIU_USER: { label: 'PIU User', emoji: '📋' },
+            PROJECT_USER: { label: 'Project User', emoji: '🔧' },
+        };
+
+        function selectRole(el) {
+            document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedRole = el.dataset.role;
+            document.getElementById('next-btn').disabled = false;
+        }
+
+        function goToLogin() {
+            if (!selectedRole) return;
+            const step1 = document.getElementById('step1');
+            const step2 = document.getElementById('step2');
+
+            // Build role badge
+            const { label, emoji } = ROLE_LABELS[selectedRole];
+            document.getElementById('role-badge-container').innerHTML =
+                `<span class="role-badge"><span>${emoji}</span> Signing in as <strong style="color:#c7d2fe;">${label}</strong></span>`;
+
+            // Animate out step 1 → in step 2
+            step1.classList.add('exit');
+            setTimeout(() => {
+                step1.classList.remove('visible', 'exit');
+                step1.classList.add('hidden');
+                step2.classList.remove('hidden');
+                step2.classList.add('visible');
+                document.getElementById('id_username').focus();
+            }, 280);
+        }
+
+        function goBack() {
+            const step1 = document.getElementById('step1');
+            const step2 = document.getElementById('step2');
+            step2.classList.add('exit');
+            setTimeout(() => {
+                step2.classList.remove('visible', 'exit');
+                step2.classList.add('hidden');
+                step1.classList.remove('hidden');
+                step1.classList.add('visible');
+            }, 280);
+        }
+
+        function showStep2WithError() {
+            document.getElementById('step1').classList.remove('visible');
+            document.getElementById('step1').classList.add('hidden');
+            document.getElementById('step2').classList.remove('hidden');
+            document.getElementById('step2').classList.add('visible');
+            document.getElementById('error-msg').classList.add('show');
+            document.getElementById('role-badge-container').innerHTML =
+                `<span class="role-badge"><span>🔑</span> Please sign in to continue</span>`;
+        }
+    </script>
+</body>
+
+</html>

@@ -67,6 +67,16 @@ class UpperTierRequiredMixin:
 
 # ── Views ────────────────────────────────────────────────────────────────────
 
+class LandingView(TemplateView):
+    """Public welcome page shown at /. Authenticated users skip straight to dashboard."""
+    template_name = "landing.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect('dashboard:home')
+        return super().dispatch(request, *args, **kwargs)
+
+
 class DashboardHomeView(DashboardMixin, TemplateView):
     template_name = "dashboard/home.html"
     active_page   = "home"
