@@ -181,10 +181,28 @@ class OrgUnitViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         qs = super().get_queryset()
         from accounts.models import SystemRole
-        if self.request.user.role == SystemRole.SUPER_ADMIN:
+        user = self.request.user
+
+        if user.role == SystemRole.SUPER_ADMIN:
             return qs
+
+        if user.role == SystemRole.ORG_ADMIN:
+            # Resolve org: prefer direct FK, fall back to UserOrgAccess
+            org = user.organization
+            if org is None:
+                from access.models import UserOrgAccess
+                access = UserOrgAccess.objects.filter(
+                    user=user, is_active=True
+                ).select_related('org_unit__organization').first()
+                if access:
+                    org = access.org_unit.organization
+            if org is None:
+                return qs.none()
+            return qs.filter(organization=org)
+
+        # HO / RO / PIU / lower — restrict to personally assigned units
         from access.utils import get_user_accessible_units
-        accessible_units = get_user_accessible_units(self.request.user)
+        accessible_units = get_user_accessible_units(user)
         return qs.filter(id__in=accessible_units)
 
     @action(detail=False, methods=["get"], url_path="tree")

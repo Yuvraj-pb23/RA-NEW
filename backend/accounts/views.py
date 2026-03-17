@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db import models
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
@@ -34,16 +35,46 @@ class UserViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         qs = User.objects.all().order_by("email")
         user = self.request.user
-        if getattr(user, 'role', 'PROJECT_USER') == 'SUPER_ADMIN':
+
+        if getattr(user, 'role', None) == 'SUPER_ADMIN':
             return qs
-        if getattr(user, 'role', 'PROJECT_USER') == 'ORG_ADMIN':
-            return qs.filter(organization=user.organization)
-        
-        # For other users, only show users belonging to the same organization
-        # and maybe only those in accessible org units
-        # But simply restricting to their org is a good start.
-        if user.organization:
-            return qs.filter(organization=user.organization)
+
+        if getattr(user, 'role', None) == 'ORG_ADMIN':
+            # Resolve org: prefer the direct FK, fall back to UserOrgAccess
+            org = user.organization
+            if org is None:
+                from access.models import UserOrgAccess
+                access = UserOrgAccess.objects.filter(
+                    user=user, is_active=True
+                ).select_related('org_unit__organization').first()
+                if access:
+                    org = access.org_unit.organization
+
+            if org is None:
+                return qs.none()
+
+            # Show users matched by org FK OR by an active UserOrgAccess
+            # within any unit of this org (covers users whose org FK wasn't set)
+            from access.models import UserOrgAccess
+            user_ids_via_access = UserOrgAccess.objects.filter(
+                org_unit__organization=org, is_active=True
+            ).values_list('user_id', flat=True)
+
+            return qs.filter(
+                models.Q(organization=org) | models.Q(id__in=user_ids_via_access)
+            ).distinct()
+
+        # HO / RO / PIU / lower — same org visibility only
+        org = user.organization
+        if org is None:
+            from access.models import UserOrgAccess
+            access = UserOrgAccess.objects.filter(
+                user=user, is_active=True
+            ).select_related('org_unit__organization').first()
+            if access:
+                org = access.org_unit.organization
+        if org:
+            return qs.filter(organization=org)
         return qs.none()
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["is_active", "is_staff"]
