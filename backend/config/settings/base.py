@@ -191,3 +191,9 @@ CORS_ALLOW_CREDENTIALS = True
 LOGIN_URL = "/dashboard/login/"
 LOGIN_REDIRECT_URL = "/dashboard/"
 LOGOUT_REDIRECT_URL = "/dashboard/login/"
+
+# ---------------------------------------------------------------------------
+# Session — expire when the browser tab/window is closed
+# ---------------------------------------------------------------------------
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True   # cookie deleted on browser close
+SESSION_COOKIE_AGE = 60 * 60 * 12       # 12-hour hard cap (safety net)
