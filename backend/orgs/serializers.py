@@ -175,7 +175,30 @@ class OrgUnitSerializer(serializers.ModelSerializer):
         instance = self.instance or OrgUnit()
         for attr, value in attrs.items():
             setattr(instance, attr, value)
+            
+        # Model clean handles tree structure validations
         instance.clean()
+
+        request = self.context.get("request")
+        
+        level = attrs.get('level') or getattr(instance, 'level', None)
+        parent = attrs.get('parent_unit') or getattr(instance, 'parent_unit', None)
+
+        # Hierarchy access check for non-superadmins
+        if request and getattr(request.user, "role", None) != "SUPER_ADMIN":
+            from access.utils import get_descendant_units
+            
+            # Get user's primary assigned org unit
+            user_access = request.user.org_accesses.filter(is_active=True).first()
+            if not user_access:
+                raise serializers.ValidationError({"parent_unit": "You are not assigned to any org unit."})
+                
+            user_org_unit = user_access.org_unit
+            accessible_units = get_descendant_units(user_org_unit)
+                
+            if parent and not accessible_units.filter(id=parent.id).exists():
+                raise serializers.ValidationError({"parent_unit": "You do not have access to create a unit under this parent."})
+
         return attrs
 
 

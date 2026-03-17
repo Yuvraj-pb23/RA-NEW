@@ -17,7 +17,7 @@ def is_admin(user) -> bool:
     """Returns True if user has any admin-role assignment."""
     if user.is_superuser:
         return True
-    return UserOrgAccess.RoleChoices.ADMIN in _get_user_role_map(user).values()
+    return user.role in ['SUPER_ADMIN', 'ORG_ADMIN', 'HO_USER']
 
 
 # =============================================================================

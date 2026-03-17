@@ -21,6 +21,8 @@ import django_filters
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.permissions import IsAuthenticated
+from access.permissions import IsAdminOrReadOnly
 
 from .models import Project
 from .serializers import ProjectSerializer
@@ -41,6 +43,7 @@ class ProjectFilter(django_filters.FilterSet):
 # ── ViewSet ───────────────────────────────────────────────────────────────────
 
 class ProjectViewSet(ModelViewSet):
+    permission_classes = [IsAuthenticated, IsAdminOrReadOnly]
     """
     list:   GET  /api/projects/
     create: POST /api/projects/

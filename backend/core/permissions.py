@@ -15,7 +15,7 @@ class IsOrgAdmin(permissions.BasePermission):
     def has_permission(self, request, view):
         if not bool(request.user and request.user.is_authenticated):
             return False
-        return request.user.role in [SystemRole.SUPER_ADMIN, SystemRole.ORG_ADMIN]
+        return request.user.role in [SystemRole.SUPER_ADMIN, SystemRole.ORG_ADMIN, SystemRole.HO_USER]
 
 class IsLevelUser(permissions.BasePermission):
     """
@@ -43,4 +43,15 @@ class IsOrgAdminOrReadOnly(permissions.BasePermission):
             return False
         if request.method in permissions.SAFE_METHODS:
             return True
-        return request.user.role in [SystemRole.SUPER_ADMIN, SystemRole.ORG_ADMIN]
+        return request.user.role in [SystemRole.SUPER_ADMIN, SystemRole.ORG_ADMIN, SystemRole.HO_USER]
+
+class IsSuperAdminOrReadOnly(permissions.BasePermission):
+    """
+    write access to super admins, read to any authenticated.
+    """
+    def has_permission(self, request, view):
+        if not bool(request.user and request.user.is_authenticated):
+            return False
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return request.user.role == SystemRole.SUPER_ADMIN

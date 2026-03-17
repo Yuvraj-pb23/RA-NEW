@@ -8,7 +8,7 @@
   <!-- Header -->
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
     <p class="text-sm text-slate-500">All organizational units across the hierarchy.</p>
-    {% if request.user.role in 'SUPER_ADMIN,ORG_ADMIN,HO_USER,RO_USER,PIU_USER' %}
+    {% if request.user.role in 'SUPER_ADMIN,ORG_ADMIN' %}
         <button @click="openCreate()" class="btn-primary self-start sm:self-auto">
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -303,6 +303,7 @@ function orgUnitPage() {
     form: { organization: '', name: '', level: '', parent_unit: '', is_active: true },
     saving: false, saveError: null,
     formOrgs: [], formLevels: [], formParentUnits: [],
+    
 
     get isRootLevel() {
       if (!this.form.level || !this.formLevels.length) return false;
@@ -327,6 +328,7 @@ function orgUnitPage() {
       this.form.parent_unit = '';
       this.formLevels       = [];
       this.formParentUnits  = [];
+      
       if (!this.form.organization) return;
       const r = await fetch(
         `/api/v1/hierarchy-levels/?organization=${this.form.organization}&page_size=50`,
@@ -334,6 +336,8 @@ function orgUnitPage() {
       );
       const d = await r.json();
       this.formLevels = (d.results ?? []).sort((a, b) => a.level_order - b.level_order);
+
+      
     },
 
     async onLevelChange() {
@@ -355,6 +359,7 @@ function orgUnitPage() {
       this.form             = { organization: '', name: '', level: '', parent_unit: '', is_active: true };
       this.formLevels       = [];
       this.formParentUnits  = [];
+      
       this.saveError        = null;
       this.formOpen         = true;
     },
@@ -369,6 +374,9 @@ function orgUnitPage() {
         parent_unit:  unit.parent_unit || '',
         is_active:    unit.is_active !== false,
       };
+
+      
+
       // Pre-load levels for this org
       const r1 = await fetch(
         `/api/v1/hierarchy-levels/?organization=${unit.organization}&page_size=50`,

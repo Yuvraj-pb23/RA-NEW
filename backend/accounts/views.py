@@ -31,7 +31,20 @@ class UserViewSet(viewsets.ModelViewSet):
     set_password  POST  /api/v1/users/<id>/set-password/
     """
 
-    queryset = User.objects.all().order_by("email")
+    def get_queryset(self):
+        qs = User.objects.all().order_by("email")
+        user = self.request.user
+        if getattr(user, 'role', 'PROJECT_USER') == 'SUPER_ADMIN':
+            return qs
+        if getattr(user, 'role', 'PROJECT_USER') == 'ORG_ADMIN':
+            return qs.filter(organization=user.organization)
+        
+        # For other users, only show users belonging to the same organization
+        # and maybe only those in accessible org units
+        # But simply restricting to their org is a good start.
+        if user.organization:
+            return qs.filter(organization=user.organization)
+        return qs.none()
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["is_active", "is_staff"]
     search_fields    = ["email", "full_name", "phone"]

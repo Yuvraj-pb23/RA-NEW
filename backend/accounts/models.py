@@ -11,6 +11,7 @@ class SystemRole(models.TextChoices):
     RO_USER = "RO_USER", _("RO User")
     PIU_USER = "PIU_USER", _("PIU User")
     PROJECT_USER = "PROJECT_USER", _("Project User")
+    CONTRACTOR = "CONTRACTOR", _("Contractor")
 
 class UserManager(BaseUserManager):
     """

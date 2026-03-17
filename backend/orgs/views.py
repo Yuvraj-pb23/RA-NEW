@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from access.permissions import IsAdminOrReadOnly
-from core.permissions import IsOrgAdminOrReadOnly
+from core.permissions import IsOrgAdminOrReadOnly, IsSuperAdminOrReadOnly, IsSuperAdminOrReadOnly
 from .models import Organization, HierarchyLevel, OrgUnit
 from .serializers import (
     OrganizationSerializer,
@@ -37,7 +37,7 @@ class OrganizationViewSet(viewsets.ModelViewSet):
 
     queryset = Organization.objects.all()
     serializer_class = OrganizationSerializer
-    permission_classes = [IsAuthenticated, IsAdminOrReadOnly]
+    permission_classes = [IsAuthenticated, IsSuperAdminOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["country", "is_active"]
     search_fields    = ["name", "country"]

@@ -278,40 +278,62 @@ class OrgUnit(BaseModel):
         Validates the tree structure:
         1. Unit's level must belong to the same organization as the unit.
         2. Parent unit must belong to the same organization.
-        3. Unit's level order must be GREATER than parent's level order
-           (i.e., you can only go deeper, not loop back up).
-        4. Prevent a unit from being its own parent (direct self-reference).
+        3. If no units exist, allow root unit with parent_unit = null.
+        4. If units exist, require parent_unit with level = self.level.parent_level.
         """
-        # Rule 1: level must belong to same org
-        if self.level.organization_id != self.organization_id:
+        if self.level and self.level.organization_id != self.organization_id:
             raise ValidationError(
                 _("The hierarchy level must belong to the same organization as this unit.")
             )
 
         if self.parent_unit is not None:
-            # Rule 2: parent must belong to same org
             if self.parent_unit.organization_id != self.organization_id:
                 raise ValidationError(
                     _("Parent unit must belong to the same organization.")
                 )
 
-            # Rule 3: this unit's level must be deeper than parent's level
-            if self.level.level_order <= self.parent_unit.level.level_order:
-                raise ValidationError(
-                    _(
-                        "A unit's level (order %(child)s) must be deeper than "
-                        "its parent's level (order %(parent)s)."
-                    ),
-                    params={
-                        "child": self.level.level_order,
-                        "parent": self.parent_unit.level.level_order,
-                    },
-                )
+        existing_units = OrgUnit.objects.filter(organization=self.organization_id)
+        if self.pk:
+            existing_units = existing_units.exclude(pk=self.pk)
+        
+        if existing_units.count() == 0:
+            if self.parent_unit is not None:
+                raise ValidationError({"parent_unit": _("First unit in the organization must be a root unit with no parent.")})
+            if self.level and self.level.parent_level is not None:
+                raise ValidationError({"level": _("First unit in the organization must have a root hierarchy level.")})
+        else:
+            if self.parent_unit is None:
+                # Based on the requirement: "Else: Require parent_unit with level = selected_level.parent_level"
+                # If they try to create another root, block it cleanly.
+                if self.level and self.level.parent_level is None:
+                    # Check if another root exists
+                    root_units = OrgUnit.objects.filter(
+                        organization=self.organization_id, 
+                        level__parent_level__isnull=True
+                    )
+                    if self.pk:
+                        root_units = root_units.exclude(pk=self.pk)
+                    
+                    if root_units.count() > 0:
+                        raise ValidationError({"level": _("Only one root unit can exist per organization.")})
+                    else:
+                        pass # They are editing a root unit but deleted all other roots, or similar valid scenario.
+                        # Wait, if existing_units.count() > 0, but NO root_units exist? 
+                        # That shouldn't be possible in a valid tree, but we can allow it here.
+                else:
+                    raise ValidationError({"parent_unit": _("Parent unit is required for this level.")})
+            else:
+                if self.level and self.level.parent_level != self.parent_unit.level:
+                    parent_level_name = self.level.parent_level.level_name if self.level.parent_level else 'None'
+                    raise ValidationError({
+                        "parent_unit": _("Parent unit must be of the level %(parent_level)s, since this unit is of level %(level)s.") % {
+                            'parent_level': parent_level_name,
+                            'level': self.level.level_name
+                        }
+                    })
 
-            # Rule 4: prevent direct self-reference
             if self.pk and self.parent_unit_id == self.pk:
-                raise ValidationError(_("A unit cannot be its own parent."))
-
+                raise ValidationError({"parent_unit": _("A unit cannot be its own parent.")})
     @property
     def level_name(self) -> str:
         return self.level.level_name

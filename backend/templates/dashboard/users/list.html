@@ -218,12 +218,27 @@
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1.5">Role</label>
           <select x-model="form.role" @change="onRoleChange()" class="input-base">
-            <option value="SUPER_ADMIN">Super Admin</option>
+            {% if request.user.role == 'SUPER_ADMIN' %}
             <option value="ORG_ADMIN">Org Admin</option>
             <option value="HO_USER">HO User</option>
             <option value="RO_USER">RO User</option>
             <option value="PIU_USER">PIU User</option>
             <option value="PROJECT_USER">Project User</option>
+            {% elif request.user.role == 'ORG_ADMIN' %}
+            <option value="HO_USER">HO User</option>
+            <option value="RO_USER">RO User</option>
+            <option value="PIU_USER">PIU User</option>
+            <option value="PROJECT_USER">Project User</option>
+            {% elif request.user.role == 'HO_USER' %}
+            <option value="RO_USER">RO User</option>
+            <option value="PIU_USER">PIU User</option>
+            <option value="PROJECT_USER">Project User</option>
+            {% elif request.user.role == 'RO_USER' %}
+            <option value="PIU_USER">PIU User</option>
+            <option value="PROJECT_USER">Project User</option>
+            {% elif request.user.role == 'PIU_USER' %}
+            <option value="PROJECT_USER">Project User</option>
+            {% endif %}
           </select>
         </div>
 

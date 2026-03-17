@@ -30,6 +30,7 @@ from rest_framework import mixins, status
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated
+from .permissions import IsAdminOrReadOnly
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
@@ -79,7 +80,7 @@ class UserOrgAccessViewSet(
         .order_by("-created_at")
     )
     serializer_class = UserOrgAccessSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdminOrReadOnly]
     filter_backends  = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class  = UserOrgAccessFilter
     search_fields    = ["user__email", "org_unit__name"]

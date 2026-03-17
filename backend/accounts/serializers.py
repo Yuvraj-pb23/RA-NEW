@@ -93,6 +93,47 @@ class UserCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {"password_confirm": "Passwords do not match."}
             )
+            
+        request = self.context.get("request")
+        if not request or not hasattr(request, "user"):
+            return attrs
+            
+        current_user = request.user
+        new_role = attrs.get("role")
+        
+        # 1. Validate Role Hierarchy
+        ROLE_HIERARCHY = {
+            "SUPER_ADMIN": 1,
+            "ORG_ADMIN": 2,
+            "HO_USER": 3,
+            "RO_USER": 4,
+            "PIU_USER": 5,
+            "PROJECT_USER": 6,
+        }
+        
+        current_weight = ROLE_HIERARCHY.get(current_user.role, 6)
+        new_weight = ROLE_HIERARCHY.get(new_role, 6)
+        
+        if current_weight >= new_weight:
+            raise serializers.ValidationError(
+                {"role": "You can only create users with a role below your own hierarchy level."}
+            )
+
+        # 2. Validate Org Unit Hierarchy
+        org_unit_id = attrs.get("org_unit")
+        if new_role not in ["SUPER_ADMIN", "ORG_ADMIN"] and org_unit_id:
+            if current_user.role != "SUPER_ADMIN":
+                from access.utils import get_user_accessible_units
+                try:
+                    from orgs.models import OrgUnit
+                    target_unit = OrgUnit.objects.get(id=org_unit_id)
+                except Exception:
+                    raise serializers.ValidationError({"org_unit": "Invalid org unit."})
+                
+                accessible_units = get_user_accessible_units(current_user)
+                if not accessible_units.filter(id=target_unit.id).exists():
+                    raise serializers.ValidationError({"org_unit": "Assigned org unit must be a child of your assigned org unit."})
+        
         return attrs
 
     def create(self, validated_data):
@@ -106,6 +147,42 @@ class UserCreateSerializer(serializers.ModelSerializer):
         user.set_password(password)
         user.save()
         
+        # If NO org_unit_id is provided but role is HO_USER or ORG_ADMIN, auto-link to HO root unit
+        if not org_unit_id and user.role in ["HO_USER", "ORG_ADMIN"] and user.organization:
+            ho_unit = OrgUnit.objects.filter(organization=user.organization, level__parent_level__isnull=True).first()
+            if ho_unit:
+                org_unit_id = str(ho_unit.id)
+
+        # If NO org_unit_id is provided but role is HO_USER or ORG_ADMIN, auto-link to HO root unit
+        if not org_unit_id and user.role in ["HO_USER", "ORG_ADMIN"] and user.organization:
+            ho_unit = OrgUnit.objects.filter(organization=user.organization, level__parent_level__isnull=True).first()
+            if ho_unit:
+                org_unit_id = str(ho_unit.id)
+
+        # If NO org_unit_id is provided but role is HO_USER or ORG_ADMIN, auto-link to HO root unit
+        if not org_unit_id and user.role in ["HO_USER", "ORG_ADMIN"] and user.organization:
+            ho_unit = OrgUnit.objects.filter(organization=user.organization, level__parent_level__isnull=True).first()
+            if ho_unit:
+                org_unit_id = str(ho_unit.id)
+
+        # If NO org_unit_id is provided but role is HO_USER or ORG_ADMIN, auto-link to HO root unit
+        if not org_unit_id and user.role in ["HO_USER", "ORG_ADMIN"] and user.organization:
+            ho_unit = OrgUnit.objects.filter(organization=user.organization, level__parent_level__isnull=True).first()
+            if ho_unit:
+                org_unit_id = str(ho_unit.id)
+
+        # If NO org_unit_id is provided but role is HO_USER or ORG_ADMIN, auto-link to HO root unit
+        if not org_unit_id and user.role in ["HO_USER", "ORG_ADMIN"] and user.organization:
+            ho_unit = OrgUnit.objects.filter(organization=user.organization, level__parent_level__isnull=True).first()
+            if ho_unit:
+                org_unit_id = str(ho_unit.id)
+
+        # If NO org_unit_id is provided but role is HO_USER or ORG_ADMIN, auto-link to HO root unit
+        if not org_unit_id and user.role in ["HO_USER", "ORG_ADMIN"] and user.organization:
+            ho_unit = OrgUnit.objects.filter(organization=user.organization, level__parent_level__isnull=True).first()
+            if ho_unit:
+                org_unit_id = str(ho_unit.id)
+
         if org_unit_id:
             try:
                 ou = OrgUnit.objects.get(id=org_unit_id)
