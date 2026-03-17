@@ -81,6 +81,12 @@ class DashboardHomeView(DashboardMixin, TemplateView):
     template_name = "dashboard/home.html"
     active_page   = "home"
 
+    def dispatch(self, request, *args, **kwargs):
+        # HO users live in the GIS view — redirect them straight there
+        if getattr(request.user, 'role', None) == SystemRole.HO_USER:
+            return redirect('dashboard:gis')
+        return super().dispatch(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         user_role = ctx['user_role']

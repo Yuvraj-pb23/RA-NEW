@@ -3,11 +3,11 @@ config/urls.py — root URL configuration
 """
 from django.contrib import admin
 from django.urls import include, path
-from dashboard.views import LandingView
+from django.views.generic import RedirectView
 
 urlpatterns = [
-    # ── Root: beautiful landing page ──────────────────────────────────────
-    path("", LandingView.as_view()),
+    # ── Root: redirect straight to login ──────────────────────────────────
+    path("", RedirectView.as_view(url="/dashboard/login/", permanent=False)),
 
     # ── Django admin ──────────────────────────────────────────────────────
     path("admin/", admin.site.urls),

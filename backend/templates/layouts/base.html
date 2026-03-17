@@ -256,7 +256,8 @@
     x-transition:enter-end="opacity-100" x-transition:leave="transition-opacity ease-linear duration-200"
     x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
 
-  <!-- ═══ SIDEBAR ═══ -->
+  <!-- ═══ SIDEBAR (hidden for HO_USER — they use the GIS sidebar) ═══ -->
+  {% if request.user.role != 'HO_USER' %}
   <aside :class="[mob ? 'translate-x-0' : '-translate-x-full lg:translate-x-0', col ? 'w-[72px]' : 'w-60']"
     class="fixed inset-y-0 left-0 z-50 flex flex-col transition-[width,transform] duration-300 ease-in-out overflow-hidden"
     style="background: linear-gradient(165deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);">
@@ -457,7 +458,7 @@
         </div>
         <div x-show="!col" x-cloak class="min-w-0 flex-1">
           <p class="text-[13px] font-semibold truncate leading-tight" style="color: #e2e8f0;">
-            {{ request.user.full_name|default:request.user.email }}
+            {{ request.user.display_name }}
           </p>
           <p class="text-[11px] truncate" style="color: #64748b;">
             {{ request.user.get_role_display }}
@@ -466,8 +467,10 @@
       </div>
     </div>
   </aside>
+  {% endif %}
 
   <!-- ═══ SIDEBAR EDGE TOGGLE (desktop) ═══ -->
+  {% if request.user.role != 'HO_USER' %}
   <!-- Floats at the right edge of the sidebar, always visible, slides with it -->
   <button @click="col=!col" :style="col ? 'left: 72px' : 'left: 240px'" class="hidden lg:flex fixed top-1/2 -translate-y-1/2 -translate-x-1/2 z-[60]
            w-6 h-12 items-center justify-center
@@ -484,9 +487,10 @@
       <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
     </svg>
   </button>
+  {% endif %}
 
   <!-- ═══ MAIN AREA ═══ -->
-  <div :class="col ? 'lg:pl-[72px]' : 'lg:pl-60'"
+  <div :class="{% if request.user.role == 'HO_USER' %}''{% else %}col ? 'lg:pl-[72px]' : 'lg:pl-60'{% endif %}"
     class="flex flex-col min-h-screen transition-[padding-left] duration-300 ease-in-out">
 
     <!-- Topbar -->
@@ -539,7 +543,7 @@
               {{ request.user.email|first|upper }}
             </div>
             <span class="hidden sm:block text-sm font-medium text-slate-700 max-w-[130px] truncate">
-              {{ request.user.full_name|default:request.user.email }}
+              {{ request.user.display_name }}
             </span>
             <svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -552,7 +556,7 @@
             x-transition:leave-end="opacity-0 scale-95"
             class="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-xl border border-slate-200 py-1 z-50">
             <div class="px-4 py-3 border-b border-slate-100">
-              <p class="text-xs font-semibold text-slate-800 truncate">{{ request.user.full_name|default:request.user.email }}</p>
+              <p class="text-xs font-semibold text-slate-800 truncate">{{ request.user.display_name }}</p>
               <p class="text-[11px] text-slate-400 truncate mt-0.5">{{ request.user.email }}</p>
             </div>
 
