@@ -3,29 +3,31 @@
 {% block page_title %}Roads{% endblock %}
 
 {% block content %}
-<div x-data="roadsPage()" @hierarchy-changed.window="filterUnit = $event.detail; page = 1; load()">
+<div x-data="roadsPage()">
 
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
     <p class="text-sm text-slate-500">All road segments across all projects.</p>
     {% if request.user.role in 'SUPER_ADMIN,ORG_ADMIN,HO_USER' %}
-        <button @click="openCreate()" class="btn-primary self-start sm:self-auto">
+    <button @click="openCreate()" class="btn-primary self-start sm:self-auto">
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
       </svg>
       Add Road
     </button>
-        {% endif %}
+    {% endif %}
   </div>
 
   <!-- Filters -->
   <div class="card p-3 mb-4">
     <div class="flex flex-col sm:flex-row gap-2.5">
       <div class="relative flex-1">
-        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
-        <input type="text" x-model="search" @input="onSearch()"
-               placeholder="Search roads by name…" class="input-base pl-9">
+        <input type="text" x-model="search" @input="onSearch()" placeholder="Search roads by name…"
+          class="input-base pl-9">
       </div>
       <select x-model="typeFilter" @change="applyFilter()" class="input-base sm:w-44">
         <option value="">All Types</option>
@@ -39,26 +41,51 @@
   </div>
 
   <!-- Table -->
-  
-  <!-- Hierarchy Filter Bar -->
-  <div class="card p-3 mb-4" x-data="hierarchyFilter()" @hierarchy-changed.window="onFilterChange($event.detail)">
+
+  <!-- Role Filter Bar -->
+  <div class="card p-3 mb-4">
     <div class="flex flex-wrap items-center gap-3">
-      <span class="text-sm font-medium text-slate-600">Filter by Level:</span>
-      <template x-for="(level, idx) in levels" :key="level.id">
-        <div class="flex items-center gap-2">
-            <template x-if="idx > 0">
-                <svg class="w-4 h-4 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                </svg>
-            </template>
-            <select x-model="selected[level.id]" @change="selectLevel(idx)" class="input-base text-sm py-1.5 min-w-[120px]">
-              <option value="">-- All <span x-text="level.level_name"></span> --</option>
-              <template x-for="unit in (unitsByLevel[level.id] || [])" :key="unit.id">
-                <option :value="unit.id" x-text="unit.name"></option>
-              </template>
-            </select>
-        </div>
-      </template>
+      <span class="text-sm font-medium text-slate-600">Filter by Assignee:</span>
+      <div class="flex items-center gap-2">
+        <select x-model="filterHo" @change="onFilterChange()" class="input-base text-sm py-1.5 min-w-[140px]">
+          <option value="">-- All HO Users --</option>
+          <template x-for="u in getAvailableHoUsers()" :key="u.id">
+            <option :value="u.id" x-text="u.full_name || u.email"></option>
+          </template>
+        </select>
+      </div>
+      <div class="flex items-center gap-2">
+        <select x-model="filterRo" @change="onFilterChange()" class="input-base text-sm py-1.5 min-w-[140px]">
+          <option value="">-- All RO Users --</option>
+          <template x-for="u in getAvailableRoUsers()" :key="u.id">
+            <option :value="u.id" x-text="u.full_name || u.email"></option>
+          </template>
+        </select>
+      </div>
+      <div class="flex items-center gap-2">
+        <select x-model="filterPiu" @change="onFilterChange()" class="input-base text-sm py-1.5 min-w-[140px]">
+          <option value="">-- All PIU Users --</option>
+          <template x-for="u in getAvailablePiuUsers()" :key="u.id">
+            <option :value="u.id" x-text="u.full_name || u.email"></option>
+          </template>
+        </select>
+      </div>
+      <div class="flex items-center gap-2">
+        <select x-model="filterProjectUser" @change="onFilterChange()" class="input-base text-sm py-1.5 min-w-[140px]">
+          <option value="">-- All Project Users --</option>
+          <template x-for="u in getAvailableProjectUsers()" :key="u.id">
+            <option :value="u.id" x-text="u.full_name || u.email"></option>
+          </template>
+        </select>
+      </div>
+      <div class="flex items-center gap-2">
+        <select x-model="filterProject" @change="onFilterChange()" class="input-base text-sm py-1.5 min-w-[140px]">
+          <option value="">-- All Projects --</option>
+          <template x-for="p in getAvailableProjects()" :key="p.id">
+            <option :value="p.id" x-text="p.name"></option>
+          </template>
+        </select>
+      </div>
     </div>
   </div>
 
@@ -78,17 +105,29 @@
           <template x-if="loading">
             <template x-for="i in 8" :key="i">
               <tr class="animate-pulse">
-                <td class="table-td"><div class="h-3.5 bg-slate-200 rounded w-2/3"></div></td>
-                <td class="table-td"><div class="h-5 bg-slate-200 rounded-full w-10"></div></td>
-                <td class="table-td hidden md:table-cell"><div class="h-3.5 bg-slate-200 rounded w-1/2"></div></td>
-                <td class="table-td hidden lg:table-cell"><div class="h-3.5 bg-slate-200 rounded w-12"></div></td>
-                <td class="table-td"><div class="h-6 bg-slate-200 rounded w-16 ml-auto"></div></td>
+                <td class="table-td">
+                  <div class="h-3.5 bg-slate-200 rounded w-2/3"></div>
+                </td>
+                <td class="table-td">
+                  <div class="h-5 bg-slate-200 rounded-full w-10"></div>
+                </td>
+                <td class="table-td hidden md:table-cell">
+                  <div class="h-3.5 bg-slate-200 rounded w-1/2"></div>
+                </td>
+                <td class="table-td hidden lg:table-cell">
+                  <div class="h-3.5 bg-slate-200 rounded w-12"></div>
+                </td>
+                <td class="table-td">
+                  <div class="h-6 bg-slate-200 rounded w-16 ml-auto"></div>
+                </td>
               </tr>
             </template>
           </template>
 
           <template x-if="!loading && error">
-            <tr><td colspan="5" class="table-td text-center text-red-500 py-8" x-text="error"></td></tr>
+            <tr>
+              <td colspan="5" class="table-td text-center text-red-500 py-8" x-text="error"></td>
+            </tr>
           </template>
 
           <template x-if="!loading && !error && items.length === 0">
@@ -96,7 +135,8 @@
               <td colspan="5" class="py-12 text-center">
                 <div class="flex flex-col items-center gap-2 text-slate-400">
                   <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20H5a2 2 0 01-2-2V6a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M9 20l2-2m-2 2l2 2"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                      d="M9 20H5a2 2 0 01-2-2V6a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M9 20l2-2m-2 2l2 2" />
                   </svg>
                   <span class="text-sm font-medium">No roads found</span>
                 </div>
@@ -109,29 +149,38 @@
               <tr class="hover:bg-slate-50 transition-colors">
                 <td class="table-td font-medium text-slate-800 max-w-[200px] truncate" x-text="road.name"></td>
                 <td class="table-td">
-                  <span class="text-[11px] font-bold px-2 py-0.5 rounded-full"
-                        :class="typeColor(road.road_type)"
-                        x-text="road.road_type || '—'"></span>
+                  <span class="text-[11px] font-bold px-2 py-0.5 rounded-full" :class="typeColor(road.road_type)"
+                    x-text="road.road_type || '—'"></span>
                 </td>
                 <td class="table-td hidden md:table-cell text-slate-500" x-text="road.project_name ?? '—'"></td>
-                <td class="table-td hidden lg:table-cell text-slate-700 font-medium tabular-nums" x-text="road.length ? parseFloat(road.length).toFixed(3) : '—'"></td>
+                <td class="table-td hidden lg:table-cell text-slate-700 font-medium tabular-nums"
+                  x-text="road.length ? parseFloat(road.length).toFixed(3) : '—'"></td>
                 <td class="table-td">
                   <div class="flex items-center justify-end gap-1.5">
-                    <a :href="`/dashboard/roads/${road.id}/view/`" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors" title="View Details">
+                    <a :href="`/dashboard/roads/${road.id}/view/`"
+                      class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                      title="View Details">
                       <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                       </svg>
                     </a>
                     {% if request.user.role in 'SUPER_ADMIN,ORG_ADMIN,HO_USER' %}
-                    <button @click="openEdit(road)" class="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors" title="Edit Road">
+                    <button @click="openEdit(road)"
+                      class="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors"
+                      title="Edit Road">
                       <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                       </svg>
                     </button>
-                    <button @click="askDelete(road.id, road.name)" class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors">
+                    <button @click="askDelete(road.id, road.name)"
+                      class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors">
                       <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>
                     </button>
                     {% endif %}
@@ -150,32 +199,39 @@
         Showing <span x-text="from"></span>–<span x-text="to"></span> of <span x-text="total"></span>
       </p>
       <div class="flex items-center gap-1.5">
-        <button @click="prevPage()" :disabled="page===1" class="px-3 py-1.5 text-xs font-medium rounded-md border border-slate-300 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed">Previous</button>
+        <button @click="prevPage()" :disabled="page===1"
+          class="px-3 py-1.5 text-xs font-medium rounded-md border border-slate-300 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed">Previous</button>
         <span class="text-xs text-slate-500 px-1">Page <span x-text="page"></span> / <span x-text="pages"></span></span>
-        <button @click="nextPage()" :disabled="page>=pages" class="px-3 py-1.5 text-xs font-medium rounded-md border border-slate-300 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed">Next</button>
+        <button @click="nextPage()" :disabled="page>=pages"
+          class="px-3 py-1.5 text-xs font-medium rounded-md border border-slate-300 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed">Next</button>
       </div>
     </div>
   </div>
 
   <!-- Create/Edit Modal -->
-  <div x-show="formOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" x-transition:enter="transition duration-150" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+  <div x-show="formOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+    x-transition:enter="transition duration-150" x-transition:enter-start="opacity-0"
+    x-transition:enter-end="opacity-100">
     <form class="bg-white rounded-2xl shadow-2xl w-full max-w-md" @click.stop @submit.prevent="save">
       <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
         <h2 class="text-base font-semibold text-slate-800" x-text="editId ? 'Edit Road' : 'New Road'"></h2>
         <button @click="formOpen=false" class="p-1 rounded hover:bg-slate-100 text-slate-400">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
       <div class="px-6 py-5 space-y-4">
-        <div x-show="saveError" class="text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2" x-text="saveError"></div>
+        <div x-show="saveError" class="text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2"
+          x-text="saveError"></div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Road Name <span class="text-red-500">*</span></label>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Road Name <span
+              class="text-red-500">*</span></label>
           <input x-model="form.name" type="text" class="input-base" placeholder="Enter road name">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Project <span class="text-red-500">*</span></label>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Project <span
+              class="text-red-500">*</span></label>
           <select x-model="form.project" class="input-base">
             <option value="">— Select project —</option>
             <template x-for="p in formProjects" :key="p.id">
@@ -195,13 +251,16 @@
           </select>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Length (km) <span class="text-red-500">*</span></label>
-          <input x-model.number="form.length" type="number" step="0.001" min="0" class="input-base" placeholder="Length in km">
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Length (km) <span
+              class="text-red-500">*</span></label>
+          <input x-model.number="form.length" type="number" step="0.001" min="0" class="input-base"
+            placeholder="Length in km">
         </div>
       </div>
       <div class="flex gap-3 justify-end px-6 py-4 border-t bg-slate-50 rounded-b-2xl">
         <button @click="formOpen=false" class="btn-secondary">Cancel</button>
-        <button type="submit" :disabled="saving || !form.name.trim() || !form.project || form.length === ''" class="btn-primary">
+        <button type="submit" :disabled="saving || !form.name.trim() || !form.project || form.length === ''"
+          class="btn-primary">
           <span x-text="saving ? 'Saving…' : (editId ? 'Save Changes' : 'Create')"></span>
         </button>
       </div>
@@ -209,7 +268,8 @@
   </div>
 
   <!-- Delete Modal -->
-  <div x-show="confirmDelete" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" x-transition.opacity>
+  <div x-show="confirmDelete" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+    x-transition.opacity>
     <div class="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full">
       <h3 class="text-sm font-semibold text-slate-800 mb-2">Delete Road</h3>
       <p class="text-sm text-slate-500 mb-5">Delete road <strong x-text="deleteLabel"></strong>?</p>
@@ -220,155 +280,216 @@
     </div>
   </div>
 
-  
-      <div class="flex justify-end px-6 py-4 border-t bg-slate-50 rounded-b-2xl">
-        <button @click="detailOpen=false" class="btn-primary">Close</button>
-      </div>
-    </div>
+
+  <div class="flex justify-end px-6 py-4 border-t bg-slate-50 rounded-b-2xl">
+    <button @click="detailOpen=false" class="btn-primary">Close</button>
   </div>
+</div>
+</div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-function roadsPage() {
-  return Object.assign(listPage({ url: '/api/v1/roads/' }), {
-    typeFilter: '',
-    formOpen: false, editId: null,
-    form: { name: '', project: '', road_type: '', length: 0 },
-    saving: false, saveError: null,
-    formProjects: [],
+  function roadsPage() {
+    return Object.assign(listPage({ url: '/api/v1/roads/' }), {
+      typeFilter: '',
+      formOpen: false, editId: null,
+      form: { name: '', project: '', road_type: '', length: 0 },
+      saving: false, saveError: null,
+      formProjects: [],
 
-    applyFilter() { this.page = 1; this.load(); },
-    
-    init() {
-      this._debouncedSearch = debounce(() => { this.page = 1; this.load(); }, 350);
-      this.load();
-      this._fetchProjects();
-    },
+      filterHo: '', filterRo: '', filterPiu: '', filterProjectUser: '', filterProject: '',
+      filterHoUsers: [], filterRoUsers: [], filterPiuUsers: [], filterProjectUsers: [],
 
-    async _fetchProjects() {
-      const r = await fetch('/api/v1/projects/?page_size=200', { credentials: 'include' });
-      const d = await r.json();
-      this.formProjects = d.results ?? [];
-    },
+      applyFilter() { this.page = 1; this.loadRoads(); },
 
-    openCreate() {
-      this.editId = null;
-      this.form = { name: '', project: '', road_type: '', length: 0 };
-      this.saveError = null;
-      this.formOpen = true;
-    },
+      init() {
+        this._debouncedSearch = debounce(() => { this.page = 1; this.loadRoads(); }, 350);
+        this.loadRoads();
+        this._fetchProjects();
+        this._fetchFilterUsers();
+      },
 
-    openEdit(road) {
-      this.editId = road.id;
-      this.saveError = null;
-      this.form = {
-        name: road.name,
-        project: road.project,
-        road_type: road.road_type || '',
-        length: parseFloat(road.length || 0)
-      };
-      this.formOpen = true;
-    },
+      loadRoads() {
+        const extra = {};
+        if (this.filterHo) extra.ho_user = this.filterHo;
+        if (this.filterRo) extra.ro_user = this.filterRo;
+        if (this.filterPiu) extra.piu_user = this.filterPiu;
+        if (this.filterProjectUser) extra.project_user = this.filterProjectUser;
+        if (this.filterProject) extra.project = this.filterProject;
+        this.load(extra);
+      },
 
-    async save() {
-      if (!this.form.name.trim() || !this.form.project || this.form.length === '') return;
-      this.saving = true; this.saveError = null;
-      try {
-        const body = {
-          name: this.form.name.trim(),
-          project: this.form.project,
-          road_type: this.form.road_type || null,
-          length: parseFloat(this.form.length)
-        };
-        const url = this.editId ? `/api/v1/roads/${this.editId}/` : '/api/v1/roads/';
-        const method = this.editId ? 'PATCH' : 'POST';
-        const r = await fetch(url, {
-          method, credentials: 'include',
-          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrf() },
-          body: JSON.stringify(body)
+      getAvailableProjects() {
+        return this.formProjects.filter(p => {
+          let effHo = p.ho_user;
+          let effRo = p.ro_user;
+          let effPiu = p.piu_user;
+          let effProj = p.project_user;
+
+          if (effProj) {
+            const pu = this.filterProjectUsers.find(u => u.id === effProj);
+            if (pu) {
+              if (!effPiu && pu.piu_user) effPiu = pu.piu_user;
+              if (!effRo && pu.ro_user) effRo = pu.ro_user;
+              if (!effHo && pu.ho_user) effHo = pu.ho_user;
+            }
+          }
+          if (effPiu) {
+            const piu = this.filterPiuUsers.find(u => u.id === effPiu);
+            if (piu) {
+              if (!effRo && piu.ro_user) effRo = piu.ro_user;
+              if (!effHo && piu.ho_user) effHo = piu.ho_user;
+            }
+          }
+          if (effRo) {
+            const ro = this.filterRoUsers.find(u => u.id === effRo);
+            if (ro) {
+              if (!effHo && ro.ho_user) effHo = ro.ho_user;
+            }
+          }
+
+          if (this.filterHo && effHo !== this.filterHo) return false;
+          if (this.filterRo && effRo !== this.filterRo) return false;
+          if (this.filterPiu && effPiu !== this.filterPiu) return false;
+          if (this.filterProjectUser && effProj !== this.filterProjectUser) return false;
+          return true;
         });
-        if (!r.ok) { this.saveError = _fmtErr(await r.json()); return; }
-        this.formOpen = false;
+      },
+
+      getAvailableHoUsers() {
+        return this.filterHoUsers;
+      },
+      getAvailableRoUsers() {
+        return this.filterRoUsers.filter(u => {
+          if (this.filterHo && u.ho_user !== this.filterHo) return false;
+          return true;
+        });
+      },
+      getAvailablePiuUsers() {
+        return this.filterPiuUsers.filter(u => {
+          if (this.filterHo && u.ho_user !== this.filterHo) return false;
+          if (this.filterRo && u.ro_user !== this.filterRo) return false;
+          return true;
+        });
+      },
+      getAvailableProjectUsers() {
+        return this.filterProjectUsers.filter(u => {
+          if (this.filterHo && u.ho_user !== this.filterHo) return false;
+          if (this.filterRo && u.ro_user !== this.filterRo) return false;
+          if (this.filterPiu && u.piu_user !== this.filterPiu) return false;
+          return true;
+        });
+      },
+
+      onFilterChange() {
+        if (this.filterRo && !this.getAvailableRoUsers().some(u => u.id === this.filterRo)) this.filterRo = '';
+        if (this.filterPiu && !this.getAvailablePiuUsers().some(u => u.id === this.filterPiu)) this.filterPiu = '';
+        if (this.filterProjectUser && !this.getAvailableProjectUsers().some(u => u.id === this.filterProjectUser)) this.filterProjectUser = '';
+
+        if (this.filterProject) {
+          const isValid = this.getAvailableProjects().some(p => p.id === this.filterProject);
+          if (!isValid) this.filterProject = '';
+        }
         this.page = 1;
-        this.load();
-      } catch(e) { this.saveError = e.message; }
-      finally { this.saving = false; }
-    },
-    
-    typeColor(t) {
-      return { NH:'bg-red-100 text-red-700', SH:'bg-orange-100 text-orange-700',
-               MDR:'bg-yellow-100 text-yellow-700', ODR:'bg-teal-100 text-teal-700',
-               VR:'bg-slate-100 text-slate-600' }[t] || 'bg-slate-100 text-slate-600';
-    },
+        this.loadRoads();
+      },
 
-    async load() {
-      this.loading = true; this.error = null;
-      try {
-        const p = new URLSearchParams({ page: this.page, page_size: this.pageSize });
-        if (this.search)     p.set('search', this.search);
-        if (this.typeFilter) p.set('road_type', this.typeFilter);
-        const r = await fetch(`${this.apiUrl}?${p}`, { credentials: 'include' });
-        if (!r.ok) throw new Error('Server error ' + r.status);
+      async _fetchFilterUsers() {
+        const r = await fetch('/api/v1/users/?page_size=500', { credentials: 'include' });
         const d = await r.json();
-        this.items = d.results ?? []; this.total = d.count ?? this.items.length;
-      } catch(e) { this.error = e.message; this.items = []; }
-      finally    { this.loading = false; }
-    }
-  });
-}
-function _fmtErr(d) {
-  if (!d) return 'Unknown error';
-  if (typeof d === 'string') return d;
-  if (d.detail) return d.detail;
-  if (d.message) return d.message;
-  return Object.values(d).flat().join(', ');
-}
+        const users = d.results || [];
+        this.filterHoUsers = users.filter(u => u.role === 'HO_USER');
+        this.filterRoUsers = users.filter(u => u.role === 'RO_USER');
+        this.filterPiuUsers = users.filter(u => u.role === 'PIU_USER');
+        this.filterProjectUsers = users.filter(u => u.role === 'PROJECT_USER');
+      },
 
-function hierarchyFilter() {
-  return {
-    levels: [],
-    unitsByLevel: {},
-    selected: {},
-    
-    async init() {
-      // Just fetch all units available to user
-      const r = await fetch('/api/v1/org-units/?page_size=1000', { credentials: 'include' });
-      const d = await r.json();
-      const units = d.results || [];
-      
-      const levelMap = {};
-      units.forEach(u => {
-        if (!u.level_detail) return;
-        if (!levelMap[u.level]) levelMap[u.level] = {...u.level_detail, units: []};
-        levelMap[u.level].units.push(u);
-      });
-      
-      this.levels = Object.values(levelMap).sort((a,b) => a.level_order - b.level_order);
-      this.levels.forEach(l => {
-        this.unitsByLevel[l.id] = l.units;
-        this.selected[l.id] = '';
-      });
-    },
-    
-    selectLevel(idx) {
-      const level = this.levels[idx];
-      const val = this.selected[level.id];
-      // clear children
-      for(let i = idx + 1; i < this.levels.length; i++) {
-         this.selected[this.levels[i].id] = '';
+      async _fetchProjects() {
+        const r = await fetch('/api/v1/projects/?page_size=200', { credentials: 'include' });
+        const d = await r.json();
+        this.formProjects = d.results ?? [];
+      },
+
+      openCreate() {
+        this.editId = null;
+        this.form = { name: '', project: '', road_type: '', length: 0 };
+        this.saveError = null;
+        this.formOpen = true;
+      },
+
+      openEdit(road) {
+        this.editId = road.id;
+        this.saveError = null;
+        this.form = {
+          name: road.name,
+          project: road.project,
+          road_type: road.road_type || '',
+          length: parseFloat(road.length || 0)
+        };
+        this.formOpen = true;
+      },
+
+      async save() {
+        if (!this.form.name.trim() || !this.form.project || this.form.length === '') return;
+        this.saving = true; this.saveError = null;
+        try {
+          const body = {
+            name: this.form.name.trim(),
+            project: this.form.project,
+            road_type: this.form.road_type || null,
+            length: parseFloat(this.form.length)
+          };
+          const url = this.editId ? `/api/v1/roads/${this.editId}/` : '/api/v1/roads/';
+          const method = this.editId ? 'PATCH' : 'POST';
+          const r = await fetch(url, {
+            method, credentials: 'include',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrf() },
+            body: JSON.stringify(body)
+          });
+          if (!r.ok) { this.saveError = _fmtErr(await r.json()); return; }
+          this.formOpen = false;
+          this.page = 1;
+          this.loadRoads();
+        } catch (e) { this.saveError = e.message; }
+        finally { this.saving = false; }
+      },
+
+      typeColor(t) {
+        return {
+          NH: 'bg-red-100 text-red-700', SH: 'bg-orange-100 text-orange-700',
+          MDR: 'bg-yellow-100 text-yellow-700', ODR: 'bg-teal-100 text-teal-700',
+          VR: 'bg-slate-100 text-slate-600'
+        }[t] || 'bg-slate-100 text-slate-600';
+      },
+
+      async load(extra = {}) {
+        this.loading = true; this.error = null;
+        try {
+          const p = new URLSearchParams({ page: this.page, page_size: this.pageSize });
+          if (this.search) p.set('search', this.search);
+          if (this.typeFilter) p.set('road_type', this.typeFilter);
+          Object.entries(extra).forEach(([k, v]) => { if (v !== '' && v != null) p.set(k, v); });
+
+          const r = await fetch(`${this.apiUrl}?${p}`, { credentials: 'include' });
+          if (!r.ok) throw new Error('Server error ' + r.status);
+          const d = await r.json();
+          this.items = d.results ?? []; this.total = d.count ?? this.items.length;
+        } catch (e) { this.error = e.message; this.items = []; }
+        finally { this.loading = false; }
       }
-      
-      // Dispatch event to parent listPage
-      let chosenUnit = val;
-      if (!val && idx > 0) {
-          chosenUnit = this.selected[this.levels[idx-1].id];
-      }
-      window.dispatchEvent(new CustomEvent('hierarchy-changed', { detail: chosenUnit }));
-    }
-  };
-}
+    });
+  }
+  function _fmtErr(d) {
+    if (!d) return 'Unknown error';
+    if (typeof d === 'string') return d;
+    if (d.detail) return d.detail;
+    if (d.message) return d.message;
+    return Object.values(d).flat().join(', ');
+  }
+
+
 
 </script>
 {% endblock %}

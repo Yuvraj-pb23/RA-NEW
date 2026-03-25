@@ -3,7 +3,7 @@
 {% block page_title %}Projects{% endblock %}
 
 {% block content %}
-<div x-data="projectsPage()" @hierarchy-changed.window="filterUnit = $event.detail; page = 1; load()">
+<div x-data="projectsPage()">
 
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
     <p class="text-sm text-slate-500">
@@ -41,28 +41,45 @@
 
   <!-- Table -->
 
-  <!-- Hierarchy Filter Bar -->
-  <div class="card p-3 mb-4" x-data="hierarchyFilter()" @hierarchy-changed.window="onFilterChange($event.detail)">
+  <!-- Role Filter Bar -->
+  <div class="card p-3 mb-4">
     <div class="flex flex-wrap items-center gap-3">
-      <span class="text-sm font-medium text-slate-600">Filter by Level:</span>
-      <template x-for="(level, idx) in levels" :key="level.id">
-        <div class="flex items-center gap-2">
-          <template x-if="idx > 0">
-            <svg class="w-4 h-4 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-            </svg>
+      <span class="text-sm font-medium text-slate-600">Filter by Assignee:</span>
+      <div class="flex items-center gap-2">
+        <select x-model="filterHo" @change="onFilterChange()" class="input-base text-sm py-1.5 min-w-[140px]">
+          <option value="">-- All HO Users --</option>
+          <template x-for="u in getAvailableHoUsers()" :key="u.id">
+            <option :value="u.id" x-text="u.full_name || u.email"></option>
           </template>
-          <select x-model="selected[level.id]" @change="selectLevel(idx)"
-            class="input-base text-sm py-1.5 min-w-[120px]">
-            <option value="">-- All <span x-text="level.level_name"></span> --</option>
-            <template x-for="unit in (unitsByLevel[level.id] || [])" :key="unit.id">
-              <option :value="unit.id" x-text="unit.name"></option>
-            </template>
-          </select>
-        </div>
-      </template>
+        </select>
+      </div>
+      <div class="flex items-center gap-2">
+        <select x-model="filterRo" @change="onFilterChange()" class="input-base text-sm py-1.5 min-w-[140px]">
+          <option value="">-- All RO Users --</option>
+          <template x-for="u in getAvailableRoUsers()" :key="u.id">
+            <option :value="u.id" x-text="u.full_name || u.email"></option>
+          </template>
+        </select>
+      </div>
+      <div class="flex items-center gap-2">
+        <select x-model="filterPiu" @change="onFilterChange()" class="input-base text-sm py-1.5 min-w-[140px]">
+          <option value="">-- All PIU Users --</option>
+          <template x-for="u in getAvailablePiuUsers()" :key="u.id">
+            <option :value="u.id" x-text="u.full_name || u.email"></option>
+          </template>
+        </select>
+      </div>
+      <div class="flex items-center gap-2">
+        <select x-model="filterProjectUser" @change="onFilterChange()" class="input-base text-sm py-1.5 min-w-[140px]">
+          <option value="">-- All Project Users --</option>
+          <template x-for="u in getAvailableProjectUsers()" :key="u.id">
+            <option :value="u.id" x-text="u.full_name || u.email"></option>
+          </template>
+        </select>
+      </div>
     </div>
   </div>
+
 
   <div class="card overflow-hidden">
     <div class="overflow-x-auto">
@@ -71,7 +88,7 @@
           <tr>
             <th class="table-th">Project Name</th>
             <th class="table-th hidden sm:table-cell">Organization</th>
-            <th class="table-th hidden sm:table-cell">Org Unit</th>
+
             <th class="table-th">Description</th>
             <th class="table-th text-right">Actions</th>
           </tr>
@@ -87,9 +104,7 @@
                 <td class="table-td hidden sm:table-cell">
                   <div class="h-3.5 bg-slate-200 rounded w-1/2"></div>
                 </td>
-                <td class="table-td hidden sm:table-cell">
-                  <div class="h-3.5 bg-slate-200 rounded w-20"></div>
-                </td>
+
                 <td class="table-td">
                   <div class="h-3.5 bg-slate-200 rounded w-20"></div>
                 </td>
@@ -125,7 +140,7 @@
               <tr class="hover:bg-slate-50 transition-colors">
                 <td class="table-td font-medium text-slate-800" x-text="proj.name"></td>
                 <td class="table-td hidden sm:table-cell text-slate-500" x-text="proj.organization_name ?? '—'"></td>
-                <td class="table-td hidden sm:table-cell text-slate-500" x-text="proj.org_unit_name ?? '—'"></td>
+
                 <td class="table-td text-slate-500 truncate max-w-xs" x-text="proj.description ?? '—'"></td>
                 <td class="table-td">
                   <div class="flex items-center justify-end gap-1.5">
@@ -199,16 +214,54 @@
             </template>
           </select>
         </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Org Unit <span
-              class="text-red-500">*</span></label>
-          <select x-model="form.org_unit" class="input-base" :disabled="!form.organization">
-            <option value="">— Select org unit (Project level) —</option>
-            <template x-for="u in formUnits" :key="u.id">
-              <option :value="u.id" x-text="u.name"></option>
-            </template>
-          </select>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">HO User <span
+                class="text-slate-400 font-normal">(Optional)</span></label>
+            <select x-model="form.ho_user" @change="onFormUserChange()" class="input-base"
+              :disabled="!form.organization">
+              <option value="">— Select HO User —</option>
+              <template x-for="u in getAvailableFormHoUsers()" :key="u.id">
+                <option :value="u.id" x-text="u.full_name || u.email"></option>
+              </template>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">RO User <span
+                class="text-slate-400 font-normal">(Optional)</span></label>
+            <select x-model="form.ro_user" @change="onFormUserChange()" class="input-base"
+              :disabled="!form.organization">
+              <option value="">— Select RO User —</option>
+              <template x-for="u in getAvailableFormRoUsers()" :key="u.id">
+                <option :value="u.id" x-text="u.full_name || u.email"></option>
+              </template>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">PIU User <span
+                class="text-slate-400 font-normal">(Optional)</span></label>
+            <select x-model="form.piu_user" @change="onFormUserChange()" class="input-base"
+              :disabled="!form.organization">
+              <option value="">— Select PIU User —</option>
+              <template x-for="u in getAvailableFormPiuUsers()" :key="u.id">
+                <option :value="u.id" x-text="u.full_name || u.email"></option>
+              </template>
+            </select>
+          </div>
+          <div class="col-span-1 sm:col-span-3">
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Project User <span
+                class="text-slate-400 font-normal">(Optional)</span></label>
+            <select x-model="form.project_user" @change="onFormUserChange()" class="input-base"
+              :disabled="!form.organization">
+              <option value="">— Select Project User —</option>
+              <template x-for="u in getAvailableFormProjectUsers()" :key="u.id">
+                <option :value="u.id" x-text="u.full_name || u.email"></option>
+              </template>
+            </select>
+          </div>
         </div>
+
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1.5">Description</label>
           <textarea x-model="form.description" class="input-base" rows="3"
@@ -217,8 +270,7 @@
       </div>
       <div class="flex gap-3 justify-end px-6 py-4 border-t bg-slate-50 rounded-b-2xl">
         <button @click="formOpen=false" class="btn-secondary">Cancel</button>
-        <button type="submit" :disabled="saving || !form.name.trim() || !form.organization || !form.org_unit"
-          class="btn-primary">
+        <button type="submit" :disabled="saving || !form.name.trim() || !form.organization" class="btn-primary">
           <span x-text="saving ? 'Saving…' : (editId ? 'Save Changes' : 'Create')"></span>
         </button>
       </div>
@@ -245,14 +297,93 @@
   function projectsPage() {
     return Object.assign(listPage({ url: '/api/v1/projects/' }), {
       formOpen: false, editId: null,
-      form: { name: '', organization: '', org_unit: '', description: '' },
+      form: { name: '', organization: '', description: '', ho_user: '', ro_user: '', piu_user: '', project_user: '' },
       saving: false, saveError: null,
-      formOrgs: [], formUnits: [],
+      formOrgs: [], hoUsers: [], roUsers: [], piuUsers: [], projectUsers: [],
+
+      filterHo: '', filterRo: '', filterPiu: '', filterProjectUser: '',
+      filterHoUsers: [], filterRoUsers: [], filterPiuUsers: [], filterProjectUsers: [],
 
       init() {
-        this._debouncedSearch = debounce(() => { this.page = 1; this.load(); }, 350);
-        this.load();
+        this._debouncedSearch = debounce(() => { this.page = 1; this.loadProjects(); }, 350);
+        this.loadProjects();
         this._fetchOrgs();
+        this._fetchFilterUsers();
+      },
+      loadProjects() {
+        const extra = {};
+        if (this.filterHo) extra.ho_user = this.filterHo;
+        if (this.filterRo) extra.ro_user = this.filterRo;
+        if (this.filterPiu) extra.piu_user = this.filterPiu;
+        if (this.filterProjectUser) extra.project_user = this.filterProjectUser;
+        this.load(extra);
+      },
+      getAvailableHoUsers() {
+        return this.filterHoUsers;
+      },
+      getAvailableRoUsers() {
+        return this.filterRoUsers.filter(u => {
+          if (this.filterHo && u.ho_user !== this.filterHo) return false;
+          return true;
+        });
+      },
+      getAvailablePiuUsers() {
+        return this.filterPiuUsers.filter(u => {
+          if (this.filterHo && u.ho_user !== this.filterHo) return false;
+          if (this.filterRo && u.ro_user !== this.filterRo) return false;
+          return true;
+        });
+      },
+      getAvailableProjectUsers() {
+        return this.filterProjectUsers.filter(u => {
+          if (this.filterHo && u.ho_user !== this.filterHo) return false;
+          if (this.filterRo && u.ro_user !== this.filterRo) return false;
+          if (this.filterPiu && u.piu_user !== this.filterPiu) return false;
+          return true;
+        });
+      },
+      getAvailableFormHoUsers() {
+        return this.hoUsers;
+      },
+      getAvailableFormRoUsers() {
+        return this.roUsers.filter(u => !this.form.ho_user || u.ho_user === this.form.ho_user);
+      },
+      getAvailableFormPiuUsers() {
+        return this.piuUsers.filter(u => {
+          if (this.form.ho_user && u.ho_user !== this.form.ho_user) return false;
+          if (this.form.ro_user && u.ro_user !== this.form.ro_user) return false;
+          return true;
+        });
+      },
+      getAvailableFormProjectUsers() {
+        return this.projectUsers.filter(u => {
+          if (this.form.ho_user && u.ho_user !== this.form.ho_user) return false;
+          if (this.form.ro_user && u.ro_user !== this.form.ro_user) return false;
+          if (this.form.piu_user && u.piu_user !== this.form.piu_user) return false;
+          return true;
+        });
+      },
+      onFormUserChange() {
+        if (this.form.ro_user && !this.getAvailableFormRoUsers().some(u => u.id === this.form.ro_user)) this.form.ro_user = '';
+        if (this.form.piu_user && !this.getAvailableFormPiuUsers().some(u => u.id === this.form.piu_user)) this.form.piu_user = '';
+        if (this.form.project_user && !this.getAvailableFormProjectUsers().some(u => u.id === this.form.project_user)) this.form.project_user = '';
+      },
+
+      onFilterChange() {
+        if (this.filterRo && !this.getAvailableRoUsers().some(u => u.id === this.filterRo)) this.filterRo = '';
+        if (this.filterPiu && !this.getAvailablePiuUsers().some(u => u.id === this.filterPiu)) this.filterPiu = '';
+        if (this.filterProjectUser && !this.getAvailableProjectUsers().some(u => u.id === this.filterProjectUser)) this.filterProjectUser = '';
+        this.page = 1;
+        this.loadProjects();
+      },
+      async _fetchFilterUsers() {
+        const r = await fetch('/api/v1/users/?page_size=500', { credentials: 'include' });
+        const d = await r.json();
+        const users = d.results || [];
+        this.filterHoUsers = users.filter(u => u.role === 'HO_USER');
+        this.filterRoUsers = users.filter(u => u.role === 'RO_USER');
+        this.filterPiuUsers = users.filter(u => u.role === 'PIU_USER');
+        this.filterProjectUsers = users.filter(u => u.role === 'PROJECT_USER');
       },
       async _fetchOrgs() {
         const r = await fetch('/api/v1/organizations/?page_size=200', { credentials: 'include' });
@@ -260,19 +391,30 @@
         this.formOrgs = d.results ?? [];
       },
       async onOrgChange() {
-        this.form.org_unit = '';
-        this.formUnits = [];
+        this.form.ho_user = '';
+        this.form.ro_user = '';
+        this.form.piu_user = '';
+        this.hoUsers = [];
+        this.roUsers = [];
+        this.piuUsers = [];
+        this.projectUsers = [];
         if (!this.form.organization) return;
-        // Fetch org units belonging to this organization and which have Project level. We just fetch all for this org.
-        const r = await fetch(`/api/v1/org-units/?organization=${this.form.organization}&page_size=200`, { credentials: 'include' });
+        const r = await fetch(`/api/v1/users/?organization=${this.form.organization}&page_size=500`, { credentials: 'include' });
         const d = await r.json();
-        // Filter for units that are at the 'Project' level (case-insensitive checking in model)
-        this.formUnits = (d.results ?? []).filter(u => u.level_name && u.level_name.toLowerCase() === 'project');
+        const users = d.results || [];
+        this.hoUsers = users.filter(u => u.role === 'HO_USER');
+        this.roUsers = users.filter(u => u.role === 'RO_USER');
+        this.piuUsers = users.filter(u => u.role === 'PIU_USER');
+        this.projectUsers = users.filter(u => u.role === 'PROJECT_USER');
       },
+
       openCreate() {
         this.editId = null;
-        this.form = { name: '', organization: '', org_unit: '', description: '' };
-        this.formUnits = [];
+        this.form = { name: '', organization: '', description: '', ho_user: '', ro_user: '', piu_user: '', project_user: '' };
+        this.hoUsers = [];
+        this.roUsers = [];
+        this.piuUsers = [];
+        this.projectUsers = [];
         this.saveError = null;
         this.formOpen = true;
       },
@@ -282,24 +424,34 @@
         this.form = {
           name: proj.name,
           organization: proj.organization,
-          org_unit: proj.org_unit,
+          ho_user: proj.ho_user || '',
+          ro_user: proj.ro_user || '',
+          piu_user: proj.piu_user || '',
+          project_user: proj.project_user || '',
           description: proj.description || ''
         };
 
-        const r = await fetch(`/api/v1/org-units/?organization=${proj.organization}&page_size=200`, { credentials: 'include' });
+        const r = await fetch(`/api/v1/users/?organization=${proj.organization}&page_size=500`, { credentials: 'include' });
         const d = await r.json();
-        this.formUnits = (d.results ?? []).filter(u => u.level_name && u.level_name.toLowerCase() === 'project');
+        const users = d.results || [];
+        this.hoUsers = users.filter(u => u.role === 'HO_USER');
+        this.roUsers = users.filter(u => u.role === 'RO_USER');
+        this.piuUsers = users.filter(u => u.role === 'PIU_USER');
+        this.projectUsers = users.filter(u => u.role === 'PROJECT_USER');
 
         this.formOpen = true;
       },
       async save() {
-        if (!this.form.name.trim() || !this.form.organization || !this.form.org_unit) return;
+        if (!this.form.name.trim() || !this.form.organization) return;
         this.saving = true; this.saveError = null;
         try {
           const body = {
             name: this.form.name.trim(),
             organization: this.form.organization,
-            org_unit: this.form.org_unit,
+            ho_user: this.form.ho_user || null,
+            ro_user: this.form.ro_user || null,
+            piu_user: this.form.piu_user || null,
+            project_user: this.form.project_user || null,
             description: this.form.description.trim()
           };
           const url = this.editId ? `/api/v1/projects/${this.editId}/` : '/api/v1/projects/';
@@ -312,7 +464,7 @@
           if (!r.ok) { this.saveError = _fmtErr(await r.json()); return; }
           this.formOpen = false;
           this.page = 1;
-          this.load();
+          this.loadProjects();
         } catch (e) { this.saveError = e.message; }
         finally { this.saving = false; }
       }

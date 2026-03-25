@@ -201,7 +201,7 @@
     x-transition:enter="transition duration-150" x-transition:enter-start="opacity-0"
     x-transition:enter-end="opacity-100" x-transition:leave="transition duration-100"
     x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md my-auto" @click.stop
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl my-auto" @click.stop
       x-transition:enter="transition duration-150" x-transition:enter-start="opacity-0 scale-95"
       x-transition:enter-end="opacity-100 scale-100">
 
@@ -270,7 +270,7 @@
           </select>
         </div>
 
-        <div x-show="form.role !== 'SUPER_ADMIN'">
+        <div x-show="form.role !== 'SUPER_ADMIN'" class="col-span-1 sm:col-span-2">
           <label class="block text-xs font-semibold text-slate-600 mb-1.5">Organization</label>
           <select x-model="form.organization" @change="onOrgChange()" class="input-base">
             <option value="">— Select Organization —</option>
@@ -280,156 +280,217 @@
           </select>
         </div>
 
-        <div x-show="form.role !== 'SUPER_ADMIN' && form.role !== 'ORG_ADMIN'">
-          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Org Unit</label>
-          <select x-model="form.org_unit" class="input-base" :disabled="!form.organization">
-            <option value="">— Select Org Unit —</option>
-            <template x-for="unit in formUnits" :key="unit.id">
-              <option :value="unit.id" x-text="unit.name"></option>
-            </template>
-          </select>
+        <div x-show="form.organization && ['RO_USER', 'PIU_USER', 'PROJECT_USER'].includes(form.role)"
+          class="border-t border-slate-100 pt-4 mt-4">
+          <h3 class="text-sm font-semibold text-slate-800 mb-4">Reporting Hierarchy</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+            <div x-show="['RO_USER', 'PIU_USER', 'PROJECT_USER'].includes(form.role)">
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">Reports to HO User <span
+                  class="text-slate-400 font-normal">(Optional)</span></label>
+              <select x-model="form.ho_user" @change="onFormUserChange()" class="input-base">
+                <option value="">— Select HO User —</option>
+                <template x-for="u in getAvailableFormHoUsers()" :key="u.id">
+                  <option :value="u.id" x-text="u.full_name || u.email"></option>
+                </template>
+              </select>
+            </div>
+
+            <div x-show="['PIU_USER', 'PROJECT_USER'].includes(form.role)">
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">Reports to RO User <span
+                  class="text-slate-400 font-normal">(Optional)</span></label>
+              <select x-model="form.ro_user" @change="onFormUserChange()" class="input-base">
+                <option value="">— Select RO User —</option>
+                <template x-for="u in getAvailableFormRoUsers()" :key="u.id">
+                  <option :value="u.id" x-text="u.full_name || u.email"></option>
+                </template>
+              </select>
+            </div>
+
+            <div x-show="form.role === 'PROJECT_USER'">
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">Reports to PIU User <span
+                  class="text-slate-400 font-normal">(Optional)</span></label>
+              <select x-model="form.piu_user" @change="onFormUserChange()" class="input-base">
+                <option value="">— Select PIU User —</option>
+                <template x-for="u in getAvailableFormPiuUsers()" :key="u.id">
+                  <option :value="u.id" x-text="u.full_name || u.email"></option>
+                </template>
+              </select>
+            </div>
+
+          </div>
+        </div>
+        <div class="flex gap-3 justify-end px-6 py-4 border-t border-slate-100 bg-slate-50 rounded-b-2xl">
+          <button @click="formOpen=false" class="btn-secondary">Cancel</button>
+          <button @click="save()" :disabled="saving || !form.email || !form.password"
+            class="btn-primary disabled:opacity-50">
+            <span x-text="saving ? 'Saving…' : 'Create User'"></span>
+          </button>
         </div>
       </div>
-
-      <div class="flex gap-3 justify-end px-6 py-4 border-t border-slate-100 bg-slate-50 rounded-b-2xl">
-        <button @click="formOpen=false" class="btn-secondary">Cancel</button>
-        <button @click="save()" :disabled="saving || !form.email || !form.password"
-          class="btn-primary disabled:opacity-50">
-          <span x-text="saving ? 'Saving…' : 'Create User'"></span>
-        </button>
-      </div>
     </div>
+
   </div>
+  {% endblock %}
 
-</div>
-{% endblock %}
+  {% block extra_js %}
+  <script>
+    function usersPage() {
+      return Object.assign(listPage({ url: '/api/v1/users/' }), {
+        activeFilter: '',
 
-{% block extra_js %}
-<script>
-  function usersPage() {
-    return Object.assign(listPage({ url: '/api/v1/users/' }), {
-      activeFilter: '',
+        // form state
+        formOpen: false,
+        saving: false,
+        saveError: null,
 
-      // form state
-      formOpen: false,
-      saving: false,
-      saveError: null,
-
-      form: {
-        email: '', password: '', password_confirm: '', full_name: '', phone: '',
-        role: 'PROJECT_USER', organization: '', org_unit: ''
-      },
-
-      formOrgs: [],
-      formUnits: [],
-
-      async init() {
-        this._debouncedSearch = debounce(() => { this.page = 1; this.load(); }, 350);
-        this.load();
-        this.fetchOrgs();
-      },
-
-      applyFilter() { this.page = 1; this.load(); },
-
-      async load() {
-        this.loading = true; this.error = null;
-        try {
-          const p = new URLSearchParams({ page: this.page, page_size: this.pageSize });
-          if (this.search) p.set('search', this.search);
-          if (this.activeFilter) p.set('is_active', this.activeFilter);
-          const r = await fetch(`${this.apiUrl}?${p}`, { credentials: 'include' });
-          if (!r.ok) throw new Error('Server error ' + r.status);
-          const d = await r.json();
-          this.items = d.results ?? []; this.total = d.count ?? this.items.length;
-        } catch (e) { this.error = e.message; this.items = []; }
-        finally { this.loading = false; }
-      },
-
-      async fetchOrgs() {
-        const r = await fetch('/api/v1/organizations/?page_size=200', { credentials: 'include' });
-        const d = await r.json();
-        this.formOrgs = d.results || [];
-      },
-
-      async onOrgChange() {
-        this.form.org_unit = '';
-        this.formUnits = [];
-        if (!this.form.organization) return;
-
-        let levelName = '';
-        if (this.form.role === 'HO_USER') levelName = 'HO';
-        else if (this.form.role === 'RO_USER') levelName = 'RO';
-        else if (this.form.role === 'PIU_USER') levelName = 'PIU';
-        else if (this.form.role === 'PROJECT_USER') levelName = 'Project';
-
-        let url = `/api/v1/org-units/?organization=${this.form.organization}&page_size=400`;
-        const r = await fetch(url, { credentials: 'include' });
-        const d = await r.json();
-        let units = d.results || [];
-
-        if (levelName) {
-          units = units.filter(u => u.level_detail && u.level_detail.level_name.toUpperCase() === levelName.toUpperCase());
-        }
-
-        this.formUnits = units;
-      },
-
-      onRoleChange() {
-        this.onOrgChange();
-      },
-
-      openCreate() {
-        this.form = {
+        form: {
           email: '', password: '', password_confirm: '', full_name: '', phone: '',
-          role: 'PROJECT_USER', organization: '', org_unit: ''
-        };
-        this.formUnits = [];
-        this.saveError = null;
-        this.formOpen = true;
-      },
+          role: 'PROJECT_USER', organization: '',
+          ho_user: '', ro_user: '', piu_user: '', project_user: ''
+        },
 
-      async save() {
-        if (!this.form.email || !this.form.password) return;
-        if (this.form.password !== this.form.password_confirm) {
-          this.saveError = "Passwords do not match.";
-          return;
-        }
-        this.saving = true; this.saveError = null;
-        try {
-          const r = await fetch(this.apiUrl, {
-            method: 'POST', credentials: 'include',
-            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrf() },
-            body: JSON.stringify({ ...this.form, organization: this.form.organization || null, org_unit: this.form.org_unit || null })
-          });
-          if (!r.ok) { this.saveError = _fmtErr(await r.json()); return; }
-          this.formOpen = false;
-          this.page = 1;
+        formOrgs: [],
+        hoUsers: [], roUsers: [], piuUsers: [], projectUsers: [],
+
+        async init() {
+          this._debouncedSearch = debounce(() => { this.page = 1; this.load(); }, 350);
           this.load();
-        } catch (e) { this.saveError = e.message; }
-        finally { this.saving = false; }
-      }
-    });
-  }
+          this.fetchOrgs();
+        },
 
-  function _fmtErr(d) {
-    if (!d) return 'Unknown error';
-    if (typeof d === 'string') return d;
-    function flat(v) {
-      if (v === null || v === undefined) return '';
-      if (typeof v === 'string') return v;
-      if (typeof v === 'number' || typeof v === 'boolean') return String(v);
-      if (Array.isArray(v)) return v.map(flat).filter(Boolean).join(', ');
-      if (typeof v === 'object') {
-        return Object.entries(v)
-          .map(([k, val]) => (k === 'non_field_errors' ? '' : k + ': ') + flat(val))
-          .filter(Boolean).join(' | ');
-      }
-      return String(v);
+        applyFilter() { this.page = 1; this.load(); },
+
+        async load() {
+          this.loading = true; this.error = null;
+          try {
+            const p = new URLSearchParams({ page: this.page, page_size: this.pageSize });
+            if (this.search) p.set('search', this.search);
+            if (this.activeFilter) p.set('is_active', this.activeFilter);
+            const r = await fetch(`${this.apiUrl}?${p}`, { credentials: 'include' });
+            if (!r.ok) throw new Error('Server error ' + r.status);
+            const d = await r.json();
+            this.items = d.results ?? []; this.total = d.count ?? this.items.length;
+          } catch (e) { this.error = e.message; this.items = []; }
+          finally { this.loading = false; }
+        },
+
+        async fetchOrgs() {
+          const r = await fetch('/api/v1/organizations/?page_size=200', { credentials: 'include' });
+          const d = await r.json();
+          this.formOrgs = d.results || [];
+        },
+
+
+
+        async onOrgChange() {
+          this.form.ho_user = '';
+          this.form.ro_user = '';
+          this.form.piu_user = '';
+          this.form.project_user = '';
+          this.hoUsers = [];
+          this.roUsers = [];
+          this.piuUsers = [];
+          this.projectUsers = [];
+          if (!this.form.organization) return;
+
+          const r = await fetch(`/api/v1/users/?organization=${this.form.organization}&page_size=500`, { credentials: 'include' });
+          const d = await r.json();
+          const users = d.results || [];
+          this.hoUsers = users.filter(u => u.role === 'HO_USER');
+          this.roUsers = users.filter(u => u.role === 'RO_USER');
+          this.piuUsers = users.filter(u => u.role === 'PIU_USER');
+          this.projectUsers = users.filter(u => u.role === 'PROJECT_USER');
+        },
+
+        onRoleChange() {
+          if (!['RO_USER', 'PIU_USER', 'PROJECT_USER'].includes(this.form.role)) this.form.ho_user = '';
+          if (!['PIU_USER', 'PROJECT_USER'].includes(this.form.role)) this.form.ro_user = '';
+          if (this.form.role !== 'PROJECT_USER') this.form.piu_user = '';
+          this.onFormUserChange();
+        },
+
+        getAvailableFormHoUsers() {
+          return this.hoUsers;
+        },
+        getAvailableFormRoUsers() {
+          return this.roUsers.filter(u => !this.form.ho_user || u.ho_user === this.form.ho_user);
+        },
+        getAvailableFormPiuUsers() {
+          return this.piuUsers.filter(u => {
+            if (this.form.ho_user && u.ho_user !== this.form.ho_user) return false;
+            if (this.form.ro_user && u.ro_user !== this.form.ro_user) return false;
+            return true;
+          });
+        },
+        onFormUserChange() {
+          if (this.form.ro_user && !this.getAvailableFormRoUsers().some(u => u.id === this.form.ro_user)) this.form.ro_user = '';
+          if (this.form.piu_user && !this.getAvailableFormPiuUsers().some(u => u.id === this.form.piu_user)) this.form.piu_user = '';
+        },
+
+        openCreate() {
+          this.form = {
+            email: '', password: '', password_confirm: '', full_name: '', phone: '',
+            role: 'PROJECT_USER', organization: '',
+            ho_user: '', ro_user: '', piu_user: '', project_user: ''
+          };
+          this.hoUsers = [];
+          this.roUsers = [];
+          this.piuUsers = [];
+          this.projectUsers = [];
+          this.saveError = null;
+          this.formOpen = true;
+        },
+
+        async save() {
+          if (!this.form.email || !this.form.password) return;
+          if (this.form.password !== this.form.password_confirm) {
+            this.saveError = "Passwords do not match.";
+            return;
+          }
+          this.saving = true; this.saveError = null;
+          try {
+            const r = await fetch(this.apiUrl, {
+              method: 'POST', credentials: 'include',
+              headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrf() },
+              body: JSON.stringify({
+                ...this.form,
+                organization: this.form.organization || null,
+                ho_user: this.form.ho_user || null,
+                ro_user: this.form.ro_user || null,
+                piu_user: this.form.piu_user || null,
+                project_user: this.form.project_user || null
+              })
+            });
+            if (!r.ok) { this.saveError = _fmtErr(await r.json()); return; }
+            this.formOpen = false;
+            this.page = 1;
+            this.load();
+          } catch (e) { this.saveError = e.message; }
+          finally { this.saving = false; }
+        }
+      });
     }
-    if (d.detail) return flat(d.detail);
-    if (d.message) return flat(d.message);
-    return flat(d);
-  }
-</script>
 
-{% endblock %}
+    function _fmtErr(d) {
+      if (!d) return 'Unknown error';
+      if (typeof d === 'string') return d;
+      function flat(v) {
+        if (v === null || v === undefined) return '';
+        if (typeof v === 'string') return v;
+        if (typeof v === 'number' || typeof v === 'boolean') return String(v);
+        if (Array.isArray(v)) return v.map(flat).filter(Boolean).join(', ');
+        if (typeof v === 'object') {
+          return Object.entries(v)
+            .map(([k, val]) => (k === 'non_field_errors' ? '' : k + ': ') + flat(val))
+            .filter(Boolean).join(' | ');
+        }
+        return String(v);
+      }
+      if (d.detail) return flat(d.detail);
+      if (d.message) return flat(d.message);
+      return flat(d);
+    }
+  </script>
+
+  {% endblock %}

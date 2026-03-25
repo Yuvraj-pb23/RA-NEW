@@ -185,7 +185,7 @@
 
     .gis-filter-grid {
         display: grid;
-        grid-template-columns: repeat(5, 1fr);
+        grid-template-columns: repeat(6, 1fr);
         gap: 12px;
     }
 
@@ -520,7 +520,7 @@
                             <option value="{{ assigned_ho }}">{{ assigned_ho_name|default:"Unassigned HO" }}</option>
                             {% else %}
                             <option value="">Select HO</option>
-                            <template x-for="u in hoUnits" :key="u.id">
+                            <template x-for="u in getAvailableHoUnits()" :key="u.id">
                                 <option :value="u.id" x-text="u.display_name || u.email || 'Unnamed User'"></option>
                             </template>
                             {% endif %}
@@ -535,7 +535,7 @@
                             <option value="{{ assigned_ro }}">{{ assigned_ro_name|default:"Unassigned RO" }}</option>
                             {% else %}
                             <option value="">Select RO</option>
-                            <template x-for="u in roUnits" :key="u.id">
+                            <template x-for="u in getAvailableRoUnits()" :key="u.id">
                                 <option :value="u.id" x-text="u.display_name || u.email || 'Unnamed User'"></option>
                             </template>
                             {% endif %}
@@ -551,7 +551,7 @@
                             <option value="{{ assigned_piu }}">{{ assigned_piu_name|default:"Unassigned PIU" }}</option>
                             {% else %}
                             <option value="">Select PIU</option>
-                            <template x-for="u in piuUnits" :key="u.id">
+                            <template x-for="u in getAvailablePiuUnits()" :key="u.id">
                                 <option :value="u.id" x-text="u.display_name || u.email || 'Unnamed User'"></option>
                             </template>
                             {% endif %}
@@ -560,21 +560,30 @@
                     {% endif %}
                     {% if show_project_filter %}
                     <div class="gis-filter-col">
-                        <label>Project</label>
-                        <select class="gis-dropdown" x-model="filters.project" @change="onProjectChange()"
-                            :disabled="locks.project || (!filters.piu)">
+                        <label>Project User</label>
+                        <select class="gis-dropdown" x-model="filters.projectUser" @change="onProjectUserChange()"
+                            :disabled="locks.projectUser">
                             {% if lock_project_filter %}
-                            <option value="{{ assigned_project }}">{{ assigned_project_name|default:"Unassigned Project"
-                                }}</option>
+                            <option value="{{ assigned_project }}">{{ assigned_project_name|default:"Unassigned Project
+                                User" }}</option>
                             {% else %}
-                            <option value="">Select Project</option>
-                            <template x-for="u in projectUnits" :key="u.id">
+                            <option value="">Select Project User</option>
+                            <template x-for="u in getAvailableProjectUserUnits()" :key="u.id">
                                 <option :value="u.id" x-text="u.display_name || u.email || 'Unnamed User'"></option>
                             </template>
                             {% endif %}
                         </select>
                     </div>
                     {% endif %}
+                    <div class="gis-filter-col">
+                        <label>Project</label>
+                        <select class="gis-dropdown" x-model="filters.project" @change="onProjectChange()">
+                            <option value="">Select Project</option>
+                            <template x-for="p in getAvailableProjectUnits()" :key="p.id">
+                                <option :value="p.id" x-text="p.name"></option>
+                            </template>
+                        </select>
+                    </div>
                     <div class="gis-filter-col">
                         <label>Road</label>
                         <select class="gis-dropdown" x-model="filters.road" @change="onRoadChange()">
@@ -854,12 +863,12 @@
             shownRoads: 0,
 
             // Filter state
-            filters: { ho: '{{ assigned_ho|escapejs }}', ro: '{{ assigned_ro|escapejs }}', piu: '{{ assigned_piu|escapejs }}', project: '{{ assigned_project|escapejs }}', road: '' },
+            filters: { ho: '{{ assigned_ho|escapejs }}', ro: '{{ assigned_ro|escapejs }}', piu: '{{ assigned_piu|escapejs }}', projectUser: '{{ assigned_project|escapejs }}', project: '', road: '' },
             locks: {
                 ho: '{{ lock_ho_filter|yesno:"true,false" }}' === 'true',
                 ro: '{{ lock_ro_filter|yesno:"true,false" }}' === 'true',
                 piu: '{{ lock_piu_filter|yesno:"true,false" }}' === 'true',
-                project: '{{ lock_project_filter|yesno:"true,false" }}' === 'true'
+                projectUser: '{{ lock_project_filter|yesno:"true,false" }}' === 'true'
             },
 
             // Data
@@ -940,41 +949,88 @@
                 } catch (e) { console.error('loadOrgUnits', e); }
             },
 
+            getAvailableHoUnits() {
+                return this.hoUnits;
+            },
+            getAvailableRoUnits() {
+                return this.roUnits.filter(u => !this.filters.ho || u.ho_user === this.filters.ho);
+            },
+            getAvailablePiuUnits() {
+                return this.piuUnits.filter(u => {
+                    if (this.filters.ho && u.ho_user !== this.filters.ho) return false;
+                    if (this.filters.ro && u.ro_user !== this.filters.ro) return false;
+                    return true;
+                });
+            },
+            getAvailableProjectUserUnits() {
+                return this.projectUnits.filter(u => {
+                    if (this.filters.ho && u.ho_user !== this.filters.ho) return false;
+                    if (this.filters.ro && u.ro_user !== this.filters.ro) return false;
+                    if (this.filters.piu && u.piu_user !== this.filters.piu) return false;
+                    return true;
+                });
+            },
+            getAvailableProjectUnits() {
+                const map = new Map();
+                this.allRoads.forEach(r => {
+                    if (r.project) map.set(r.project, r.project_name);
+                });
+                return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
+            },
+
             async loadRoads() {
                 try {
-                    const r = await fetch('/api/v1/roads/?page_size=1000', { credentials: 'include' });
+                    const params = new URLSearchParams({ page_size: '1000' });
+                    if (this.filters.ho) params.append('ho_user', this.filters.ho);
+                    if (this.filters.ro) params.append('ro_user', this.filters.ro);
+                    if (this.filters.piu) params.append('piu_user', this.filters.piu);
+                    if (this.filters.projectUser) params.append('project_user', this.filters.projectUser);
+
+                    const r = await fetch(`/api/v1/roads/?${params.toString()}`, { credentials: 'include' });
                     const d = await r.json();
                     this.allRoads = d.results || [];
-                    this.filteredRoads = [...this.allRoads];
-                    this.computeStats();
-                    this.renderMapRoads();
+
+                    if (this.filters.project && !this.getAvailableProjectUnits().some(p => p.id === this.filters.project)) {
+                        this.filters.project = '';
+                    }
+                    if (this.filters.road && !this.allRoads.some(r => r.id === this.filters.road)) {
+                        this.filters.road = '';
+                    }
+                    this.applyFilters();
                 } catch (e) { console.error('loadRoads', e); }
             },
 
             onHoChange() {
-                this.filters.ro = ''; this.filters.piu = ''; this.filters.project = ''; this.filters.road = '';
-                if (this.filters.ho) {
-                    this.roUnits = this.allOrgUnits.filter(u => u.role === 'RO_USER');
-                    this.piuUnits = this.allOrgUnits.filter(u => u.role === 'PIU_USER');
-                    this.projectUnits = this.allOrgUnits.filter(u => u.role === 'PROJECT_USER');
-                }
-                this.applyFilters();
+                if (this.filters.ro && !this.getAvailableRoUnits().some(u => u.id === this.filters.ro)) this.filters.ro = '';
+                if (this.filters.piu && !this.getAvailablePiuUnits().some(u => u.id === this.filters.piu)) this.filters.piu = '';
+                if (this.filters.projectUser && !this.getAvailableProjectUserUnits().some(u => u.id === this.filters.projectUser)) this.filters.projectUser = '';
+                this.loadRoads();
             },
             onRoChange() {
-                this.filters.piu = ''; this.filters.project = ''; this.filters.road = '';
-                this.applyFilters();
+                if (this.filters.piu && !this.getAvailablePiuUnits().some(u => u.id === this.filters.piu)) this.filters.piu = '';
+                if (this.filters.projectUser && !this.getAvailableProjectUserUnits().some(u => u.id === this.filters.projectUser)) this.filters.projectUser = '';
+                this.loadRoads();
             },
             onPiuChange() {
-                this.filters.project = ''; this.filters.road = '';
-                this.applyFilters();
+                if (this.filters.projectUser && !this.getAvailableProjectUserUnits().some(u => u.id === this.filters.projectUser)) this.filters.projectUser = '';
+                this.loadRoads();
+            },
+            onProjectUserChange() {
+                this.loadRoads();
             },
             onProjectChange() {
                 this.filters.road = '';
                 this.applyFilters();
             },
+            onRoadChange() {
+                this.applyFilters();
+            },
 
             applyFilters() {
                 let roads = [...this.allRoads];
+                if (this.filters.project) {
+                    roads = roads.filter(r => r.project === this.filters.project);
+                }
                 if (this.filters.road) {
                     roads = roads.filter(r => r.id === this.filters.road);
                 }
@@ -984,10 +1040,8 @@
             },
 
             clearFilters() {
-                this.filters = { ho: '', ro: '', piu: '', project: '', road: '' };
-                this.filteredRoads = [...this.allRoads];
-                this.computeStats();
-                this.renderMapRoads();
+                this.filters = { ho: '', ro: '', piu: '', projectUser: '', project: '', road: '' };
+                this.loadRoads();
             },
 
             computeStats(roads) {

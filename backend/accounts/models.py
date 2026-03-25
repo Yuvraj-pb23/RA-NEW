@@ -110,6 +110,38 @@ class User(AbstractUser):
         related_name="users",
         help_text=_("The organization this user belongs to. Null for Super Admins."),
     )
+    ho_user = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="subordinate_ho_users",
+        help_text=_("The HO user this user reports to."),
+    )
+    ro_user = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="subordinate_ro_users",
+        help_text=_("The RO user this user reports to."),
+    )
+    piu_user = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="subordinate_piu_users",
+        help_text=_("The PIU user this user reports to."),
+    )
+    project_user = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="subordinate_project_users",
+        help_text=_("The Project user this user reports to."),
+    )
 
     # -------------------------------------------------------------------------
     # Timestamps

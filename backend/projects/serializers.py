@@ -35,6 +35,22 @@ class ProjectSerializer(serializers.ModelSerializer):
         source="org_unit.level.level_name",
         read_only=True,
     )
+    ho_user_name = serializers.CharField(
+        source="ho_user.display_name",
+        read_only=True,
+    )
+    ro_user_name = serializers.CharField(
+        source="ro_user.display_name",
+        read_only=True,
+    )
+    piu_user_name = serializers.CharField(
+        source="piu_user.display_name",
+        read_only=True,
+    )
+    project_user_name = serializers.CharField(
+        source="project_user.display_name",
+        read_only=True,
+    )
 
     class Meta:
         model = Project
@@ -46,6 +62,14 @@ class ProjectSerializer(serializers.ModelSerializer):
             "org_unit",
             "org_unit_name",
             "org_unit_level",
+            "ho_user",
+            "ho_user_name",
+            "ro_user",
+            "ro_user_name",
+            "piu_user",
+            "piu_user_name",
+            "project_user",
+            "project_user_name",
             "description",
             "created_at",
             "updated_at",

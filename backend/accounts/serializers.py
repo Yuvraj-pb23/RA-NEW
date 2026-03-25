@@ -28,6 +28,15 @@ class UserSerializer(serializers.ModelSerializer):
     is_platform_admin = serializers.BooleanField(read_only=True)
     assigned_unit = serializers.SerializerMethodField()
 
+    ho_user = serializers.PrimaryKeyRelatedField(read_only=True)
+    ho_user_name = serializers.CharField(source="ho_user.display_name", read_only=True)
+    ro_user = serializers.PrimaryKeyRelatedField(read_only=True)
+    ro_user_name = serializers.CharField(source="ro_user.display_name", read_only=True)
+    piu_user = serializers.PrimaryKeyRelatedField(read_only=True)
+    piu_user_name = serializers.CharField(source="piu_user.display_name", read_only=True)
+    project_user = serializers.PrimaryKeyRelatedField(read_only=True)
+    project_user_name = serializers.CharField(source="project_user.display_name", read_only=True)
+
     class Meta:
         model = User
         fields = [
@@ -44,6 +53,14 @@ class UserSerializer(serializers.ModelSerializer):
             "role",
             "organization",
             "assigned_unit",
+            "ho_user",
+            "ho_user_name",
+            "ro_user",
+            "ro_user_name",
+            "piu_user",
+            "piu_user_name",
+            "project_user",
+            "project_user_name",
         ]
         read_only_fields = [
             "id",
@@ -86,7 +103,11 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["email", "full_name", "phone", "password", "password_confirm", "role", "organization", "org_unit"]
+        fields = [
+            "email", "full_name", "phone", "password", "password_confirm", 
+            "role", "organization", "org_unit",
+            "ho_user", "ro_user", "piu_user", "project_user"
+        ]
 
     def validate(self, attrs):
         if attrs["password"] != attrs.pop("password_confirm"):
@@ -191,4 +212,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["full_name", "phone", "is_active"]
+        fields = [
+            "full_name", "phone", "is_active",
+            "ho_user", "ro_user", "piu_user", "project_user"
+        ]

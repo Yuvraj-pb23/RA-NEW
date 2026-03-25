@@ -24,6 +24,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from access.permissions import IsAdminOrReadOnly
 from django.http import JsonResponse
+from django.db.models import Q
 from .utils import parse_gpx
 
 from .models import Road
@@ -35,12 +36,37 @@ from .serializers import RoadSerializer
 class RoadFilter(django_filters.FilterSet):
     project      = django_filters.UUIDFilter(field_name="project__id")
     organization = django_filters.UUIDFilter(field_name="project__organization__id")
+    ho_user      = django_filters.Filter(method="filter_ho_user")
+    ro_user      = django_filters.Filter(method="filter_ro_user")
+    piu_user     = django_filters.Filter(method="filter_piu_user")
+    project_user = django_filters.UUIDFilter(field_name="project__project_user__id")
     road_type    = django_filters.CharFilter(field_name="road_type")
     name         = django_filters.CharFilter(field_name="name", lookup_expr="icontains")
 
     class Meta:
         model  = Road
-        fields = ["project", "organization", "road_type", "name"]
+        fields = ["project", "organization", "ho_user", "ro_user", "piu_user", "project_user", "road_type", "name"]
+
+    def filter_ho_user(self, queryset, name, value):
+        return queryset.filter(
+            Q(project__ho_user__id=value) |
+            Q(project__ro_user__ho_user__id=value) |
+            Q(project__piu_user__ho_user__id=value) |
+            Q(project__project_user__ho_user__id=value)
+        ).distinct()
+
+    def filter_ro_user(self, queryset, name, value):
+        return queryset.filter(
+            Q(project__ro_user__id=value) |
+            Q(project__piu_user__ro_user__id=value) |
+            Q(project__project_user__ro_user__id=value)
+        ).distinct()
+
+    def filter_piu_user(self, queryset, name, value):
+        return queryset.filter(
+            Q(project__piu_user__id=value) |
+            Q(project__project_user__piu_user__id=value)
+        ).distinct()
 
 
 # ── ViewSet ───────────────────────────────────────────────────────────────────
@@ -76,9 +102,9 @@ class RoadViewSet(ModelViewSet):
         from accounts.models import SystemRole
         if self.request.user.role == SystemRole.SUPER_ADMIN:
             return qs
-        from access.utils import get_user_accessible_units
-        accessible_units = get_user_accessible_units(self.request.user)
-        return qs.filter(project__org_unit__in=accessible_units)
+        if self.request.user.organization:
+            return qs.filter(project__organization=self.request.user.organization)
+        return qs.none()
 
 from django.contrib.auth.decorators import login_required
 
@@ -90,8 +116,10 @@ def road_gpx_view(request, road_id):
         
         qs = Road.objects.all()
         if request.user.role != SystemRole.SUPER_ADMIN:
-            accessible_units = get_user_accessible_units(request.user)
-            qs = qs.filter(project__org_unit__in=accessible_units)
+            if request.user.organization:
+                qs = qs.filter(project__organization=request.user.organization)
+            else:
+                qs = qs.none()
             
         road = qs.get(id=road_id)
         if road.gpx_file:

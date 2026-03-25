@@ -39,42 +39,9 @@ class UserViewSet(viewsets.ModelViewSet):
         if getattr(user, 'role', None) == 'SUPER_ADMIN':
             return qs
 
-        if getattr(user, 'role', None) == 'ORG_ADMIN':
-            # Resolve org: prefer the direct FK, fall back to UserOrgAccess
-            org = user.organization
-            if org is None:
-                from access.models import UserOrgAccess
-                access = UserOrgAccess.objects.filter(
-                    user=user, is_active=True
-                ).select_related('org_unit__organization').first()
-                if access:
-                    org = access.org_unit.organization
+        if user.organization:
+            return qs.filter(organization=user.organization)
 
-            if org is None:
-                return qs.none()
-
-            # Show users matched by org FK OR by an active UserOrgAccess
-            # within any unit of this org (covers users whose org FK wasn't set)
-            from access.models import UserOrgAccess
-            user_ids_via_access = UserOrgAccess.objects.filter(
-                org_unit__organization=org, is_active=True
-            ).values_list('user_id', flat=True)
-
-            return qs.filter(
-                models.Q(organization=org) | models.Q(id__in=user_ids_via_access)
-            ).distinct()
-
-        # HO / RO / PIU / lower — same org visibility only
-        org = user.organization
-        if org is None:
-            from access.models import UserOrgAccess
-            access = UserOrgAccess.objects.filter(
-                user=user, is_active=True
-            ).select_related('org_unit__organization').first()
-            if access:
-                org = access.org_unit.organization
-        if org:
-            return qs.filter(organization=org)
         return qs.none()
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["is_active", "is_staff"]

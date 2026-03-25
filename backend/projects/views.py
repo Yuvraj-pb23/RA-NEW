@@ -23,6 +23,7 @@ from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from access.permissions import IsAdminOrReadOnly
+from django.db.models import Q
 
 from .models import Project
 from .serializers import ProjectSerializer
@@ -33,11 +34,36 @@ from .serializers import ProjectSerializer
 class ProjectFilter(django_filters.FilterSet):
     organization = django_filters.UUIDFilter(field_name="organization__id")
     org_unit     = django_filters.UUIDFilter(field_name="org_unit__id")
+    ho_user      = django_filters.Filter(method="filter_ho_user")
+    ro_user      = django_filters.Filter(method="filter_ro_user")
+    piu_user     = django_filters.Filter(method="filter_piu_user")
+    project_user = django_filters.UUIDFilter(field_name="project_user__id")
     name         = django_filters.CharFilter(field_name="name", lookup_expr="icontains")
 
     class Meta:
         model  = Project
-        fields = ["organization", "org_unit", "name"]
+        fields = ["organization", "org_unit", "ho_user", "ro_user", "piu_user", "project_user", "name"]
+
+    def filter_ho_user(self, queryset, name, value):
+        return queryset.filter(
+            Q(ho_user__id=value) |
+            Q(ro_user__ho_user__id=value) |
+            Q(piu_user__ho_user__id=value) |
+            Q(project_user__ho_user__id=value)
+        ).distinct()
+
+    def filter_ro_user(self, queryset, name, value):
+        return queryset.filter(
+            Q(ro_user__id=value) |
+            Q(piu_user__ro_user__id=value) |
+            Q(project_user__ro_user__id=value)
+        ).distinct()
+
+    def filter_piu_user(self, queryset, name, value):
+        return queryset.filter(
+            Q(piu_user__id=value) |
+            Q(project_user__piu_user__id=value)
+        ).distinct()
 
 
 # ── ViewSet ───────────────────────────────────────────────────────────────────
@@ -75,6 +101,6 @@ class ProjectViewSet(ModelViewSet):
         from accounts.models import SystemRole
         if self.request.user.role == SystemRole.SUPER_ADMIN:
             return qs
-        from access.utils import get_user_accessible_units
-        accessible_units = get_user_accessible_units(self.request.user)
-        return qs.filter(org_unit__in=accessible_units)
+        if self.request.user.organization:
+            return qs.filter(organization=self.request.user.organization)
+        return qs.none()

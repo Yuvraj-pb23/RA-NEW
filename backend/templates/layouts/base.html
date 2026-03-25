@@ -310,14 +310,7 @@
         </svg>
         <span x-show="!col">Users</span>
       </a>
-      <a href="{% url 'dashboard:access' %}" :title="col?'Access Control':''"
-        class="sidebar-link {% if ap == 'access' %}sidebar-link-active{% else %}sidebar-link-inactive{% endif %}">
-        <svg class="w-[18px] h-[18px] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-        </svg>
-        <span x-show="!col">Access Control</span>
-      </a>
+
       {% endif %}
 
       <!-- ── ORG ADMIN: Org Management ── -->
@@ -325,22 +318,7 @@
       <div x-show="!col" x-cloak class="px-2 pt-5 pb-1.5">
         <p class="text-[9px] font-bold uppercase tracking-[0.12em]" style="color: #475569;">Organisation</p>
       </div>
-      <a href="{% url 'dashboard:hierarchy' %}" :title="col?'Hierarchy':''"
-        class="sidebar-link {% if ap == 'hierarchy' %}sidebar-link-active{% else %}sidebar-link-inactive{% endif %}">
-        <svg class="w-[18px] h-[18px] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
-        </svg>
-        <span x-show="!col">Hierarchy</span>
-      </a>
-      <a href="{% url 'dashboard:org_units' %}" :title="col?'Org Units':''"
-        class="sidebar-link {% if ap == 'org_units' %}sidebar-link-active{% else %}sidebar-link-inactive{% endif %}">
-        <svg class="w-[18px] h-[18px] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-        </svg>
-        <span x-show="!col">Org Units</span>
-      </a>
+
       <a href="{% url 'dashboard:users' %}" :title="col?'Users':''"
         class="sidebar-link {% if ap == 'users' %}sidebar-link-active{% else %}sidebar-link-inactive{% endif %}">
         <svg class="w-[18px] h-[18px] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -349,14 +327,7 @@
         </svg>
         <span x-show="!col">Users</span>
       </a>
-      <a href="{% url 'dashboard:access' %}" :title="col?'Assignments':''"
-        class="sidebar-link {% if ap == 'access' %}sidebar-link-active{% else %}sidebar-link-inactive{% endif %}">
-        <svg class="w-[18px] h-[18px] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-        </svg>
-        <span x-show="!col">Assignments</span>
-      </a>
+
       <div x-show="!col" x-cloak class="px-2 pt-5 pb-1.5">
         <p class="text-[9px] font-bold uppercase tracking-[0.12em]" style="color: #475569;">Roads &amp; Projects</p>
       </div>

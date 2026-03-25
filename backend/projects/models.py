@@ -22,6 +22,8 @@ from core.models import BaseModel
 from orgs.models import Organization, OrgUnit
 
 
+from django.conf import settings
+
 class Project(BaseModel):
     """
     A single project, scoped to one org unit at the 'Project' hierarchy level.
@@ -48,10 +50,48 @@ class Project(BaseModel):
         on_delete=models.CASCADE,
         related_name="org_unit_projects",
         db_index=True,
+        null=True,
+        blank=True,
         help_text=_(
             "The org unit executing this project. "
             "Must be at the 'Project' hierarchy level."
         ),
+    )
+    ho_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name="projects_as_ho",
+        db_index=True,
+        null=True,
+        blank=True,
+        help_text=_("The assigned HO user."),
+    )
+    ro_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name="projects_as_ro",
+        db_index=True,
+        null=True,
+        blank=True,
+        help_text=_("The assigned RO user."),
+    )
+    piu_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name="projects_as_piu",
+        db_index=True,
+        null=True,
+        blank=True,
+        help_text=_("The assigned PIU user."),
+    )
+    project_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name="projects_as_project_user",
+        db_index=True,
+        null=True,
+        blank=True,
+        help_text=_("The assigned Project user."),
     )
     description = models.TextField(
         _("description"),
