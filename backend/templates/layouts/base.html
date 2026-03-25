@@ -574,13 +574,15 @@
     </header>
 
     <!-- Page Content -->
-    <main class="flex-1 p-4 lg:p-6">
+    <main class="flex-1 {% if active_page == 'gis' %}p-0 flex flex-col{% else %}p-4 lg:p-6{% endif %}">
       {% block content %}{% endblock %}
     </main>
 
+    {% if active_page != 'gis' %}
     <footer class="shrink-0 border-t border-slate-200 py-3 px-6 text-center text-[11px] text-slate-400">
       Road Management Platform &mdash; &copy; 2026
     </footer>
+    {% endif %}
   </div>
 
   <!-- ═══ GLOBAL JS ═══ -->

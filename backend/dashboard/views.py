@@ -266,9 +266,78 @@ class AccessListView(OrgAdminRequiredMixin, DashboardMixin, TemplateView):
     active_page   = "access"
 
 
-class GISMapView(UpperTierRequiredMixin, DashboardMixin, TemplateView):
+class GISMapView(DashboardMixin, TemplateView):
     template_name = "dashboard/gis.html"
     active_page   = "gis"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        from accounts.models import User, SystemRole
+        from access.models import UserOrgAccess
+        
+        user = self.request.user
+        base_qs = User.objects.filter(is_active=True)
+        if getattr(user, 'organization', None):
+            base_qs = base_qs.filter(organization=user.organization)
+            
+        ctx['show_ho_filter'] = base_qs.filter(role=SystemRole.HO_USER).exists()
+        ctx['show_ro_filter'] = base_qs.filter(role=SystemRole.RO_USER).exists()
+        ctx['show_piu_filter'] = base_qs.filter(role=SystemRole.PIU_USER).exists()
+        
+        role = getattr(user, 'role', None)
+        lock_ho_filter = False
+        lock_ro_filter = False
+        lock_piu_filter = False
+        
+        assigned_ho = ""
+        assigned_ro = ""
+        assigned_piu = ""
+        
+        assigned_ho_name = ""
+        assigned_ro_name = ""
+        assigned_piu_name = ""
+
+        if role == SystemRole.HO_USER:
+            lock_ho_filter = True
+            assigned_ho = str(user.id)
+            assigned_ho_name = user.display_name
+                
+        elif role == SystemRole.RO_USER:
+            lock_ho_filter = True
+            lock_ro_filter = True
+            assigned_ro = str(user.id)
+            assigned_ro_name = user.display_name
+            ho_u = User.objects.filter(role=SystemRole.HO_USER, organization=user.organization, is_active=True).first()
+            if ho_u:
+                assigned_ho = str(ho_u.id)
+                assigned_ho_name = ho_u.display_name
+                    
+        elif role == SystemRole.PIU_USER:
+            lock_ho_filter = True
+            lock_ro_filter = True
+            lock_piu_filter = True
+            assigned_piu = str(user.id)
+            assigned_piu_name = user.display_name
+            ro_u = User.objects.filter(role=SystemRole.RO_USER, organization=user.organization, is_active=True).first()
+            if ro_u:
+                assigned_ro = str(ro_u.id)
+                assigned_ro_name = ro_u.display_name
+            ho_u = User.objects.filter(role=SystemRole.HO_USER, organization=user.organization, is_active=True).first()
+            if ho_u:
+                assigned_ho = str(ho_u.id)
+                assigned_ho_name = ho_u.display_name
+
+        ctx['lock_ho_filter'] = lock_ho_filter
+        ctx['lock_ro_filter'] = lock_ro_filter
+        ctx['lock_piu_filter'] = lock_piu_filter
+        ctx['assigned_ho'] = assigned_ho
+        ctx['assigned_ro'] = assigned_ro
+        ctx['assigned_piu'] = assigned_piu
+        ctx['assigned_ho_name'] = assigned_ho_name
+        ctx['assigned_ro_name'] = assigned_ro_name
+        ctx['assigned_piu_name'] = assigned_piu_name
+        
+        return ctx
 
 
 class RoadDetailView(DashboardMixin, DetailView):

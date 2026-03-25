@@ -322,8 +322,7 @@
 {% endblock %}
 
 {% block content %}
-<div style="margin: -1.5rem -1.5rem 0; height: calc(100vh - 64px); display: flex; overflow: hidden;" x-data="gisApp()"
-    x-init="init()">
+<div style="flex: 1; display: flex; overflow: hidden;" x-data="gisApp()" x-init="init()">
 
     <!-- ══ GIS LEFT SIDEBAR ══ -->
     <div class="gis-sidebar">
@@ -348,28 +347,47 @@
             <div x-show="view === 'map'" x-cloak
                 style="background: #f8fafc; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; padding: 10px 0 6px;">
                 <p class="gis-section-label" style="padding-top: 0;">Filters</p>
+                {% if show_ho_filter %}
                 <p class="gis-filter-label">HO Unit</p>
-                <select class="gis-select" x-model="filters.ho" @change="onHoChange()">
+                <select class="gis-select" x-model="filters.ho" @change="onHoChange()" :disabled="locks.ho">
+                    {% if lock_ho_filter %}
+                    <option value="{{ assigned_ho }}">{{ assigned_ho_name|default:"Unassigned HO" }}</option>
+                    {% else %}
                     <option value="">All HOs</option>
                     <template x-for="u in hoUnits" :key="u.id">
-                        <option :value="u.id" x-text="u.name"></option>
+                        <option :value="u.id" x-text="u.display_name || u.email || 'Unnamed User'"></option>
                     </template>
+                    {% endif %}
                 </select>
+                {% endif %}
+                {% if show_ro_filter %}
                 <p class="gis-filter-label">RO Unit</p>
                 <select class="gis-select" x-model="filters.ro" @change="onRoChange()"
-                    :disabled="!filters.ho && hoUnits.length > 1">
+                    :disabled="locks.ro || (!filters.ho && hoUnits.length > 1)">
+                    {% if lock_ro_filter %}
+                    <option value="{{ assigned_ro }}">{{ assigned_ro_name|default:"Unassigned RO" }}</option>
+                    {% else %}
                     <option value="">All ROs</option>
                     <template x-for="u in roUnits" :key="u.id">
-                        <option :value="u.id" x-text="u.name"></option>
+                        <option :value="u.id" x-text="u.display_name || u.email || 'Unnamed User'"></option>
                     </template>
+                    {% endif %}
                 </select>
+                {% endif %}
+                {% if show_piu_filter %}
                 <p class="gis-filter-label">PIU</p>
-                <select class="gis-select" x-model="filters.piu" @change="onPiuChange()" :disabled="!filters.ro">
+                <select class="gis-select" x-model="filters.piu" @change="onPiuChange()"
+                    :disabled="locks.piu || (!filters.ro)">
+                    {% if lock_piu_filter %}
+                    <option value="{{ assigned_piu }}">{{ assigned_piu_name|default:"Unassigned PIU" }}</option>
+                    {% else %}
                     <option value="">All PIUs</option>
                     <template x-for="u in piuUnits" :key="u.id">
-                        <option :value="u.id" x-text="u.name"></option>
+                        <option :value="u.id" x-text="u.display_name || u.email || 'Unnamed User'"></option>
                     </template>
+                    {% endif %}
                 </select>
+                {% endif %}
                 <p class="gis-filter-label">Road</p>
                 <select class="gis-select" x-model="filters.road" @change="onRoadChange()">
                     <option value="">All Roads</option>
@@ -479,33 +497,52 @@
                     Filter Roads
                 </div>
                 <div class="gis-filter-grid">
+                    {% if show_ho_filter %}
                     <div class="gis-filter-col">
                         <label>HO / Agency</label>
-                        <select class="gis-dropdown" x-model="filters.ho" @change="onHoChange()">
+                        <select class="gis-dropdown" x-model="filters.ho" @change="onHoChange()" :disabled="locks.ho">
+                            {% if lock_ho_filter %}
+                            <option value="{{ assigned_ho }}">{{ assigned_ho_name|default:"Unassigned HO" }}</option>
+                            {% else %}
                             <option value="">Select HO</option>
                             <template x-for="u in hoUnits" :key="u.id">
-                                <option :value="u.id" x-text="u.name"></option>
+                                <option :value="u.id" x-text="u.display_name || u.email || 'Unnamed User'"></option>
                             </template>
+                            {% endif %}
                         </select>
                     </div>
+                    {% endif %}
+                    {% if show_ro_filter %}
                     <div class="gis-filter-col">
                         <label>RO / District</label>
-                        <select class="gis-dropdown" x-model="filters.ro" @change="onRoChange()">
+                        <select class="gis-dropdown" x-model="filters.ro" @change="onRoChange()" :disabled="locks.ro">
+                            {% if lock_ro_filter %}
+                            <option value="{{ assigned_ro }}">{{ assigned_ro_name|default:"Unassigned RO" }}</option>
+                            {% else %}
                             <option value="">Select RO</option>
                             <template x-for="u in roUnits" :key="u.id">
-                                <option :value="u.id" x-text="u.name"></option>
+                                <option :value="u.id" x-text="u.display_name || u.email || 'Unnamed User'"></option>
                             </template>
+                            {% endif %}
                         </select>
                     </div>
+                    {% endif %}
+                    {% if show_piu_filter %}
                     <div class="gis-filter-col">
                         <label>PIU / Market Committee</label>
-                        <select class="gis-dropdown" x-model="filters.piu" @change="onPiuChange()">
+                        <select class="gis-dropdown" x-model="filters.piu" @change="onPiuChange()"
+                            :disabled="locks.piu">
+                            {% if lock_piu_filter %}
+                            <option value="{{ assigned_piu }}">{{ assigned_piu_name|default:"Unassigned PIU" }}</option>
+                            {% else %}
                             <option value="">Select PIU</option>
                             <template x-for="u in piuUnits" :key="u.id">
-                                <option :value="u.id" x-text="u.name"></option>
+                                <option :value="u.id" x-text="u.display_name || u.email || 'Unnamed User'"></option>
                             </template>
+                            {% endif %}
                         </select>
                     </div>
+                    {% endif %}
                     <div class="gis-filter-col">
                         <label>Road</label>
                         <select class="gis-dropdown" x-model="filters.road" @change="onRoadChange()">
@@ -579,30 +616,49 @@
                     Filter by Region
                 </div>
                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                    {% if show_ho_filter %}
                     <div class="gis-filter-col"><label>HO / Agency</label>
-                        <select class="gis-dropdown" x-model="filters.ho" @change="onHoChange()">
+                        <select class="gis-dropdown" x-model="filters.ho" @change="onHoChange()" :disabled="locks.ho">
+                            {% if lock_ho_filter %}
+                            <option value="{{ assigned_ho }}">{{ assigned_ho_name|default:"Unassigned HO" }}</option>
+                            {% else %}
                             <option value="">Select HO</option>
                             <template x-for="u in hoUnits" :key="u.id">
-                                <option :value="u.id" x-text="u.name"></option>
+                                <option :value="u.id" x-text="u.display_name || u.email || 'Unnamed User'"></option>
                             </template>
+                            {% endif %}
                         </select>
                     </div>
+                    {% endif %}
+                    {% if show_ro_filter %}
                     <div class="gis-filter-col"><label>RO / District</label>
-                        <select class="gis-dropdown" x-model="filters.ro" @change="onRoChange()">
+                        <select class="gis-dropdown" x-model="filters.ro" @change="onRoChange()" :disabled="locks.ro">
+                            {% if lock_ro_filter %}
+                            <option value="{{ assigned_ro }}">{{ assigned_ro_name }}</option>
+                            {% else %}
                             <option value="">Select RO</option>
                             <template x-for="u in roUnits" :key="u.id">
-                                <option :value="u.id" x-text="u.name"></option>
+                                <option :value="u.id" x-text="u.display_name || u.email || 'Unnamed User'"></option>
                             </template>
+                            {% endif %}
                         </select>
                     </div>
+                    {% endif %}
+                    {% if show_piu_filter %}
                     <div class="gis-filter-col"><label>PIU / Market Committee</label>
-                        <select class="gis-dropdown" x-model="filters.piu" @change="onPiuChange()">
+                        <select class="gis-dropdown" x-model="filters.piu" @change="onPiuChange()"
+                            :disabled="locks.piu">
+                            {% if lock_piu_filter %}
+                            <option value="{{ assigned_piu }}">{{ assigned_piu_name }}</option>
+                            {% else %}
                             <option value="">Select PIU</option>
                             <template x-for="u in piuUnits" :key="u.id">
                                 <option :value="u.id" x-text="u.name"></option>
                             </template>
+                            {% endif %}
                         </select>
                     </div>
+                    {% endif %}
                 </div>
             </div>
 
@@ -766,7 +822,12 @@
             shownRoads: 0,
 
             // Filter state
-            filters: { ho: '', ro: '', piu: '', road: '' },
+            filters: { ho: '{{ assigned_ho|escapejs }}', ro: '{{ assigned_ro|escapejs }}', piu: '{{ assigned_piu|escapejs }}', road: '' },
+            locks: {
+                ho: '{{ lock_ho_filter|yesno:"true,false" }}' === 'true',
+                ro: '{{ lock_ro_filter|yesno:"true,false" }}' === 'true',
+                piu: '{{ lock_piu_filter|yesno:"true,false" }}' === 'true'
+            },
 
             // Data
             allOrgUnits: [],
@@ -831,14 +892,14 @@
 
             async loadOrgUnits() {
                 try {
-                    const r = await fetch('/api/v1/org-units/?page_size=500', { credentials: 'include' });
+                    const r = await fetch('/api/v1/users/?page_size=500', { credentials: 'include' });
                     const d = await r.json();
                     this.allOrgUnits = d.results || [];
 
-                    // Classify by level name
-                    this.hoUnits = this.allOrgUnits.filter(u => u.level_detail?.level_name?.toUpperCase() === 'HO');
-                    this.roUnits = this.allOrgUnits.filter(u => u.level_detail?.level_name?.toUpperCase() === 'RO');
-                    this.piuUnits = this.allOrgUnits.filter(u => u.level_detail?.level_name?.toUpperCase() === 'PIU');
+                    // Classify by role
+                    this.hoUnits = this.allOrgUnits.filter(u => u.role === 'HO_USER');
+                    this.roUnits = this.allOrgUnits.filter(u => u.role === 'RO_USER');
+                    this.piuUnits = this.allOrgUnits.filter(u => u.role === 'PIU_USER');
 
                     this.stats.orgUnits = this.allOrgUnits.length;
                 } catch (e) { console.error('loadOrgUnits', e); }
@@ -858,8 +919,8 @@
             onHoChange() {
                 this.filters.ro = ''; this.filters.piu = ''; this.filters.road = '';
                 if (this.filters.ho) {
-                    this.roUnits = this.allOrgUnits.filter(u => u.level_detail?.level_name?.toUpperCase() === 'RO');
-                    this.piuUnits = this.allOrgUnits.filter(u => u.level_detail?.level_name?.toUpperCase() === 'PIU');
+                    this.roUnits = this.allOrgUnits.filter(u => u.role === 'RO_USER');
+                    this.piuUnits = this.allOrgUnits.filter(u => u.role === 'PIU_USER');
                 }
                 this.applyFilters();
             },
