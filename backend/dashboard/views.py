@@ -24,6 +24,7 @@ class DashboardMixin(LoginRequiredMixin):
         user = self.request.user
         ctx['user_role'] = getattr(user, 'role', None)
         ctx['user_org']  = getattr(user, 'organization', None)
+        ctx['active_page'] = self.active_page
 
         # Resolve the user's primary org unit label for the welcome banner
         try:
@@ -82,8 +83,9 @@ class DashboardHomeView(DashboardMixin, TemplateView):
     active_page   = "home"
 
     def dispatch(self, request, *args, **kwargs):
-        # HO users live in the GIS view — redirect them straight there
-        if getattr(request.user, 'role', None) == SystemRole.HO_USER:
+        # HO, RO, and PIU users live in the GIS view — redirect them straight there
+        role = getattr(request.user, 'role', None)
+        if role in [SystemRole.HO_USER, SystemRole.RO_USER, SystemRole.PIU_USER]:
             return redirect('dashboard:gis')
         return super().dispatch(request, *args, **kwargs)
 
@@ -283,19 +285,23 @@ class GISMapView(DashboardMixin, TemplateView):
         ctx['show_ho_filter'] = base_qs.filter(role=SystemRole.HO_USER).exists()
         ctx['show_ro_filter'] = base_qs.filter(role=SystemRole.RO_USER).exists()
         ctx['show_piu_filter'] = base_qs.filter(role=SystemRole.PIU_USER).exists()
+        ctx['show_project_filter'] = base_qs.filter(role=SystemRole.PROJECT_USER).exists()
         
         role = getattr(user, 'role', None)
         lock_ho_filter = False
         lock_ro_filter = False
         lock_piu_filter = False
+        lock_project_filter = False
         
         assigned_ho = ""
         assigned_ro = ""
         assigned_piu = ""
+        assigned_project = ""
         
         assigned_ho_name = ""
         assigned_ro_name = ""
         assigned_piu_name = ""
+        assigned_project_name = ""
 
         if role == SystemRole.HO_USER:
             lock_ho_filter = True
@@ -327,15 +333,38 @@ class GISMapView(DashboardMixin, TemplateView):
                 assigned_ho = str(ho_u.id)
                 assigned_ho_name = ho_u.display_name
 
+        elif role == SystemRole.PROJECT_USER:
+            lock_ho_filter = True
+            lock_ro_filter = True
+            lock_piu_filter = True
+            lock_project_filter = True
+            assigned_project = str(user.id)
+            assigned_project_name = user.display_name
+            piu_u = User.objects.filter(role=SystemRole.PIU_USER, organization=user.organization, is_active=True).first()
+            if piu_u:
+                assigned_piu = str(piu_u.id)
+                assigned_piu_name = piu_u.display_name
+            ro_u = User.objects.filter(role=SystemRole.RO_USER, organization=user.organization, is_active=True).first()
+            if ro_u:
+                assigned_ro = str(ro_u.id)
+                assigned_ro_name = ro_u.display_name
+            ho_u = User.objects.filter(role=SystemRole.HO_USER, organization=user.organization, is_active=True).first()
+            if ho_u:
+                assigned_ho = str(ho_u.id)
+                assigned_ho_name = ho_u.display_name
+
         ctx['lock_ho_filter'] = lock_ho_filter
         ctx['lock_ro_filter'] = lock_ro_filter
         ctx['lock_piu_filter'] = lock_piu_filter
+        ctx['lock_project_filter'] = lock_project_filter
         ctx['assigned_ho'] = assigned_ho
         ctx['assigned_ro'] = assigned_ro
         ctx['assigned_piu'] = assigned_piu
+        ctx['assigned_project'] = assigned_project
         ctx['assigned_ho_name'] = assigned_ho_name
         ctx['assigned_ro_name'] = assigned_ro_name
         ctx['assigned_piu_name'] = assigned_piu_name
+        ctx['assigned_project_name'] = assigned_project_name
         
         return ctx
 

@@ -256,8 +256,8 @@
     x-transition:enter-end="opacity-100" x-transition:leave="transition-opacity ease-linear duration-200"
     x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
 
-  <!-- ═══ SIDEBAR (hidden for HO_USER — they use the GIS sidebar) ═══ -->
-  {% if request.user.role != 'HO_USER' %}
+  <!-- ═══ SIDEBAR (hidden for GIS Map — it uses its own sidebar) ═══ -->
+  {% if active_page != 'gis' %}
   <aside :class="[mob ? 'translate-x-0' : '-translate-x-full lg:translate-x-0', col ? 'w-[72px]' : 'w-60']"
     class="fixed inset-y-0 left-0 z-50 flex flex-col transition-[width,transform] duration-300 ease-in-out overflow-hidden"
     style="background: linear-gradient(165deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);">
@@ -470,7 +470,7 @@
   {% endif %}
 
   <!-- ═══ SIDEBAR EDGE TOGGLE (desktop) ═══ -->
-  {% if request.user.role != 'HO_USER' %}
+  {% if active_page != 'gis' %}
   <!-- Floats at the right edge of the sidebar, always visible, slides with it -->
   <button @click="col=!col" :style="col ? 'left: 72px' : 'left: 240px'" class="hidden lg:flex fixed top-1/2 -translate-y-1/2 -translate-x-1/2 z-[60]
            w-6 h-12 items-center justify-center
@@ -490,7 +490,7 @@
   {% endif %}
 
   <!-- ═══ MAIN AREA ═══ -->
-  <div :class="{% if request.user.role == 'HO_USER' %}''{% else %}col ? 'lg:pl-[72px]' : 'lg:pl-60'{% endif %}"
+  <div :class="{% if active_page == 'gis' %}''{% else %}col ? 'lg:pl-[72px]' : 'lg:pl-60'{% endif %}"
     class="flex flex-col min-h-screen transition-[padding-left] duration-300 ease-in-out">
 
     <!-- Topbar -->
@@ -503,9 +503,17 @@
         </svg>
       </button>
 
-      <!-- Page title -->
-      <div class="flex-1 min-w-0">
+      <!-- Page title & Branding -->
+      <div class="flex-1 min-w-0 flex items-center gap-2.5">
+        {% if active_page == 'gis' %}
+        <img src="{% static 'img/logo.png' %}" alt="RoadAthena Logo" class="w-8 h-8 shrink-0 object-contain rounded-lg">
+        <div>
+          <h1 class="text-[15px] font-bold text-slate-800 tracking-tight leading-none">RoadAtthena</h1>
+          <p class="text-[10px] font-bold uppercase tracking-[0.1em] text-indigo-500 mt-1 leading-none">Dashboard</p>
+        </div>
+        {% else %}
         <h1 class="text-[15px] font-semibold text-slate-800 truncate">{% block page_title %}Dashboard{% endblock %}</h1>
+        {% endif %}
       </div>
 
       <!-- Topbar right -->
