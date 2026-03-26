@@ -35,7 +35,7 @@ def get_user_accessible_units(user):
     from accounts.models import SystemRole
     if user.role == SystemRole.SUPER_ADMIN:
         return OrgUnit.objects.all()
-    if user.role == SystemRole.ORG_ADMIN:
+    if user.role in [SystemRole.ORG_ADMIN, SystemRole.HO_USER]:
         return OrgUnit.objects.filter(organization=user.organization)
 
     sql = """

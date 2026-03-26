@@ -44,7 +44,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
         return qs.none()
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["is_active", "is_staff"]
+    filterset_fields = ["is_active", "is_staff", "role", "organization"]
     search_fields    = ["email", "full_name", "phone"]
     ordering_fields  = ["email", "full_name", "date_joined"]
 

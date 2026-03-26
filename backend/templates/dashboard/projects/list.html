@@ -49,7 +49,7 @@
         <select x-model="filterHo" @change="onFilterChange()" class="input-base text-sm py-1.5 min-w-[140px]">
           <option value="">-- All HO Users --</option>
           <template x-for="u in getAvailableHoUsers()" :key="u.id">
-            <option :value="u.id" x-text="u.full_name || u.email"></option>
+            <option :value="u.id" x-text="u.name"></option>
           </template>
         </select>
       </div>
@@ -57,7 +57,7 @@
         <select x-model="filterRo" @change="onFilterChange()" class="input-base text-sm py-1.5 min-w-[140px]">
           <option value="">-- All RO Users --</option>
           <template x-for="u in getAvailableRoUsers()" :key="u.id">
-            <option :value="u.id" x-text="u.full_name || u.email"></option>
+            <option :value="u.id" x-text="u.name"></option>
           </template>
         </select>
       </div>
@@ -65,7 +65,7 @@
         <select x-model="filterPiu" @change="onFilterChange()" class="input-base text-sm py-1.5 min-w-[140px]">
           <option value="">-- All PIU Users --</option>
           <template x-for="u in getAvailablePiuUsers()" :key="u.id">
-            <option :value="u.id" x-text="u.full_name || u.email"></option>
+            <option :value="u.id" x-text="u.name"></option>
           </template>
         </select>
       </div>
@@ -73,7 +73,7 @@
         <select x-model="filterProjectUser" @change="onFilterChange()" class="input-base text-sm py-1.5 min-w-[140px]">
           <option value="">-- All Project Users --</option>
           <template x-for="u in getAvailableProjectUsers()" :key="u.id">
-            <option :value="u.id" x-text="u.full_name || u.email"></option>
+            <option :value="u.id" x-text="u.name"></option>
           </template>
         </select>
       </div>
@@ -369,31 +369,44 @@
         if (this.form.project_user && !this.getAvailableFormProjectUsers().some(u => u.id === this.form.project_user)) this.form.project_user = '';
       },
 
-      onFilterChange() {
-        if (this.filterRo && !this.getAvailableRoUsers().some(u => u.id === this.filterRo)) this.filterRo = '';
-        if (this.filterPiu && !this.getAvailablePiuUsers().some(u => u.id === this.filterPiu)) this.filterPiu = '';
-        if (this.filterProjectUser && !this.getAvailableProjectUsers().some(u => u.id === this.filterProjectUser)) this.filterProjectUser = '';
-        this.page = 1;
-        this.loadProjects();
-      },
       async _fetchFilterUsers() {
-        const r = await fetch('/api/v1/users/?page_size=500', { credentials: 'include' });
-        const d = await r.json();
-        const users = d.results || [];
-        this.filterHoUsers = users.filter(u => u.role === 'HO_USER');
-        this.filterRoUsers = users.filter(u => u.role === 'RO_USER');
-        this.filterPiuUsers = users.filter(u => u.role === 'PIU_USER');
-        this.filterProjectUsers = users.filter(u => u.role === 'PROJECT_USER');
+        try {
+          const r = await fetch('/api/v1/projects/?page_size=1000', { credentials: 'include' });
+          const d = await r.json();
+          const projs = d.results || [];
+
+          const mHo = new Map(), mRo = new Map(), mPiu = new Map(), mProj = new Map();
+          projs.forEach(p => {
+            if (p.ho_user) mHo.set(p.ho_user, { id: p.ho_user, name: p.ho_user_name });
+            if (p.ro_user) mRo.set(p.ro_user, { id: p.ro_user, name: p.ro_user_name, ho_user: p.ho_user });
+            if (p.piu_user) mPiu.set(p.piu_user, { id: p.piu_user, name: p.piu_user_name, ho_user: p.ho_user, ro_user: p.ro_user });
+            if (p.project_user) mProj.set(p.project_user, { id: p.project_user, name: p.project_user_name, ho_user: p.ho_user, ro_user: p.ro_user, piu_user: p.piu_user });
+          });
+          this.filterHoUsers = Array.from(mHo.values());
+          this.filterRoUsers = Array.from(mRo.values());
+          this.filterPiuUsers = Array.from(mPiu.values());
+          this.filterProjectUsers = Array.from(mProj.values());
+        } catch (e) {
+          console.error(e);
+        }
       },
+
+      loadAllProjectsForFilters() {
+        this._fetchFilterUsers();
+      },
+
+
       async _fetchOrgs() {
         const r = await fetch('/api/v1/organizations/?page_size=200', { credentials: 'include' });
         const d = await r.json();
         this.formOrgs = d.results ?? [];
       },
+
       async onOrgChange() {
         this.form.ho_user = '';
         this.form.ro_user = '';
         this.form.piu_user = '';
+        this.form.project_user = '';
         this.hoUsers = [];
         this.roUsers = [];
         this.piuUsers = [];
@@ -418,6 +431,7 @@
         this.saveError = null;
         this.formOpen = true;
       },
+
       async openEdit(proj) {
         this.editId = proj.id;
         this.saveError = null;
@@ -430,7 +444,6 @@
           project_user: proj.project_user || '',
           description: proj.description || ''
         };
-
         const r = await fetch(`/api/v1/users/?organization=${proj.organization}&page_size=500`, { credentials: 'include' });
         const d = await r.json();
         const users = d.results || [];
@@ -438,9 +451,9 @@
         this.roUsers = users.filter(u => u.role === 'RO_USER');
         this.piuUsers = users.filter(u => u.role === 'PIU_USER');
         this.projectUsers = users.filter(u => u.role === 'PROJECT_USER');
-
         this.formOpen = true;
       },
+
       async save() {
         if (!this.form.name.trim() || !this.form.organization) return;
         this.saving = true; this.saveError = null;
@@ -464,12 +477,15 @@
           if (!r.ok) { this.saveError = _fmtErr(await r.json()); return; }
           this.formOpen = false;
           this.page = 1;
+          // Reload both the filtered view AND the full project list for filters
           this.loadProjects();
+          this.loadAllProjectsForFilters();
         } catch (e) { this.saveError = e.message; }
         finally { this.saving = false; }
       }
     });
   }
+
   function _fmtErr(d) {
     if (!d) return 'Unknown error';
     if (typeof d === 'string') return d;

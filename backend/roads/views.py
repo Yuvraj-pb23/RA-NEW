@@ -48,25 +48,49 @@ class RoadFilter(django_filters.FilterSet):
         fields = ["project", "organization", "ho_user", "ro_user", "piu_user", "project_user", "road_type", "name"]
 
     def filter_ho_user(self, queryset, name, value):
-        return queryset.filter(
-            Q(project__ho_user__id=value) |
-            Q(project__ro_user__ho_user__id=value) |
-            Q(project__piu_user__ho_user__id=value) |
-            Q(project__project_user__ho_user__id=value)
-        ).distinct()
+        from accounts.models import User
+        from access.utils import get_user_accessible_units
+        try:
+            target_user = User.objects.get(id=value)
+            accessible_units = get_user_accessible_units(target_user)
+            return queryset.filter(
+                Q(project__ho_user__id=value) |
+                Q(project__ro_user__ho_user__id=value) |
+                Q(project__piu_user__ho_user__id=value) |
+                Q(project__project_user__ho_user__id=value) |
+                Q(project__org_unit__in=accessible_units)
+            ).distinct()
+        except User.DoesNotExist:
+            return queryset.none()
 
     def filter_ro_user(self, queryset, name, value):
-        return queryset.filter(
-            Q(project__ro_user__id=value) |
-            Q(project__piu_user__ro_user__id=value) |
-            Q(project__project_user__ro_user__id=value)
-        ).distinct()
+        from accounts.models import User
+        from access.utils import get_user_accessible_units
+        try:
+            target_user = User.objects.get(id=value)
+            accessible_units = get_user_accessible_units(target_user)
+            return queryset.filter(
+                Q(project__ro_user__id=value) |
+                Q(project__piu_user__ro_user__id=value) |
+                Q(project__project_user__ro_user__id=value) |
+                Q(project__org_unit__in=accessible_units)
+            ).distinct()
+        except User.DoesNotExist:
+            return queryset.none()
 
     def filter_piu_user(self, queryset, name, value):
-        return queryset.filter(
-            Q(project__piu_user__id=value) |
-            Q(project__project_user__piu_user__id=value)
-        ).distinct()
+        from accounts.models import User
+        from access.utils import get_user_accessible_units
+        try:
+            target_user = User.objects.get(id=value)
+            accessible_units = get_user_accessible_units(target_user)
+            return queryset.filter(
+                Q(project__piu_user__id=value) |
+                Q(project__project_user__piu_user__id=value) |
+                Q(project__org_unit__in=accessible_units)
+            ).distinct()
+        except User.DoesNotExist:
+            return queryset.none()
 
 
 # ── ViewSet ───────────────────────────────────────────────────────────────────
@@ -100,11 +124,31 @@ class RoadViewSet(ModelViewSet):
     def get_queryset(self):
         qs = super().get_queryset()
         from accounts.models import SystemRole
-        if self.request.user.role == SystemRole.SUPER_ADMIN:
+        from access.utils import get_user_accessible_units
+        from django.db.models import Q
+        
+        user = self.request.user
+        role = getattr(user, 'role', None)
+        
+        if role == SystemRole.SUPER_ADMIN:
             return qs
-        if self.request.user.organization:
-            return qs.filter(project__organization=self.request.user.organization)
-        return qs.none()
+            
+        if role in [SystemRole.ORG_ADMIN, SystemRole.HO_USER]:
+            if user.organization:
+                return qs.filter(project__organization=user.organization)
+            return qs.none()
+            
+        accessible_units = get_user_accessible_units(user)
+        visibility_q = Q(project__org_unit__in=accessible_units)
+        
+        if role == SystemRole.RO_USER:
+            visibility_q |= Q(project__ro_user=user)
+        elif role == SystemRole.PIU_USER:
+            visibility_q |= Q(project__piu_user=user)
+        elif role == SystemRole.PROJECT_USER:
+            visibility_q |= Q(project__project_user=user)
+            
+        return qs.filter(visibility_q).distinct()
 
 from django.contrib.auth.decorators import login_required
 

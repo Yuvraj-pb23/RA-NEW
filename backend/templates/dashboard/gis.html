@@ -876,7 +876,8 @@
             hoUnits: [],
             roUnits: [],
             piuUnits: [],
-            projectUnits: [],
+            projectUserUnits: [], // Added for project users
+            allProjects: [], // Real projects from API
             allRoads: [],
             filteredRoads: [],
 
@@ -896,7 +897,7 @@
                 // Init Leaflet map
                 this.$nextTick(() => { this.initMap(); });
                 // Load data
-                await Promise.all([this.loadOrgUnits(), this.loadRoads()]);
+                await Promise.all([this.loadOrgUnits(), this.loadProjects(), this.loadRoads()]);
             },
 
             initMap() {
@@ -943,10 +944,18 @@
                     this.hoUnits = this.allOrgUnits.filter(u => u.role === 'HO_USER');
                     this.roUnits = this.allOrgUnits.filter(u => u.role === 'RO_USER');
                     this.piuUnits = this.allOrgUnits.filter(u => u.role === 'PIU_USER');
-                    this.projectUnits = this.allOrgUnits.filter(u => u.role === 'PROJECT_USER');
+                    this.projectUserUnits = this.allOrgUnits.filter(u => u.role === 'PROJECT_USER');
 
                     this.stats.orgUnits = this.allOrgUnits.length;
                 } catch (e) { console.error('loadOrgUnits', e); }
+            },
+
+            async loadProjects() {
+                try {
+                    const r = await fetch('/api/v1/projects/?page_size=1000', { credentials: 'include' });
+                    const d = await r.json();
+                    this.allProjects = d.results || [];
+                } catch (e) { console.error('loadProjects', e); }
             },
 
             getAvailableHoUnits() {
@@ -963,7 +972,7 @@
                 });
             },
             getAvailableProjectUserUnits() {
-                return this.projectUnits.filter(u => {
+                return this.projectUserUnits.filter(u => {
                     if (this.filters.ho && u.ho_user !== this.filters.ho) return false;
                     if (this.filters.ro && u.ro_user !== this.filters.ro) return false;
                     if (this.filters.piu && u.piu_user !== this.filters.piu) return false;
@@ -971,11 +980,13 @@
                 });
             },
             getAvailableProjectUnits() {
-                const map = new Map();
-                this.allRoads.forEach(r => {
-                    if (r.project) map.set(r.project, r.project_name);
+                return this.allProjects.filter(p => {
+                    if (this.filters.ho && p.ho_user !== this.filters.ho) return false;
+                    if (this.filters.ro && p.ro_user !== this.filters.ro) return false;
+                    if (this.filters.piu && p.piu_user !== this.filters.piu) return false;
+                    if (this.filters.projectUser && p.project_user !== this.filters.projectUser) return false;
+                    return true;
                 });
-                return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
             },
 
             async loadRoads() {

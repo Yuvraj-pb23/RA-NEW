@@ -357,9 +357,29 @@ class RoadDetailView(DashboardMixin, DetailView):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        user_role = getattr(self.request.user, 'role', None)
-        if user_role == SystemRole.SUPER_ADMIN:
-            return qs
+        from accounts.models import SystemRole
         from access.utils import get_user_accessible_units
-        accessible_units = get_user_accessible_units(self.request.user)
-        return qs.filter(project__org_unit__in=accessible_units)
+        from django.db.models import Q
+        
+        user = self.request.user
+        role = getattr(user, 'role', None)
+        
+        if role == SystemRole.SUPER_ADMIN:
+            return qs
+            
+        if role in [SystemRole.ORG_ADMIN, SystemRole.HO_USER]:
+            if user.organization:
+                return qs.filter(project__organization=user.organization)
+            return qs.none()
+            
+        accessible_units = get_user_accessible_units(user)
+        visibility_q = Q(project__org_unit__in=accessible_units)
+        
+        if role == SystemRole.RO_USER:
+            visibility_q |= Q(project__ro_user=user)
+        elif role == SystemRole.PIU_USER:
+            visibility_q |= Q(project__piu_user=user)
+        elif role == SystemRole.PROJECT_USER:
+            visibility_q |= Q(project__project_user=user)
+            
+        return qs.filter(visibility_q).distinct()
