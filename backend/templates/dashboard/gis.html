@@ -1084,9 +1084,11 @@
 
                         const colors = { NH: '#1d4ed8', SH: '#15803d', MDR: '#b45309', ODR: '#7c3aed', VR: '#0369a1' };
                         const color = colors[r.road_type] || '#4f46e5';
+                        const lengthDisplay = r.length ? parseFloat(r.length).toFixed(3) : (r.length_km ? parseFloat(r.length_km).toFixed(3) : '—');
+                        const gpxBadge = r.gpx_file ? '<span style="background:#dbeafe;color:#1d4ed8;font-size:10px;padding:1px 6px;border-radius:4px;margin-left:4px;font-weight:600;">GPX</span>' : '';
 
-                        const poly = L.polyline(coords, { color, weight: 3, opacity: 0.85 });
-                        poly.bindPopup(`<b>${r.name}</b><br>Type: ${r.road_type || '—'}<br>Length: ${r.length_km || '—'} km`);
+                        const poly = L.polyline(coords, { color, weight: 3.5, opacity: 0.9 });
+                        poly.bindPopup(`<b>${r.name}</b>${gpxBadge}<br>Type: ${r.road_type || '—'}<br>Length: ${lengthDisplay} km`);
                         poly.addTo(this.map);
                         this.roadLayers.push(poly);
                         bounds.push(...coords);

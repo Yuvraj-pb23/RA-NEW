@@ -150,6 +150,34 @@ class RoadViewSet(ModelViewSet):
             
         return qs.filter(visibility_q).distinct()
 
+    def perform_create(self, serializer):
+        road = serializer.save()
+        if road.gpx_file:
+            self._process_gpx(road)
+            road.refresh_from_db()
+
+    def perform_update(self, serializer):
+        road = serializer.save()
+        if 'gpx_file' in serializer.validated_data and road.gpx_file:
+            self._process_gpx(road)
+            road.refresh_from_db()
+
+    def _process_gpx(self, road):
+        try:
+            from .utils import parse_gpx
+            data = parse_gpx(road.gpx_file.path)
+            if data and "points" in data and len(data["points"]) >= 2:
+                coords = [[pt["lng"], pt["lat"]] for pt in data["points"]]
+                road.geometry = {
+                    "type": "LineString",
+                    "coordinates": coords
+                }
+                if road.length == 0 and "length_km" in data:
+                    road.length = data["length_km"]
+                road.save(update_fields=['geometry', 'length'])
+        except Exception as e:
+            print(f"Failed to process GPX for Road {road.id}: {e}")
+
 from django.contrib.auth.decorators import login_required
 
 @login_required

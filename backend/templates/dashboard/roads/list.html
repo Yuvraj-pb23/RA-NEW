@@ -212,7 +212,7 @@
   <div x-show="formOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
     x-transition:enter="transition duration-150" x-transition:enter-start="opacity-0"
     x-transition:enter-end="opacity-100">
-    <form class="bg-white rounded-2xl shadow-2xl w-full max-w-md" @click.stop @submit.prevent="save">
+    <form class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl" @click.stop @submit.prevent="save">
       <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
         <h2 class="text-base font-semibold text-slate-800" x-text="editId ? 'Edit Road' : 'New Road'"></h2>
         <button @click="formOpen=false" class="p-1 rounded hover:bg-slate-100 text-slate-400">
@@ -229,32 +229,102 @@
               class="text-red-500">*</span></label>
           <input x-model="form.name" type="text" class="input-base" placeholder="Enter road name">
         </div>
+
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Project <span
-              class="text-red-500">*</span></label>
-          <select x-model="form.project" class="input-base">
-            <option value="">— Select project —</option>
-            <template x-for="p in formProjects" :key="p.id">
-              <option :value="p.id" x-text="p.name"></option>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Organization</label>
+          <select x-model="form.organization" @change="onFormOrgChange()" class="input-base" :disabled="!!editId">
+            <option value="">— Select organization —</option>
+            <template x-for="org in formOrgs" :key="org.id">
+              <option :value="org.id" x-text="org.name"></option>
             </template>
           </select>
         </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Road Type</label>
-          <select x-model="form.road_type" class="input-base">
-            <option value="">— Select type —</option>
-            <option value="NH">National Highway</option>
-            <option value="SH">State Highway</option>
-            <option value="MDR">Major District Road</option>
-            <option value="ODR">Other District Road</option>
-            <option value="VR">Village Road</option>
-          </select>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">HO User <span
+                class="text-slate-400 font-normal">(Optional)</span></label>
+            <select x-model="form.ho_user" @change="onFormUserChange()" class="input-base"
+              :disabled="!form.organization">
+              <option value="">— Select HO User —</option>
+              <template x-for="u in getAvailableFormHoUsers()" :key="u.id">
+                <option :value="u.id" x-text="u.name || u.full_name || u.email"></option>
+              </template>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">RO User <span
+                class="text-slate-400 font-normal">(Optional)</span></label>
+            <select x-model="form.ro_user" @change="onFormUserChange()" class="input-base"
+              :disabled="!form.organization">
+              <option value="">— Select RO User —</option>
+              <template x-for="u in getAvailableFormRoUsers()" :key="u.id">
+                <option :value="u.id" x-text="u.name || u.full_name || u.email"></option>
+              </template>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">PIU User <span
+                class="text-slate-400 font-normal">(Optional)</span></label>
+            <select x-model="form.piu_user" @change="onFormUserChange()" class="input-base"
+              :disabled="!form.organization">
+              <option value="">— Select PIU User —</option>
+              <template x-for="u in getAvailableFormPiuUsers()" :key="u.id">
+                <option :value="u.id" x-text="u.name || u.full_name || u.email"></option>
+              </template>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Project User <span
+                class="text-slate-400 font-normal">(Optional)</span></label>
+            <select x-model="form.project_user" @change="onFormUserChange()" class="input-base"
+              :disabled="!form.organization">
+              <option value="">— Select Project User —</option>
+              <template x-for="u in getAvailableFormProjectUsers()" :key="u.id">
+                <option :value="u.id" x-text="u.name || u.full_name || u.email"></option>
+              </template>
+            </select>
+          </div>
+          
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Project <span
+                class="text-red-500">*</span></label>
+            <select x-model="form.project" class="input-base">
+              <option value="">— Select project —</option>
+              <template x-for="p in getAvailableFormProjects()" :key="p.id">
+                <option :value="p.id" x-text="p.name"></option>
+              </template>
+            </select>
+          </div>
         </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Length (km) <span
-              class="text-red-500">*</span></label>
-          <input x-model.number="form.length" type="number" step="0.001" min="0" class="input-base"
-            placeholder="Length in km">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Road Type</label>
+            <select x-model="form.road_type" class="input-base">
+              <option value="">— Select type —</option>
+              <option value="NH">National Highway</option>
+              <option value="SH">State Highway</option>
+              <option value="MDR">Major District Road</option>
+              <option value="ODR">Other District Road</option>
+              <option value="VR">Village Road</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Length (km) <span
+                class="text-red-500">*</span></label>
+            <input x-model.number="form.length" type="number" step="0.001" min="0" class="input-base"
+              placeholder="Length in km">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">GPX File <span
+                class="text-slate-400 font-normal">(Optional)</span></label>
+            <input type="file" accept=".gpx" x-ref="gpxInput" class="input-base text-sm file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer text-slate-500">
+            <p class="text-[10px] text-slate-400 mt-1">Uploading a GPX will automatically plot the road geometry on the map. It will also auto-fill the length if 0.</p>
+          </div>
         </div>
       </div>
       <div class="flex gap-3 justify-end px-6 py-4 border-t bg-slate-50 rounded-b-2xl">
@@ -295,9 +365,10 @@
     return Object.assign(listPage({ url: '/api/v1/roads/' }), {
       typeFilter: '',
       formOpen: false, editId: null,
-      form: { name: '', project: '', road_type: '', length: 0 },
+      form: { name: '', project: '', road_type: '', length: 0, organization: '', ho_user: '', ro_user: '', piu_user: '', project_user: '' },
       saving: false, saveError: null,
-      formProjects: [],
+      formProjects: [], formOrgs: [],
+      formHoUsers: [], formRoUsers: [], formPiuUsers: [], formProjectUsers: [],
 
       filterHo: '', filterRo: '', filterPiu: '', filterProjectUser: '', filterProject: '',
       filterHoUsers: [], filterRoUsers: [], filterPiuUsers: [], filterProjectUsers: [],
@@ -309,6 +380,7 @@
         this.loadRoads();
         this._fetchProjects();
         this._fetchFilterUsers();
+        this._fetchFormOrgs();
       },
 
       loadRoads() {
@@ -412,41 +484,141 @@
         this.formProjects = d.results ?? [];
       },
 
+      async _fetchFormOrgs() {
+        const r = await fetch('/api/v1/organizations/?page_size=200', { credentials: 'include' });
+        const d = await r.json();
+        this.formOrgs = d.results ?? [];
+      },
+
+      async onFormOrgChange() {
+        this.form.ho_user = '';
+        this.form.ro_user = '';
+        this.form.piu_user = '';
+        this.form.project_user = '';
+        this.form.project = '';
+        this.formHoUsers = [];
+        this.formRoUsers = [];
+        this.formPiuUsers = [];
+        this.formProjectUsers = [];
+        if (!this.form.organization) return;
+        const r = await fetch(`/api/v1/users/?organization=${this.form.organization}&page_size=500`, { credentials: 'include' });
+        const d = await r.json();
+        const users = d.results || [];
+        this.formHoUsers = users.filter(u => u.role === 'HO_USER');
+        this.formRoUsers = users.filter(u => u.role === 'RO_USER');
+        this.formPiuUsers = users.filter(u => u.role === 'PIU_USER');
+        this.formProjectUsers = users.filter(u => u.role === 'PROJECT_USER');
+      },
+
+      onFormUserChange() {
+        if (this.form.ro_user && !this.getAvailableFormRoUsers().some(u => u.id === this.form.ro_user)) this.form.ro_user = '';
+        if (this.form.piu_user && !this.getAvailableFormPiuUsers().some(u => u.id === this.form.piu_user)) this.form.piu_user = '';
+        if (this.form.project_user && !this.getAvailableFormProjectUsers().some(u => u.id === this.form.project_user)) this.form.project_user = '';
+        if (this.form.project && !this.getAvailableFormProjects().some(p => p.id === this.form.project)) this.form.project = '';
+      },
+
+      getAvailableFormHoUsers() { return this.formHoUsers; },
+      getAvailableFormRoUsers() {
+        return this.formRoUsers.filter(u => !this.form.ho_user || u.ho_user === this.form.ho_user);
+      },
+      getAvailableFormPiuUsers() {
+        return this.formPiuUsers.filter(u => {
+          if (this.form.ho_user && u.ho_user !== this.form.ho_user) return false;
+          if (this.form.ro_user && u.ro_user !== this.form.ro_user) return false;
+          return true;
+        });
+      },
+      getAvailableFormProjectUsers() {
+        return this.formProjectUsers.filter(u => {
+          if (this.form.ho_user && u.ho_user !== this.form.ho_user) return false;
+          if (this.form.ro_user && u.ro_user !== this.form.ro_user) return false;
+          if (this.form.piu_user && u.piu_user !== this.form.piu_user) return false;
+          return true;
+        });
+      },
+      getAvailableFormProjects() {
+        return this.formProjects.filter(p => {
+          if (this.form.organization && p.organization !== this.form.organization) return false;
+          if (this.form.ho_user && p.ho_user !== this.form.ho_user) return false;
+          if (this.form.ro_user && p.ro_user !== this.form.ro_user) return false;
+          if (this.form.piu_user && p.piu_user !== this.form.piu_user) return false;
+          if (this.form.project_user && p.project_user !== this.form.project_user) return false;
+          return true;
+        });
+      },
+
       openCreate() {
         this.editId = null;
-        this.form = { name: '', project: '', road_type: '', length: 0 };
+        this.form = { name: '', project: '', road_type: '', length: 0, organization: '', ho_user: '', ro_user: '', piu_user: '', project_user: '' };
+        this.formHoUsers = []; this.formRoUsers = []; this.formPiuUsers = []; this.formProjectUsers = [];
         this.saveError = null;
+        if (this.$refs.gpxInput) this.$refs.gpxInput.value = '';
         this.formOpen = true;
       },
 
-      openEdit(road) {
+      async openEdit(road) {
         this.editId = road.id;
         this.saveError = null;
+        
+        let org = '', ho = '', ro = '', piu = '', pu = '';
+        if (road.project) {
+          const matchedProj = this.formProjects.find(p => p.id === road.project);
+          if (matchedProj) {
+            org = matchedProj.organization || '';
+            ho = matchedProj.ho_user || '';
+            ro = matchedProj.ro_user || '';
+            piu = matchedProj.piu_user || '';
+            pu = matchedProj.project_user || '';
+          }
+        }
+        
         this.form = {
           name: road.name,
           project: road.project,
           road_type: road.road_type || '',
-          length: parseFloat(road.length || 0)
+          length: parseFloat(road.length || 0),
+          organization: org,
+          ho_user: ho,
+          ro_user: ro,
+          piu_user: piu,
+          project_user: pu
         };
+        
+        if (org) {
+          const r = await fetch(`/api/v1/users/?organization=${org}&page_size=500`, { credentials: 'include' });
+          const d = await r.json();
+          const users = d.results || [];
+          this.formHoUsers = users.filter(u => u.role === 'HO_USER');
+          this.formRoUsers = users.filter(u => u.role === 'RO_USER');
+          this.formPiuUsers = users.filter(u => u.role === 'PIU_USER');
+          this.formProjectUsers = users.filter(u => u.role === 'PROJECT_USER');
+        } else {
+            this.formHoUsers = []; this.formRoUsers = []; this.formPiuUsers = []; this.formProjectUsers = [];
+        }
         this.formOpen = true;
+        if (this.$refs.gpxInput) this.$refs.gpxInput.value = '';
       },
 
       async save() {
         if (!this.form.name.trim() || !this.form.project || this.form.length === '') return;
         this.saving = true; this.saveError = null;
         try {
-          const body = {
-            name: this.form.name.trim(),
-            project: this.form.project,
-            road_type: this.form.road_type || null,
-            length: parseFloat(this.form.length)
-          };
+          const formData = new FormData();
+          formData.append('name', this.form.name.trim());
+          formData.append('project', this.form.project);
+          if (this.form.road_type) formData.append('road_type', this.form.road_type);
+          formData.append('length', this.form.length);
+          
+          if (this.$refs.gpxInput && this.$refs.gpxInput.files[0]) {
+            formData.append('gpx_file', this.$refs.gpxInput.files[0]);
+          }
+
           const url = this.editId ? `/api/v1/roads/${this.editId}/` : '/api/v1/roads/';
           const method = this.editId ? 'PATCH' : 'POST';
           const r = await fetch(url, {
             method, credentials: 'include',
-            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrf() },
-            body: JSON.stringify(body)
+            headers: { 'X-CSRFToken': getCsrf() },
+            body: formData
           });
           if (!r.ok) { this.saveError = _fmtErr(await r.json()); return; }
           this.formOpen = false;
