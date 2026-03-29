@@ -1,3 +1,4 @@
 django
 gpxpy
-pyhton-decouple
+python-decouple
+
