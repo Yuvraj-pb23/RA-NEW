@@ -154,6 +154,112 @@
         font-weight: 600;
     }
 
+    /* ── Minimal Multi-select (Checklist) ── */
+    .gis-check-select {
+        position: relative;
+        width: 100%;
+        font-family: inherit;
+    }
+
+    .gis-check-trigger {
+        width: 100%;
+        min-height: 38px;
+        padding: 8px 12px;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 13px;
+        color: #1e293b;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.2s;
+        text-align: left;
+    }
+
+    .gis-check-trigger:hover {
+        border-color: #cbd5e1;
+        background: #f8fafc;
+    }
+
+    .gis-check-trigger::after {
+        content: "";
+        width: 10px;
+        height: 10px;
+        border-right: 2px solid #64748b;
+        border-bottom: 2px solid #64748b;
+        transform: rotate(45deg);
+        margin-top: -4px;
+        transition: transform 0.2s;
+    }
+
+    .gis-check-select.open .gis-check-trigger::after {
+        transform: rotate(-135deg);
+        margin-top: 4px;
+    }
+
+    .gis-check-dropdown {
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        right: 0;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        z-index: 1000;
+        padding: 6px;
+        display: none;
+    }
+
+    .gis-check-select.open .gis-check-dropdown {
+        display: block;
+    }
+
+    .gis-check-options {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .gis-check-option {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 13px;
+        color: #475569;
+        cursor: pointer;
+    }
+
+    .gis-check-option:hover {
+        background: #f1f5f9;
+    }
+
+    .gis-check-option input {
+        width: 14px;
+        height: 14px;
+        accent-color: #16a34a;
+    }
+
+    .gis-check-label {
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .gis-check-count {
+        background: #f0fdf4;
+        color: #15803d;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+    /* ── End Checklist ── */
+
     /* ── Main content area ── */
     .gis-main {
         flex: 1;
@@ -515,83 +621,119 @@
                     {% if show_ho_filter %}
                     <div class="gis-filter-col">
                         <label>HO / Agency</label>
-                        <select class="gis-dropdown" x-model="filters.ho" @change="onHoChange()" :disabled="locks.ho">
-                            {% if lock_ho_filter %}
-                            <option value="{{ assigned_ho }}">{{ assigned_ho_name|default:"Unassigned HO" }}</option>
-                            {% else %}
-                            <option value="">Select HO</option>
-                            <template x-for="u in getAvailableHoUnits()" :key="u.id">
-                                <option :value="u.id" x-text="u.display_name || u.email || 'Unnamed User'"></option>
-                            </template>
-                            {% endif %}
-                        </select>
+                        <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }" @click.away="open = false">
+                            <div class="gis-check-trigger" @click="if(!locks.ho) open = !open">
+                                <span x-text="filters.ho.length === 0 ? 'Select HO' : (filters.ho.length === 1 ? (getAvailableHoUnits().find(u => u.id === filters.ho[0])?.display_name || '1 Selected') : filters.ho.length + ' Selected')"></span>
+                            </div>
+                            <div class="gis-check-dropdown">
+                                <div class="gis-check-options">
+                                    <template x-for="u in getAvailableHoUnits()" :key="u.id">
+                                        <div class="gis-check-option" @click="toggleSelection(filters.ho, u.id, () => onHoChange())">
+                                            <input type="checkbox" :checked="filters.ho.includes(u.id)">
+                                            <span class="gis-check-label" x-text="u.display_name || u.email"></span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     {% endif %}
                     {% if show_ro_filter %}
                     <div class="gis-filter-col">
                         <label>RO / District</label>
-                        <select class="gis-dropdown" x-model="filters.ro" @change="onRoChange()" :disabled="locks.ro">
-                            {% if lock_ro_filter %}
-                            <option value="{{ assigned_ro }}">{{ assigned_ro_name|default:"Unassigned RO" }}</option>
-                            {% else %}
-                            <option value="">Select RO</option>
-                            <template x-for="u in getAvailableRoUnits()" :key="u.id">
-                                <option :value="u.id" x-text="u.display_name || u.email || 'Unnamed User'"></option>
-                            </template>
-                            {% endif %}
-                        </select>
+                        <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }" @click.away="open = false">
+                            <div class="gis-check-trigger" @click="if(!locks.ro) open = !open">
+                                <span x-text="filters.ro.length === 0 ? 'Select RO' : (filters.ro.length === 1 ? (getAvailableRoUnits().find(u => u.id === filters.ro[0])?.display_name || '1 Selected') : filters.ro.length + ' Selected')"></span>
+                            </div>
+                            <div class="gis-check-dropdown">
+                                <div class="gis-check-options">
+                                    <template x-for="u in getAvailableRoUnits()" :key="u.id">
+                                        <div class="gis-check-option" @click="toggleSelection(filters.ro, u.id, () => onRoChange())">
+                                            <input type="checkbox" :checked="filters.ro.includes(u.id)">
+                                            <span class="gis-check-label" x-text="u.display_name || u.email"></span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     {% endif %}
                     {% if show_piu_filter %}
                     <div class="gis-filter-col">
                         <label>PIU / Market Committee</label>
-                        <select class="gis-dropdown" x-model="filters.piu" @change="onPiuChange()"
-                            :disabled="locks.piu">
-                            {% if lock_piu_filter %}
-                            <option value="{{ assigned_piu }}">{{ assigned_piu_name|default:"Unassigned PIU" }}</option>
-                            {% else %}
-                            <option value="">Select PIU</option>
-                            <template x-for="u in getAvailablePiuUnits()" :key="u.id">
-                                <option :value="u.id" x-text="u.display_name || u.email || 'Unnamed User'"></option>
-                            </template>
-                            {% endif %}
-                        </select>
+                        <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }" @click.away="open = false">
+                            <div class="gis-check-trigger" @click="if(!locks.piu) open = !open">
+                                <span x-text="filters.piu.length === 0 ? 'Select PIU' : (filters.piu.length === 1 ? (getAvailablePiuUnits().find(u => u.id === filters.piu[0])?.display_name || '1 Selected') : filters.piu.length + ' Selected')"></span>
+                            </div>
+                            <div class="gis-check-dropdown">
+                                <div class="gis-check-options">
+                                    <template x-for="u in getAvailablePiuUnits()" :key="u.id">
+                                        <div class="gis-check-option" @click="toggleSelection(filters.piu, u.id, () => onPiuChange())">
+                                            <input type="checkbox" :checked="filters.piu.includes(u.id)">
+                                            <span class="gis-check-label" x-text="u.display_name || u.email"></span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     {% endif %}
                     {% if show_project_filter %}
                     <div class="gis-filter-col">
                         <label>Project User</label>
-                        <select class="gis-dropdown" x-model="filters.projectUser" @change="onProjectUserChange()"
-                            :disabled="locks.projectUser">
-                            {% if lock_project_filter %}
-                            <option value="{{ assigned_project }}">{{ assigned_project_name|default:"Unassigned Project
-                                User" }}</option>
-                            {% else %}
-                            <option value="">Select Project User</option>
-                            <template x-for="u in getAvailableProjectUserUnits()" :key="u.id">
-                                <option :value="u.id" x-text="u.display_name || u.email || 'Unnamed User'"></option>
-                            </template>
-                            {% endif %}
-                        </select>
+                        <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }" @click.away="open = false">
+                            <div class="gis-check-trigger" @click="if(!locks.projectUser) open = !open">
+                                <span x-text="filters.projectUser.length === 0 ? 'Select Project User' : (filters.projectUser.length === 1 ? (getAvailableProjectUserUnits().find(u => u.id === filters.projectUser[0])?.display_name || '1 Selected') : filters.projectUser.length + ' Selected')"></span>
+                            </div>
+                            <div class="gis-check-dropdown">
+                                <div class="gis-check-options">
+                                    <template x-for="u in getAvailableProjectUserUnits()" :key="u.id">
+                                        <div class="gis-check-option" @click="toggleSelection(filters.projectUser, u.id, () => onProjectUserChange())">
+                                            <input type="checkbox" :checked="filters.projectUser.includes(u.id)">
+                                            <span class="gis-check-label" x-text="u.display_name || u.email"></span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     {% endif %}
+
                     <div class="gis-filter-col">
                         <label>Project</label>
-                        <select class="gis-dropdown" x-model="filters.project" @change="onProjectChange()">
-                            <option value="">Select Project</option>
-                            <template x-for="p in getAvailableProjectUnits()" :key="p.id">
-                                <option :value="p.id" x-text="p.name"></option>
-                            </template>
-                        </select>
+                        <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }" @click.away="open = false">
+                            <div class="gis-check-trigger" @click="open = !open">
+                                <span x-text="filters.project.length === 0 ? 'Select Project' : (filters.project.length === 1 ? (getAvailableProjectUnits().find(p => p.id === filters.project[0])?.name || '1 Selected') : filters.project.length + ' Selected')"></span>
+                            </div>
+                            <div class="gis-check-dropdown">
+                                <div class="gis-check-options">
+                                    <template x-for="p in getAvailableProjectUnits()" :key="p.id">
+                                        <div class="gis-check-option" @click="toggleSelection(filters.project, p.id, () => onProjectChange())">
+                                            <input type="checkbox" :checked="filters.project.includes(p.id)">
+                                            <span class="gis-check-label" x-text="p.name"></span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="gis-filter-col">
                         <label>Road</label>
-                        <select class="gis-dropdown" x-model="filters.road" @change="onRoadChange()">
-                            <option value="">Select Road</option>
-                            <template x-for="r in filteredRoads" :key="r.id">
-                                <option :value="r.id" x-text="r.name"></option>
-                            </template>
-                        </select>
+                        <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }" @click.away="open = false">
+                            <div class="gis-check-trigger" @click="open = !open">
+                                <span x-text="filters.road.length === 0 ? 'Select Road' : (filters.road.length === 1 ? (allRoads.find(r => r.id === filters.road[0])?.name || '1 Selected') : filters.road.length + ' Selected')"></span>
+                            </div>
+                            <div class="gis-check-dropdown">
+                                <div class="gis-check-options">
+                                    <template x-for="r in allRoads" :key="r.id">
+                                        <div class="gis-check-option" @click="toggleSelection(filters.road, r.id, () => onRoadChange())">
+                                            <input type="checkbox" :checked="filters.road.includes(r.id)">
+                                            <span class="gis-check-label" x-text="r.name"></span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -862,8 +1004,8 @@
             roadLayers: [],
             shownRoads: 0,
 
-            // Filter state
-            filters: { ho: '{{ assigned_ho|escapejs }}', ro: '{{ assigned_ro|escapejs }}', piu: '{{ assigned_piu|escapejs }}', projectUser: '{{ assigned_project|escapejs }}', project: '', road: '' },
+            // Filter state (now using arrays for multi-selection)
+            filters: { ho: [], ro: [], piu: [], projectUser: [], project: [], road: [], customRole: '' },
             locks: {
                 ho: '{{ lock_ho_filter|yesno:"true,false" }}' === 'true',
                 ro: '{{ lock_ro_filter|yesno:"true,false" }}' === 'true',
@@ -894,6 +1036,12 @@
             },
 
             async init() {
+                // Initialize units into filter arrays if provided by server
+                if ('{{ assigned_ho|escapejs }}') this.filters.ho = ['{{ assigned_ho|escapejs }}'];
+                if ('{{ assigned_ro|escapejs }}') this.filters.ro = ['{{ assigned_ro|escapejs }}'];
+                if ('{{ assigned_piu|escapejs }}') this.filters.piu = ['{{ assigned_piu|escapejs }}'];
+                if ('{{ assigned_project|escapejs }}') this.filters.projectUser = ['{{ assigned_project|escapejs }}'];
+
                 // Init Leaflet map
                 this.$nextTick(() => { this.initMap(); });
                 // Load data
@@ -905,30 +1053,46 @@
                 if (!mapEl || this.map) return;
 
                 this.map = L.map('gis-map', {
-                    center: [28.6, 77.2],  // Default: India
+                    center: [28.6, 77.2],
                     zoom: 6,
                     zoomControl: false,
+                    maxZoom: 19,
+                    minZoom: 4,
                 });
 
                 L.control.zoom({ position: 'bottomleft' }).addTo(this.map);
 
-                this.tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-                    maxZoom: 19
+                // Define layers
+                this.streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap contributors',
+                    maxZoom: 19,
+                    maxNativeZoom: 19
                 });
-                this.tileLayer.addTo(this.map);
+
+                this.satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                    attribution: 'Tiles &copy; Esri', 
+                    maxZoom: 19,
+                    maxNativeZoom: 18
+                });
+
+                // Default layer
+                this.streetLayer.addTo(this.map);
+                this.tileLayer = this.streetLayer; // Keep reference for Alpine logic
+
+                // Add standard Layer Control
+                const baseLayers = {
+                    "Street": this.streetLayer,
+                    "Satellite": this.satelliteLayer
+                };
+                L.control.layers(baseLayers).addTo(this.map);
 
                 this.$watch('mapType', (type) => {
                     if (!this.map) return;
                     this.map.removeLayer(this.tileLayer);
                     if (type === 'satellite') {
-                        this.tileLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                            attribution: 'Tiles &copy; Esri', maxZoom: 19
-                        });
+                        this.tileLayer = this.satelliteLayer;
                     } else {
-                        this.tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                            attribution: '© OpenStreetMap contributors', maxZoom: 19
-                        });
+                        this.tileLayer = this.streetLayer;
                     }
                     this.tileLayer.addTo(this.map);
                 });
@@ -962,29 +1126,29 @@
                 return this.hoUnits;
             },
             getAvailableRoUnits() {
-                return this.roUnits.filter(u => !this.filters.ho || u.ho_user === this.filters.ho);
+                return this.roUnits.filter(u => this.filters.ho.length === 0 || this.filters.ho.includes(u.ho_user));
             },
             getAvailablePiuUnits() {
                 return this.piuUnits.filter(u => {
-                    if (this.filters.ho && u.ho_user !== this.filters.ho) return false;
-                    if (this.filters.ro && u.ro_user !== this.filters.ro) return false;
+                    if (this.filters.ho.length > 0 && !this.filters.ho.includes(u.ho_user)) return false;
+                    if (this.filters.ro.length > 0 && !this.filters.ro.includes(u.ro_user)) return false;
                     return true;
                 });
             },
             getAvailableProjectUserUnits() {
                 return this.projectUserUnits.filter(u => {
-                    if (this.filters.ho && u.ho_user !== this.filters.ho) return false;
-                    if (this.filters.ro && u.ro_user !== this.filters.ro) return false;
-                    if (this.filters.piu && u.piu_user !== this.filters.piu) return false;
+                    if (this.filters.ho.length > 0 && !this.filters.ho.includes(u.ho_user)) return false;
+                    if (this.filters.ro.length > 0 && !this.filters.ro.includes(u.ro_user)) return false;
+                    if (this.filters.piu.length > 0 && !this.filters.piu.includes(u.piu_user)) return false;
                     return true;
                 });
             },
             getAvailableProjectUnits() {
                 return this.allProjects.filter(p => {
-                    if (this.filters.ho && p.ho_user !== this.filters.ho) return false;
-                    if (this.filters.ro && p.ro_user !== this.filters.ro) return false;
-                    if (this.filters.piu && p.piu_user !== this.filters.piu) return false;
-                    if (this.filters.projectUser && p.project_user !== this.filters.projectUser) return false;
+                    if (this.filters.ho.length > 0 && !this.filters.ho.includes(p.ho_user)) return false;
+                    if (this.filters.ro.length > 0 && !this.filters.ro.includes(p.ro_user)) return false;
+                    if (this.filters.piu.length > 0 && !this.filters.piu.includes(p.piu_user)) return false;
+                    if (this.filters.projectUser.length > 0 && !this.filters.projectUser.includes(p.project_user)) return false;
                     return true;
                 });
             },
@@ -992,45 +1156,44 @@
             async loadRoads() {
                 try {
                     const params = new URLSearchParams({ page_size: '1000' });
-                    if (this.filters.ho) params.append('ho_user', this.filters.ho);
-                    if (this.filters.ro) params.append('ro_user', this.filters.ro);
-                    if (this.filters.piu) params.append('piu_user', this.filters.piu);
-                    if (this.filters.projectUser) params.append('project_user', this.filters.projectUser);
+                    // Handle multi-params for the API
+                    if (this.filters.ho.length > 0) params.append('ho_user', this.filters.ho.join(','));
+                    if (this.filters.ro.length > 0) params.append('ro_user', this.filters.ro.join(','));
+                    if (this.filters.piu.length > 0) params.append('piu_user', this.filters.piu.join(','));
+                    if (this.filters.projectUser.length > 0) params.append('project_user', this.filters.projectUser.join(','));
 
                     const r = await fetch(`/api/v1/roads/?${params.toString()}`, { credentials: 'include' });
                     const d = await r.json();
                     this.allRoads = d.results || [];
 
-                    if (this.filters.project && !this.getAvailableProjectUnits().some(p => p.id === this.filters.project)) {
-                        this.filters.project = '';
-                    }
-                    if (this.filters.road && !this.allRoads.some(r => r.id === this.filters.road)) {
-                        this.filters.road = '';
-                    }
+                    // Prune selections that are no longer available
+                    this.filters.project = this.filters.project.filter(id => this.getAvailableProjectUnits().some(p => p.id === id));
+                    this.filters.road = this.filters.road.filter(id => this.allRoads.some(r => r.id === id));
+
                     this.applyFilters();
                 } catch (e) { console.error('loadRoads', e); }
             },
 
             onHoChange() {
-                if (this.filters.ro && !this.getAvailableRoUnits().some(u => u.id === this.filters.ro)) this.filters.ro = '';
-                if (this.filters.piu && !this.getAvailablePiuUnits().some(u => u.id === this.filters.piu)) this.filters.piu = '';
-                if (this.filters.projectUser && !this.getAvailableProjectUserUnits().some(u => u.id === this.filters.projectUser)) this.filters.projectUser = '';
+                this.filters.ro = this.filters.ro.filter(id => this.getAvailableRoUnits().some(u => u.id === id));
+                this.filters.piu = this.filters.piu.filter(id => this.getAvailablePiuUnits().some(u => u.id === id));
+                this.filters.projectUser = this.filters.projectUser.filter(id => this.getAvailableProjectUserUnits().some(u => u.id === id));
                 this.loadRoads();
             },
             onRoChange() {
-                if (this.filters.piu && !this.getAvailablePiuUnits().some(u => u.id === this.filters.piu)) this.filters.piu = '';
-                if (this.filters.projectUser && !this.getAvailableProjectUserUnits().some(u => u.id === this.filters.projectUser)) this.filters.projectUser = '';
+                this.filters.piu = this.filters.piu.filter(id => this.getAvailablePiuUnits().some(u => u.id === id));
+                this.filters.projectUser = this.filters.projectUser.filter(id => this.getAvailableProjectUserUnits().some(u => u.id === id));
                 this.loadRoads();
             },
             onPiuChange() {
-                if (this.filters.projectUser && !this.getAvailableProjectUserUnits().some(u => u.id === this.filters.projectUser)) this.filters.projectUser = '';
+                this.filters.projectUser = this.filters.projectUser.filter(id => this.getAvailableProjectUserUnits().some(u => u.id === id));
                 this.loadRoads();
             },
             onProjectUserChange() {
                 this.loadRoads();
             },
             onProjectChange() {
-                this.filters.road = '';
+                this.filters.road = [];
                 this.applyFilters();
             },
             onRoadChange() {
@@ -1039,11 +1202,11 @@
 
             applyFilters() {
                 let roads = [...this.allRoads];
-                if (this.filters.project) {
-                    roads = roads.filter(r => r.project === this.filters.project);
+                if (this.filters.project.length > 0) {
+                    roads = roads.filter(r => this.filters.project.includes(r.project));
                 }
-                if (this.filters.road) {
-                    roads = roads.filter(r => r.id === this.filters.road);
+                if (this.filters.road.length > 0) {
+                    roads = roads.filter(r => this.filters.road.includes(r.id));
                 }
                 this.filteredRoads = roads;
                 this.computeStats(roads);
@@ -1051,9 +1214,27 @@
             },
 
             clearFilters() {
-                this.filters = { ho: '', ro: '', piu: '', projectUser: '', project: '', road: '' };
+                this.filters = { ho: [], ro: [], piu: [], projectUser: [], project: [], road: [], customRole: '' };
                 this.loadRoads();
             },
+
+            onCustomRoleFilterChange() {
+                // When a custom role filter is selected, reload roads
+                // The role filter is purely frontend/display — actual filtering uses the customRole UUID
+                // to filter users and then their roads.
+                this.loadRoads();
+            },
+
+            toggleSelection(list, id, callback) {
+                const idx = list.indexOf(id);
+                if (idx > -1) {
+                    list.splice(idx, 1);
+                } else {
+                    list.push(id);
+                }
+                if (callback) callback();
+            },
+
 
             computeStats(roads) {
                 const r = roads || this.allRoads;

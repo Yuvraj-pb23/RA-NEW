@@ -4,6 +4,7 @@ from orgs.views import HierarchyLevelViewSet, OrganizationViewSet, OrgUnitViewSe
 from projects.views import ProjectViewSet
 from roads.views import RoadViewSet
 from access.views import UserOrgAccessViewSet
+from roles.views import RoleViewSet
 
 router = DefaultRouter()
 
@@ -16,3 +17,7 @@ router.register(r'users', UserViewSet, basename='user')
 router.register(r"projects", ProjectViewSet, basename="project")
 router.register(r"roads", RoadViewSet, basename="road")
 router.register(r"user-access", UserOrgAccessViewSet, basename="user-access")
+
+# -- Roles (dynamic org roles) ------------------------------------------------
+router.register(r"roles", RoleViewSet, basename="role")
+

@@ -106,13 +106,24 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const map = L.map('map').setView([28.6, 77.2], 5);
-    
-    // Add default OpenStreetMap layer
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    const map = L.map('map', {
         maxZoom: 19,
-        attribution: '© OpenStreetMap contributors'
+        minZoom: 4
+    }).setView([28.6, 77.2], 5);
+    
+    // Add OpenStreetMap (HOT) layer
+    var streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        maxNativeZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
+
+    // Satellite layer (available for use)
+    var satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; Esri',
+        maxNativeZoom: 18,
+        maxZoom: 19
+    });
 
     const roadId = "{{ road.id }}";
     const statusEl = document.getElementById("gpx-status");

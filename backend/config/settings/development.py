@@ -25,3 +25,4 @@ CORS_ALLOWED_ORIGINS = [
 PASSWORD_HASHERS = [
     "django.contrib.auth.hashers.MD5PasswordHasher",
 ]
+SECURE_REFERRER_POLICY = "same-origin"

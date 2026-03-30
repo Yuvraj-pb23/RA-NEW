@@ -3,6 +3,9 @@ from django.views.generic import TemplateView, DetailView
 from django.shortcuts import redirect
 from accounts.models import SystemRole
 from roads.models import Road
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 # ── Role helpers ─────────────────────────────────────────────────────────────
@@ -247,6 +250,19 @@ class AccessListView(OrgAdminRequiredMixin, DashboardMixin, TemplateView):
     active_page   = "access"
 
 
+class RoleManagementView(OrgAdminRequiredMixin, DashboardMixin, TemplateView):
+    """Role Management — accessible only to Org Admin and Super Admin."""
+    template_name = "dashboard/roles/list.html"
+    active_page   = "roles"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        user = self.request.user
+        ctx['org_id'] = str(user.organization_id) if user.organization_id else ''
+        ctx['org_name'] = user.organization.name if user.organization else ''
+        return ctx
+
+
 class GISMapView(DashboardMixin, TemplateView):
     template_name = "dashboard/gis.html"
     active_page   = "gis"
@@ -255,16 +271,51 @@ class GISMapView(DashboardMixin, TemplateView):
         ctx = super().get_context_data(**kwargs)
         from accounts.models import User, SystemRole
         from access.models import UserOrgAccess
-        
+
         user = self.request.user
         base_qs = User.objects.filter(is_active=True)
         if getattr(user, 'organization', None):
             base_qs = base_qs.filter(organization=user.organization)
-            
+
         ctx['show_ho_filter'] = base_qs.filter(role=SystemRole.HO_USER).exists()
         ctx['show_ro_filter'] = base_qs.filter(role=SystemRole.RO_USER).exists()
         ctx['show_piu_filter'] = base_qs.filter(role=SystemRole.PIU_USER).exists()
         ctx['show_project_filter'] = base_qs.filter(role=SystemRole.PROJECT_USER).exists()
+
+        # Dynamic role filters from the roles table
+        try:
+            from roles.models import Role
+            if getattr(user, 'organization', None):
+                custom_role = getattr(user, 'custom_role', None)
+                is_supervisor = (
+                    custom_role is not None and
+                    (custom_role.is_supervisor_role or custom_role.has_supervisor_visibility)
+                )
+                is_org_admin = getattr(user, 'role', None) in ('ORG_ADMIN', 'SUPER_ADMIN')
+
+                roles_qs = Role.objects.filter(
+                    organization=user.organization,
+                    status='active'
+                ).order_by('is_supervisor_role', 'hierarchy_level', 'role_name')
+
+                if not is_supervisor and not is_org_admin and custom_role:
+                    if not custom_role.is_supervisor_role and custom_role.hierarchy_level is not None:
+                        # Show only roles at this level and below (higher level numbers)
+                        roles_qs = roles_qs.filter(
+                            is_supervisor_role=False,
+                            hierarchy_level__gte=custom_role.hierarchy_level,
+                        )
+
+                ctx['dynamic_roles'] = list(
+                    roles_qs.values('id', 'role_name', 'hierarchy_level', 'is_supervisor_role')
+                )
+                ctx['user_has_supervisor_filter'] = is_supervisor or is_org_admin
+            else:
+                ctx['dynamic_roles'] = []
+                ctx['user_has_supervisor_filter'] = False
+        except Exception:
+            ctx['dynamic_roles'] = []
+            ctx['user_has_supervisor_filter'] = False
         
         role = getattr(user, 'role', None)
         lock_ho_filter = False

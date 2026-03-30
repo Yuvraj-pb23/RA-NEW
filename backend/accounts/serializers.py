@@ -37,6 +37,14 @@ class UserSerializer(serializers.ModelSerializer):
     project_user = serializers.PrimaryKeyRelatedField(read_only=True)
     project_user_name = serializers.CharField(source="project_user.display_name", read_only=True)
 
+    custom_role = serializers.PrimaryKeyRelatedField(read_only=True)
+    custom_role_name = serializers.CharField(
+        source="custom_role.role_name", read_only=True, default=None
+    )
+    custom_role_level = serializers.IntegerField(
+        source="custom_role.hierarchy_level", read_only=True, default=None
+    )
+
     class Meta:
         model = User
         fields = [
@@ -53,6 +61,9 @@ class UserSerializer(serializers.ModelSerializer):
             "role",
             "organization",
             "assigned_unit",
+            "custom_role",
+            "custom_role_name",
+            "custom_role_level",
             "ho_user",
             "ho_user_name",
             "ro_user",
@@ -104,8 +115,8 @@ class UserCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            "email", "full_name", "phone", "password", "password_confirm", 
-            "role", "organization", "org_unit",
+            "email", "full_name", "phone", "password", "password_confirm",
+            "role", "organization", "org_unit", "custom_role",
             "ho_user", "ro_user", "piu_user", "project_user"
         ]
 

@@ -30,6 +30,7 @@ from dashboard.views import (
     RoadListView,
     RoadDetailView,
     UserListView,
+    RoleManagementView,
 )
 
 app_name = "dashboard"
@@ -61,5 +62,6 @@ urlpatterns = [
     path("gis/",              GISMapView.as_view(),            name="gis"),
 
     path("users/",            UserListView.as_view(),          name="users"),
+    path("roles/",            RoleManagementView.as_view(),    name="roles"),
     # path("access/",           AccessListView.as_view(),        name="access"),
 ]

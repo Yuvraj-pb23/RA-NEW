@@ -243,35 +243,10 @@
           </div>
         </div>
 
+        <!-- Organization first so roles can load for the right org -->
+        {% if request.user.role == 'SUPER_ADMIN' %}
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Role</label>
-          <select x-model="form.role" @change="onRoleChange()" class="input-base">
-            {% if request.user.role == 'SUPER_ADMIN' %}
-            <option value="ORG_ADMIN">Org Admin</option>
-            <option value="HO_USER">HO User</option>
-            <option value="RO_USER">RO User</option>
-            <option value="PIU_USER">PIU User</option>
-            <option value="PROJECT_USER">Project User</option>
-            {% elif request.user.role == 'ORG_ADMIN' %}
-            <option value="HO_USER">HO User</option>
-            <option value="RO_USER">RO User</option>
-            <option value="PIU_USER">PIU User</option>
-            <option value="PROJECT_USER">Project User</option>
-            {% elif request.user.role == 'HO_USER' %}
-            <option value="RO_USER">RO User</option>
-            <option value="PIU_USER">PIU User</option>
-            <option value="PROJECT_USER">Project User</option>
-            {% elif request.user.role == 'RO_USER' %}
-            <option value="PIU_USER">PIU User</option>
-            <option value="PROJECT_USER">Project User</option>
-            {% elif request.user.role == 'PIU_USER' %}
-            <option value="PROJECT_USER">Project User</option>
-            {% endif %}
-          </select>
-        </div>
-
-        <div x-show="form.role !== 'SUPER_ADMIN'" class="col-span-1 sm:col-span-2">
-          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Organization</label>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Organization <span class="text-red-500">*</span></label>
           <select x-model="form.organization" @change="onOrgChange()" class="input-base">
             <option value="">— Select Organization —</option>
             <template x-for="org in formOrgs" :key="org.id">
@@ -279,6 +254,67 @@
             </template>
           </select>
         </div>
+        {% else %}
+        <!-- Org Admin: organization is fixed to their own org (set in JS init) -->
+        <input type="hidden" x-model="form.organization">
+        {% endif %}
+
+        <!-- Role — dynamically populated from Role Management page -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">
+            Role <span class="text-red-500">*</span>
+          </label>
+
+          <!-- Loading indicator -->
+          <div x-show="rolesLoading" class="input-base flex items-center gap-2 text-slate-400 text-sm">
+            <svg class="w-3.5 h-3.5 animate-spin shrink-0" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            Loading roles…
+          </div>
+
+          <!-- Roles loaded -->
+          <div x-show="!rolesLoading">
+            <select x-model="form.custom_role" class="input-base"
+              :disabled="!form.organization && '{{ request.user.role }}' === 'SUPER_ADMIN'">
+              <option value="">— Select Role —</option>
+              <!-- Supervisor roles -->
+              <template x-if="availableRoles.filter(r => r.is_supervisor_role).length > 0">
+                <optgroup label="── Supervisor Roles ──">
+                  <template x-for="r in availableRoles.filter(r => r.is_supervisor_role)" :key="r.id">
+                    <option :value="r.id" x-text="`👁  ${r.role_name}`"></option>
+                  </template>
+                </optgroup>
+              </template>
+              <!-- Hierarchy roles sorted by level -->
+              <template x-if="availableRoles.filter(r => !r.is_supervisor_role).length > 0">
+                <optgroup label="── Hierarchy Roles ──">
+                  <template x-for="r in availableRoles.filter(r => !r.is_supervisor_role).sort((a,b) => (a.hierarchy_level||99) - (b.hierarchy_level||99))" :key="r.id">
+                    <option :value="r.id" x-text="`${r.role_name}  (Level ${r.hierarchy_level})`"></option>
+                  </template>
+                </optgroup>
+              </template>
+            </select>
+
+            <!-- No roles created yet -->
+            <div x-show="!rolesLoading && availableRoles.length === 0 && form.organization"
+              class="mt-2 flex items-start gap-2 text-[12px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5">
+              <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>
+                No roles found for this organization.
+                <a href="/dashboard/roles/" target="_blank"
+                  class="font-semibold underline underline-offset-2">Create roles</a>
+                in Role Management first.
+              </span>
+            </div>
+          </div>
+        </div>
+
+
 
         <div x-show="form.organization && ['RO_USER', 'PIU_USER', 'PROJECT_USER'].includes(form.role)"
           class="border-t border-slate-100 pt-4 mt-4">
@@ -346,17 +382,25 @@
 
         form: {
           email: '', password: '', password_confirm: '', full_name: '', phone: '',
-          role: 'PROJECT_USER', organization: '',
+          role: 'PROJECT_USER', organization: '', custom_role: '',
           ho_user: '', ro_user: '', piu_user: '', project_user: ''
         },
 
         formOrgs: [],
         hoUsers: [], roUsers: [], piuUsers: [], projectUsers: [],
+        availableRoles: [],
+        rolesLoading: false,
 
         async init() {
           this._debouncedSearch = debounce(() => { this.page = 1; this.load(); }, 350);
           this.load();
           this.fetchOrgs();
+
+          // For Org Admin: pre-load their own org's roles immediately
+          {% if request.user.role == 'ORG_ADMIN' and request.user.organization_id %}
+          this.form.organization = '{{ request.user.organization_id }}';
+          await this.fetchRoles('{{ request.user.organization_id }}');
+          {% endif %}
         },
 
         applyFilter() { this.page = 1; this.load(); },
@@ -381,19 +425,44 @@
           this.formOrgs = d.results || [];
         },
 
+        async fetchRoles(orgId) {
+          if (!orgId) { this.availableRoles = []; return; }
+          this.rolesLoading = true;
+          try {
+            // Fetch only active roles — these are the ones created in Role Management
+            const r = await fetch(`/api/v1/roles/?status=active&page_size=200`, { credentials: 'include' });
+            const d = await r.json();
+            this.availableRoles = d.results || [];
+          } catch(e) { this.availableRoles = []; }
+          finally { this.rolesLoading = false; }
+        },
 
+        // Derive closest system role from custom role hierarchy_level
+        _systemRoleFromCustomRole(customRoleId) {
+          const cr = this.availableRoles.find(r => r.id === customRoleId);
+          if (!cr) return 'HO_USER';
+          if (cr.is_supervisor_role) return 'HO_USER';
+          const level = cr.hierarchy_level || 99;
+          if (level <= 1) return 'HO_USER';
+          if (level === 2) return 'RO_USER';
+          if (level === 3) return 'PIU_USER';
+          return 'PROJECT_USER';
+        },
 
         async onOrgChange() {
           this.form.ho_user = '';
           this.form.ro_user = '';
           this.form.piu_user = '';
           this.form.project_user = '';
+          this.form.custom_role = '';
           this.hoUsers = [];
           this.roUsers = [];
           this.piuUsers = [];
           this.projectUsers = [];
+          this.availableRoles = [];
           if (!this.form.organization) return;
 
+          // Fetch org users for hierarchy selectors
           const r = await fetch(`/api/v1/users/?organization=${this.form.organization}&page_size=500`, { credentials: 'include' });
           const d = await r.json();
           const users = d.results || [];
@@ -401,6 +470,9 @@
           this.roUsers = users.filter(u => u.role === 'RO_USER');
           this.piuUsers = users.filter(u => u.role === 'PIU_USER');
           this.projectUsers = users.filter(u => u.role === 'PROJECT_USER');
+
+          // Fetch active custom roles for this org
+          await this.fetchRoles(this.form.organization);
         },
 
         onRoleChange() {
@@ -431,31 +503,42 @@
         openCreate() {
           this.form = {
             email: '', password: '', password_confirm: '', full_name: '', phone: '',
-            role: 'PROJECT_USER', organization: '',
+            role: 'HO_USER', custom_role: '',
+            // Pre-fill org for Org Admin
+            organization: '{% if request.user.role == "ORG_ADMIN" and request.user.organization_id %}{{ request.user.organization_id }}{% else %}{% endif %}',
             ho_user: '', ro_user: '', piu_user: '', project_user: ''
           };
           this.hoUsers = [];
           this.roUsers = [];
           this.piuUsers = [];
           this.projectUsers = [];
+          // Don't clear roles — already loaded for Org Admin
           this.saveError = null;
           this.formOpen = true;
         },
 
         async save() {
           if (!this.form.email || !this.form.password) return;
+          if (!this.form.custom_role) {
+            this.saveError = 'Please select a role for this user.';
+            return;
+          }
           if (this.form.password !== this.form.password_confirm) {
-            this.saveError = "Passwords do not match.";
+            this.saveError = 'Passwords do not match.';
             return;
           }
           this.saving = true; this.saveError = null;
+          // Auto-derive system role from selected custom role's hierarchy_level
+          const systemRole = this._systemRoleFromCustomRole(this.form.custom_role);
           try {
             const r = await fetch(this.apiUrl, {
               method: 'POST', credentials: 'include',
               headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrf() },
               body: JSON.stringify({
                 ...this.form,
+                role: systemRole,
                 organization: this.form.organization || null,
+                custom_role: this.form.custom_role || null,
                 ho_user: this.form.ho_user || null,
                 ro_user: this.form.ro_user || null,
                 piu_user: this.form.piu_user || null,

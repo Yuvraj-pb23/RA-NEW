@@ -29,15 +29,20 @@ from .models import Project
 from .serializers import ProjectSerializer
 
 
+# ── Custom Filters ────────────────────────────────────────────────────────────
+
+class UUIDInFilter(django_filters.BaseInFilter, django_filters.UUIDFilter):
+    pass
+
 # ── FilterSet ─────────────────────────────────────────────────────────────────
 
 class ProjectFilter(django_filters.FilterSet):
-    organization = django_filters.UUIDFilter(field_name="organization__id")
-    org_unit     = django_filters.UUIDFilter(field_name="org_unit__id")
-    ho_user      = django_filters.Filter(method="filter_ho_user")
-    ro_user      = django_filters.Filter(method="filter_ro_user")
-    piu_user     = django_filters.Filter(method="filter_piu_user")
-    project_user = django_filters.UUIDFilter(field_name="project_user__id")
+    organization = UUIDInFilter(field_name="organization__id")
+    org_unit     = UUIDInFilter(field_name="org_unit__id")
+    ho_user      = django_filters.CharFilter(method="filter_ho_user")
+    ro_user      = django_filters.CharFilter(method="filter_ro_user")
+    piu_user     = django_filters.CharFilter(method="filter_piu_user")
+    project_user = UUIDInFilter(field_name="project_user__id")
     name         = django_filters.CharFilter(field_name="name", lookup_expr="icontains")
 
     class Meta:
@@ -47,47 +52,62 @@ class ProjectFilter(django_filters.FilterSet):
     def filter_ho_user(self, queryset, name, value):
         from accounts.models import User
         from access.utils import get_user_accessible_units
-        try:
-            target_user = User.objects.get(id=value)
-            accessible_units = get_user_accessible_units(target_user)
-            return queryset.filter(
-                Q(ho_user__id=value) |
-                Q(ro_user__ho_user__id=value) |
-                Q(piu_user__ho_user__id=value) |
-                Q(project_user__ho_user__id=value) |
-                Q(org_unit__in=accessible_units)
-            ).distinct()
-        except User.DoesNotExist:
-            return queryset.none()
+        ids = [v.strip() for v in value.split(',') if v.strip()]
+        if not ids: return queryset
+        
+        q = Q()
+        for v in ids:
+            try:
+                target_user = User.objects.get(id=v)
+                accessible_units = get_user_accessible_units(target_user)
+                q |= (
+                    Q(ho_user__id=v) |
+                    Q(ro_user__ho_user__id=v) |
+                    Q(piu_user__ho_user__id=v) |
+                    Q(project_user__ho_user__id=v) |
+                    Q(org_unit__in=accessible_units)
+                )
+            except (User.DoesNotExist, ValueError): continue
+        return queryset.filter(q).distinct() if q else queryset.none()
 
     def filter_ro_user(self, queryset, name, value):
         from accounts.models import User
         from access.utils import get_user_accessible_units
-        try:
-            target_user = User.objects.get(id=value)
-            accessible_units = get_user_accessible_units(target_user)
-            return queryset.filter(
-                Q(ro_user__id=value) |
-                Q(piu_user__ro_user__id=value) |
-                Q(project_user__ro_user__id=value) |
-                Q(org_unit__in=accessible_units)
-            ).distinct()
-        except User.DoesNotExist:
-            return queryset.none()
+        ids = [v.strip() for v in value.split(',') if v.strip()]
+        if not ids: return queryset
+
+        q = Q()
+        for v in ids:
+            try:
+                target_user = User.objects.get(id=v)
+                accessible_units = get_user_accessible_units(target_user)
+                q |= (
+                    Q(ro_user__id=v) |
+                    Q(piu_user__ro_user__id=v) |
+                    Q(project_user__ro_user__id=v) |
+                    Q(org_unit__in=accessible_units)
+                )
+            except (User.DoesNotExist, ValueError): continue
+        return queryset.filter(q).distinct() if q else queryset.none()
 
     def filter_piu_user(self, queryset, name, value):
         from accounts.models import User
         from access.utils import get_user_accessible_units
-        try:
-            target_user = User.objects.get(id=value)
-            accessible_units = get_user_accessible_units(target_user)
-            return queryset.filter(
-                Q(piu_user__id=value) |
-                Q(project_user__piu_user__id=value) |
-                Q(org_unit__in=accessible_units)
-            ).distinct()
-        except User.DoesNotExist:
-            return queryset.none()
+        ids = [v.strip() for v in value.split(',') if v.strip()]
+        if not ids: return queryset
+
+        q = Q()
+        for v in ids:
+            try:
+                target_user = User.objects.get(id=v)
+                accessible_units = get_user_accessible_units(target_user)
+                q |= (
+                    Q(piu_user__id=v) |
+                    Q(project_user__piu_user__id=v) |
+                    Q(org_unit__in=accessible_units)
+                )
+            except (User.DoesNotExist, ValueError): continue
+        return queryset.filter(q).distinct() if q else queryset.none()
 
 
 # ── ViewSet ───────────────────────────────────────────────────────────────────

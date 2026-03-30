@@ -144,10 +144,26 @@ class User(AbstractUser):
     )
 
     # -------------------------------------------------------------------------
+    # Dynamic Custom Role (set by Org Admin via Role Management)
+    # -------------------------------------------------------------------------
+    custom_role = models.ForeignKey(
+        'roles.Role',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="users",
+        help_text=_(
+            "The dynamic org-specific role assigned to this user. "
+            "Created by an Org Admin. Null for Super Admins and Org Admins."
+        ),
+    )
+
+    # -------------------------------------------------------------------------
     # Timestamps
     # -------------------------------------------------------------------------
     # AbstractUser already provides date_joined; we add updated_at.
     updated_at = models.DateTimeField(auto_now=True)
+
 
     # -------------------------------------------------------------------------
     # Manager + auth config
