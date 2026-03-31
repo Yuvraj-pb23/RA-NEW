@@ -139,9 +139,10 @@ class DashboardHomeView(DashboardMixin, TemplateView):
     active_page   = "home"
 
     def dispatch(self, request, *args, **kwargs):
-        # All organization users (Org Admin down to Project User) default to the GIS view
         role = getattr(request.user, 'role', None)
-        if role != SystemRole.SUPER_ADMIN:
+        # All users BELOW Org Admin default to the GIS view
+        # Org Admin and Super Admin land on the Home dashboard
+        if role not in [SystemRole.SUPER_ADMIN, SystemRole.ORG_ADMIN]:
             return redirect('dashboard:gis')
         return super().dispatch(request, *args, **kwargs)
 
