@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='utf-8'?>
+<gpx xmlns="http://www.topografix.com/GPX/1/0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.0" creator="BasicAirData GPS Logger 3.2.3" xsi:schemaLocation="http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd">
+<name>GPS Logger 20260209-112004</name>
+<desc>IRL 5</desc>
+<time>2026-02-10T03:12:35Z</time>
+<keywords>steady</keywords>
+<bounds minlat="18.90683667" minlon="74.84468833" maxlat="18.90692167" maxlon="74.84484833" />
+
+<trk>
+ <name>Track 20260209-112004</name>
+ <trkseg>
+  <trkpt lat="18.90692167" lon="74.84484833"><ele>528.700</ele><time>2026-02-09T11:19:49Z</time><speed>0.000</speed><sat>46</sat></trkpt>
+  <trkpt lat="18.90692167" lon="74.84484833"><ele>528.700</ele><time>2026-02-09T11:19:50Z</time><speed>0.000</speed><sat>49</sat></trkpt>
+  <trkpt lat="18.90692167" lon="74.84484833"><ele>528.700</ele><time>2026-02-09T11:19:51Z</time><speed>0.000</speed><sat>48</sat></trkpt>
+  <trkpt lat="18.90692167" lon="74.84484833"><ele>528.700</ele><time>2026-02-09T11:19:52Z</time><speed>0.000</speed><sat>38</sat></trkpt>
+  <trkpt lat="18.90692167" lon="74.84484833"><ele>528.700</ele><time>2026-02-09T11:19:53Z</time><speed>0.000</speed><sat>40</sat></trkpt>
+  <trkpt lat="18.90692167" lon="74.84484833"><ele>528.700</ele><time>2026-02-09T11:19:54Z</time><speed>0.000</speed><sat>40</sat></trkpt>
+  <trkpt lat="18.90692167" lon="74.84484833"><ele>528.700</ele><time>2026-02-09T11:19:55Z</time><speed>0.000</speed><sat>42</sat></trkpt>
+  <trkpt lat="18.90692167" lon="74.84484833"><ele>528.700</ele><time>2026-02-09T11:19:56Z</time><speed>0.000</speed><sat>41</sat></trkpt>
+  <trkpt lat="18.90692167" lon="74.84483000"><ele>528.600</ele><time>2026-02-09T11:19:57Z</time><speed>0.204</speed><sat>39</sat></trkpt>
+  <trkpt lat="18.90691667" lon="74.84482000"><ele>528.400</ele><time>2026-02-09T11:19:58Z</time><speed>0.253</speed><sat>39</sat></trkpt>
+  <trkpt lat="18.90691167" lon="74.84480500"><ele>528.100</ele><time>2026-02-09T11:19:59Z</time><speed>0.328</speed><sat>39</sat></trkpt>
+  <trkpt lat="18.90690500" lon="74.84478667"><ele>528.000</ele><time>2026-02-09T11:20:00Z</time><speed>0.495</speed><sat>42</sat></trkpt>
+  <trkpt lat="18.90689000" lon="74.84476667"><ele>527.700</ele><time>2026-02-09T11:20:01Z</time><speed>0.679</speed><sat>46</sat></trkpt>
+  <trkpt lat="18.90687667" lon="74.84474667"><ele>527.300</ele><time>2026-02-09T11:20:02Z</time><speed>0.837</speed><sat>47</sat></trkpt>
+  <trkpt lat="18.90686333" lon="74.84472833"><ele>527.300</ele><time>2026-02-09T11:20:03Z</time><speed>1.022</speed><sat>42</sat></trkpt>
+  <trkpt lat="18.90685333" lon="74.84471167"><ele>527.100</ele><time>2026-02-09T11:20:04Z</time><speed>1.172</speed><sat>46</sat></trkpt>
+  <trkpt lat="18.90684333" lon="74.84470000"><ele>527.000</ele><time>2026-02-09T11:20:05Z</time><speed>1.292</speed><sat>49</sat></trkpt>
+  <trkpt lat="18.90683667" lon="74.84468833"><ele>527.200</ele><time>2026-02-09T11:20:06Z</time><speed>1.377</speed><sat>50</sat></trkpt>
+ </trkseg>
+</trk>
+
+</gpx>

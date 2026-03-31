@@ -154,7 +154,10 @@ class RoadViewSet(ModelViewSet):
         if role == SystemRole.SUPER_ADMIN:
             return qs
             
-        if role in [SystemRole.ORG_ADMIN, SystemRole.HO_USER]:
+        custom_role = getattr(user, 'custom_role', None)
+        is_supervisor = custom_role and (custom_role.is_supervisor_role or custom_role.has_supervisor_visibility)
+            
+        if role in [SystemRole.ORG_ADMIN, SystemRole.HO_USER] or is_supervisor:
             if user.organization:
                 return qs.filter(project__organization=user.organization)
             return qs.none()
@@ -208,11 +211,28 @@ def road_gpx_view(request, road_id):
         from access.utils import get_user_accessible_units
         
         qs = Road.objects.all()
+        
+        custom_role = getattr(request.user, 'custom_role', None)
+        is_supervisor = custom_role and (custom_role.is_supervisor_role or custom_role.has_supervisor_visibility)
+        
         if request.user.role != SystemRole.SUPER_ADMIN:
-            if request.user.organization:
-                qs = qs.filter(project__organization=request.user.organization)
+            if request.user.role in [SystemRole.ORG_ADMIN, SystemRole.HO_USER] or is_supervisor:
+                if request.user.organization:
+                    qs = qs.filter(project__organization=request.user.organization)
+                else:
+                    qs = qs.none()
             else:
-                qs = qs.none()
+                accessible_units = get_user_accessible_units(request.user)
+                visibility_q = Q(project__org_unit__in=accessible_units)
+                
+                if request.user.role == SystemRole.RO_USER:
+                    visibility_q |= Q(project__ro_user=request.user)
+                elif request.user.role == SystemRole.PIU_USER:
+                    visibility_q |= Q(project__piu_user=request.user)
+                elif request.user.role == SystemRole.PROJECT_USER:
+                    visibility_q |= Q(project__project_user=request.user)
+                    
+                qs = qs.filter(visibility_q).distinct()
             
         road = qs.get(id=road_id)
         if road.gpx_file:

@@ -111,6 +111,14 @@
         transition: border-color 140ms;
     }
 
+    .gis-select:disabled {
+        background-color: #f8fafc;
+        color: #94a3b8;
+        cursor: not-allowed;
+        background-image: none !important;
+        border-color: #e2e8f0;
+    }
+
     .gis-select:focus {
         outline: none;
         border-color: #16a34a;
@@ -176,6 +184,17 @@
         align-items: center;
         transition: all 0.2s;
         text-align: left;
+    }
+
+    .gis-check-trigger.locked {
+        background-color: #f8fafc;
+        color: #94a3b8;
+        cursor: not-allowed;
+        border-color: #e2e8f0;
+    }
+
+    .gis-check-trigger.locked::after {
+        display: none !important;
     }
 
     .gis-check-trigger:hover {
@@ -275,6 +294,8 @@
         border-bottom: 1px solid #e8edf2;
         padding: 14px 20px;
         flex-shrink: 0;
+        position: relative;
+        z-index: 1005;
     }
 
     .gis-filter-title {
@@ -318,6 +339,14 @@
         background-position: right 8px center;
         background-size: 14px;
         transition: border-color 140ms;
+    }
+
+    .gis-dropdown:disabled {
+        background-color: #f8fafc;
+        color: #94a3b8;
+        cursor: not-allowed;
+        background-image: none !important;
+        border-color: #e2e8f0;
     }
 
     .gis-dropdown:focus {
@@ -454,12 +483,12 @@
                 style="background: #f8fafc; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; padding: 10px 0 6px;">
                 <p class="gis-section-label" style="padding-top: 0;">Filters</p>
                 {% if show_ho_filter %}
-                <p class="gis-filter-label">HO Unit</p>
+                <p class="gis-filter-label">{{ org_role_labels.0 }} Unit</p>
                 <select class="gis-select" x-model="filters.ho" @change="onHoChange()" :disabled="locks.ho">
                     {% if lock_ho_filter %}
                     <option value="{{ assigned_ho }}">{{ assigned_ho_name|default:"Unassigned HO" }}</option>
                     {% else %}
-                    <option value="">All HOs</option>
+                    <option value="">All {{ org_role_labels.0 }}s</option>
                     <template x-for="u in hoUnits" :key="u.id">
                         <option :value="u.id" x-text="u.display_name || u.email || 'Unnamed User'"></option>
                     </template>
@@ -467,13 +496,13 @@
                 </select>
                 {% endif %}
                 {% if show_ro_filter %}
-                <p class="gis-filter-label">RO Unit</p>
+                <p class="gis-filter-label">{{ org_role_labels.1 }} Unit</p>
                 <select class="gis-select" x-model="filters.ro" @change="onRoChange()"
-                    :disabled="locks.ro || (!filters.ho && hoUnits.length > 1)">
+                    :disabled="locks.ro">
                     {% if lock_ro_filter %}
                     <option value="{{ assigned_ro }}">{{ assigned_ro_name|default:"Unassigned RO" }}</option>
                     {% else %}
-                    <option value="">All ROs</option>
+                    <option value="">All {{ org_role_labels.1 }}s</option>
                     <template x-for="u in roUnits" :key="u.id">
                         <option :value="u.id" x-text="u.display_name || u.email || 'Unnamed User'"></option>
                     </template>
@@ -481,13 +510,13 @@
                 </select>
                 {% endif %}
                 {% if show_piu_filter %}
-                <p class="gis-filter-label">PIU</p>
+                <p class="gis-filter-label">{{ org_role_labels.2 }}</p>
                 <select class="gis-select" x-model="filters.piu" @change="onPiuChange()"
-                    :disabled="locks.piu || (!filters.ro)">
+                    :disabled="locks.piu">
                     {% if lock_piu_filter %}
                     <option value="{{ assigned_piu }}">{{ assigned_piu_name|default:"Unassigned PIU" }}</option>
                     {% else %}
-                    <option value="">All PIUs</option>
+                    <option value="">All {{ org_role_labels.2 }}s</option>
                     <template x-for="u in piuUnits" :key="u.id">
                         <option :value="u.id" x-text="u.display_name || u.email || 'Unnamed User'"></option>
                     </template>
@@ -495,15 +524,15 @@
                 </select>
                 {% endif %}
                 {% if show_project_filter %}
-                <p class="gis-filter-label">Project</p>
-                <select class="gis-select" x-model="filters.project" @change="onProjectChange()"
-                    :disabled="locks.project || (!filters.piu)">
+                <p class="gis-filter-label">{{ org_role_labels.3 }}</p>
+                <select class="gis-select" x-model="filters.project_user" @change="onProjectUserChange()"
+                    :disabled="locks.projectUser">
                     {% if lock_project_filter %}
                     <option value="{{ assigned_project }}">{{ assigned_project_name|default:"Unassigned Project" }}
                     </option>
                     {% else %}
-                    <option value="">All Projects</option>
-                    <template x-for="u in projectUnits" :key="u.id">
+                    <option value="">All {{ org_role_labels.3 }}s</option>
+                    <template x-for="u in projectUserUnits" :key="u.id">
                         <option :value="u.id" x-text="u.display_name || u.email || 'Unnamed User'"></option>
                     </template>
                     {% endif %}
@@ -512,7 +541,7 @@
                 <p class="gis-filter-label">Road</p>
                 <select class="gis-select" x-model="filters.road" @change="onRoadChange()">
                     <option value="">All Roads</option>
-                    <template x-for="r in filteredRoads" :key="r.id">
+                    <template x-for="r in getAvailableRoadChoices()" :key="r.id">
                         <option :value="r.id" x-text="r.name"></option>
                     </template>
                 </select>
@@ -620,10 +649,10 @@
                 <div class="gis-filter-grid">
                     {% if show_ho_filter %}
                     <div class="gis-filter-col">
-                        <label>HO / Agency</label>
+                        <label>{{ org_role_labels.0 }}</label>
                         <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }" @click.away="open = false">
-                            <div class="gis-check-trigger" @click="if(!locks.ho) open = !open">
-                                <span x-text="filters.ho.length === 0 ? 'Select HO' : (filters.ho.length === 1 ? (getAvailableHoUnits().find(u => u.id === filters.ho[0])?.display_name || '1 Selected') : filters.ho.length + ' Selected')"></span>
+                            <div class="gis-check-trigger" :class="{'locked': locks.ho}" @click="if(!locks.ho) open = !open">
+                                <span x-text="filters.ho.length === 0 ? 'Select {{ org_role_labels.0 }}' : (filters.ho.length === 1 ? (getAvailableHoUnits().find(u => u.id === filters.ho[0])?.display_name || '1 Selected') : filters.ho.length + ' Selected')"></span>
                             </div>
                             <div class="gis-check-dropdown">
                                 <div class="gis-check-options">
@@ -640,10 +669,10 @@
                     {% endif %}
                     {% if show_ro_filter %}
                     <div class="gis-filter-col">
-                        <label>RO / District</label>
+                        <label>{{ org_role_labels.1 }}</label>
                         <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }" @click.away="open = false">
-                            <div class="gis-check-trigger" @click="if(!locks.ro) open = !open">
-                                <span x-text="filters.ro.length === 0 ? 'Select RO' : (filters.ro.length === 1 ? (getAvailableRoUnits().find(u => u.id === filters.ro[0])?.display_name || '1 Selected') : filters.ro.length + ' Selected')"></span>
+                            <div class="gis-check-trigger" :class="{'locked': locks.ro}" @click="if(!locks.ro) open = !open">
+                                <span x-text="filters.ro.length === 0 ? 'Select {{ org_role_labels.1 }}' : (filters.ro.length === 1 ? (getAvailableRoUnits().find(u => u.id === filters.ro[0])?.display_name || '1 Selected') : filters.ro.length + ' Selected')"></span>
                             </div>
                             <div class="gis-check-dropdown">
                                 <div class="gis-check-options">
@@ -660,10 +689,10 @@
                     {% endif %}
                     {% if show_piu_filter %}
                     <div class="gis-filter-col">
-                        <label>PIU / Market Committee</label>
+                        <label>{{ org_role_labels.2 }}</label>
                         <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }" @click.away="open = false">
-                            <div class="gis-check-trigger" @click="if(!locks.piu) open = !open">
-                                <span x-text="filters.piu.length === 0 ? 'Select PIU' : (filters.piu.length === 1 ? (getAvailablePiuUnits().find(u => u.id === filters.piu[0])?.display_name || '1 Selected') : filters.piu.length + ' Selected')"></span>
+                            <div class="gis-check-trigger" :class="{'locked': locks.piu}" @click="if(!locks.piu) open = !open">
+                                <span x-text="filters.piu.length === 0 ? 'Select {{ org_role_labels.2 }}' : (filters.piu.length === 1 ? (getAvailablePiuUnits().find(u => u.id === filters.piu[0])?.display_name || '1 Selected') : filters.piu.length + ' Selected')"></span>
                             </div>
                             <div class="gis-check-dropdown">
                                 <div class="gis-check-options">
@@ -680,10 +709,10 @@
                     {% endif %}
                     {% if show_project_filter %}
                     <div class="gis-filter-col">
-                        <label>Project User</label>
+                        <label>{{ org_role_labels.3 }}</label>
                         <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }" @click.away="open = false">
-                            <div class="gis-check-trigger" @click="if(!locks.projectUser) open = !open">
-                                <span x-text="filters.projectUser.length === 0 ? 'Select Project User' : (filters.projectUser.length === 1 ? (getAvailableProjectUserUnits().find(u => u.id === filters.projectUser[0])?.display_name || '1 Selected') : filters.projectUser.length + ' Selected')"></span>
+                            <div class="gis-check-trigger" :class="{'locked': locks.projectUser}" @click="if(!locks.projectUser) open = !open">
+                                <span x-text="filters.projectUser.length === 0 ? 'Select {{ org_role_labels.3 }}' : (filters.projectUser.length === 1 ? (getAvailableProjectUserUnits().find(u => u.id === filters.projectUser[0])?.display_name || '1 Selected') : filters.projectUser.length + ' Selected')"></span>
                             </div>
                             <div class="gis-check-dropdown">
                                 <div class="gis-check-options">
@@ -725,7 +754,7 @@
                             </div>
                             <div class="gis-check-dropdown">
                                 <div class="gis-check-options">
-                                    <template x-for="r in allRoads" :key="r.id">
+                                    <template x-for="r in getAvailableRoadChoices()" :key="r.id">
                                         <div class="gis-check-option" @click="toggleSelection(filters.road, r.id, () => onRoadChange())">
                                             <input type="checkbox" :checked="filters.road.includes(r.id)">
                                             <span class="gis-check-label" x-text="r.name"></span>
@@ -800,12 +829,12 @@
                 </div>
                 <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px;">
                     {% if show_ho_filter %}
-                    <div class="gis-filter-col"><label>HO / Agency</label>
+                    <div class="gis-filter-col"><label>{{ org_role_labels.0 }}</label>
                         <select class="gis-dropdown" x-model="filters.ho" @change="onHoChange()" :disabled="locks.ho">
                             {% if lock_ho_filter %}
                             <option value="{{ assigned_ho }}">{{ assigned_ho_name|default:"Unassigned HO" }}</option>
                             {% else %}
-                            <option value="">Select HO</option>
+                            <option value="">Select {{ org_role_labels.0 }}</option>
                             <template x-for="u in hoUnits" :key="u.id">
                                 <option :value="u.id" x-text="u.display_name || u.email || 'Unnamed User'"></option>
                             </template>
@@ -814,13 +843,13 @@
                     </div>
                     {% endif %}
                     {% if show_ro_filter %}
-                    <div class="gis-filter-col"><label>RO / District</label>
+                    <div class="gis-filter-col"><label>{{ org_role_labels.1 }}</label>
                         <select class="gis-dropdown" x-model="filters.ro" @change="onRoChange()" :disabled="locks.ro">
                             {% if lock_ro_filter %}
                             <option value="{{ assigned_ro }}">{{ assigned_ro_name }}</option>
                             {% else %}
-                            <option value="">Select RO</option>
-                            <template x-for="u in roUnits" :key="u.id">
+                            <option value="">Select {{ org_role_labels.1 }}</option>
+                            <template x-for="u in getAvailableRoUnits()" :key="u.id">
                                 <option :value="u.id" x-text="u.display_name || u.email || 'Unnamed User'"></option>
                             </template>
                             {% endif %}
@@ -828,14 +857,14 @@
                     </div>
                     {% endif %}
                     {% if show_piu_filter %}
-                    <div class="gis-filter-col"><label>PIU / Market Committee</label>
+                    <div class="gis-filter-col"><label>{{ org_role_labels.2 }}</label>
                         <select class="gis-dropdown" x-model="filters.piu" @change="onPiuChange()"
                             :disabled="locks.piu">
                             {% if lock_piu_filter %}
                             <option value="{{ assigned_piu }}">{{ assigned_piu_name }}</option>
                             {% else %}
-                            <option value="">Select PIU</option>
-                            <template x-for="u in piuUnits" :key="u.id">
+                            <option value="">Select {{ org_role_labels.2 }}</option>
+                            <template x-for="u in getAvailablePiuUnits()" :key="u.id">
                                 <option :value="u.id" x-text="u.name"></option>
                             </template>
                             {% endif %}
@@ -849,10 +878,10 @@
             <div class="stats-panel">
                 <div class="stat-kpi-grid" style="grid-template-columns: repeat(4, 1fr);">
                     <div class="stat-kpi-card">
-                        <div class="stat-kpi-label">Total Projects</div>
+                        <div class="stat-kpi-label">Total {{ org_role_labels.3 }}s</div>
                         <div class="stat-kpi-value" style="color: #16a34a;" x-text="stats.projects.toLocaleString()">
                         </div>
-                        <div class="stat-kpi-sub">projects</div>
+                        <div class="stat-kpi-sub">total units</div>
                         <div class="stat-kpi-bar" style="background: #16a34a;"></div>
                         <svg class="stat-kpi-icon" fill="none" viewBox="0 0 24 24" stroke="#d1fae5">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -884,7 +913,7 @@
                         <div class="stat-kpi-label">Org Units</div>
                         <div class="stat-kpi-value" style="color: #7c3aed;" x-text="stats.orgUnits.toLocaleString()">
                         </div>
-                        <div class="stat-kpi-sub">units</div>
+                        <div class="stat-kpi-sub">{{ org_role_labels.0 }}/{{ org_role_labels.1 }}</div>
                         <div class="stat-kpi-bar" style="background: #7c3aed;"></div>
                         <svg class="stat-kpi-icon" fill="none" viewBox="0 0 24 24" stroke="#ede9fe">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -950,7 +979,7 @@
                                             No roads in scope</td>
                                     </tr>
                                 </template>
-                                <template x-for="r in allRoads.slice(0, 50)" :key="r.id">
+                                <template x-for="r in filteredRoads.slice(0, 50)" :key="r.id">
                                     <tr style="border-top: 1px solid #f1f5f9;"
                                         @mouseover="$el.style.background='#f8fafc'"
                                         @mouseleave="$el.style.background='transparent'">
@@ -1104,11 +1133,23 @@
                     const d = await r.json();
                     this.allOrgUnits = d.results || [];
 
-                    // Classify by role
-                    this.hoUnits = this.allOrgUnits.filter(u => u.role === 'HO_USER');
-                    this.roUnits = this.allOrgUnits.filter(u => u.role === 'RO_USER');
-                    this.piuUnits = this.allOrgUnits.filter(u => u.role === 'PIU_USER');
-                    this.projectUserUnits = this.allOrgUnits.filter(u => u.role === 'PROJECT_USER');
+                    // Group users exclusively by custom role slot match, or fallback to system role ONLY if no custom role
+                    const orgRoles = {{ org_roles_json|safe }};
+                    
+                    const getRoleUsers = (index, sysRole) => {
+                        return this.allOrgUnits.filter(u => {
+                            if (orgRoles && orgRoles[index]) {
+                                if (u.custom_role === orgRoles[index].id) return true;
+                            }
+                            if (!u.custom_role && u.role === sysRole) return true;
+                            return false;
+                        });
+                    };
+
+                    this.hoUnits = getRoleUsers(0, 'HO_USER');
+                    this.roUnits = getRoleUsers(1, 'RO_USER');
+                    this.piuUnits = getRoleUsers(2, 'PIU_USER');
+                    this.projectUserUnits = getRoleUsers(3, 'PROJECT_USER');
 
                     this.stats.orgUnits = this.allOrgUnits.length;
                 } catch (e) { console.error('loadOrgUnits', e); }
@@ -1126,31 +1167,52 @@
                 return this.hoUnits;
             },
             getAvailableRoUnits() {
-                return this.roUnits.filter(u => this.filters.ho.length === 0 || this.filters.ho.includes(u.ho_user));
+                // For supervisors and admins, we allow seeing all ROs even if an HO is selected, 
+                // as long as the selection is not a specific drill-down request.
+                // However, to keep it simple and robust for this role: if ho is selected, we try to filter,
+                // but if that yields nothing, we show all ROs in the organization.
+                let filtered = this.roUnits.filter(u => this.filters.ho.length === 0 || this.filters.ho.includes(u.ho_user));
+                if (filtered.length === 0 && this.roUnits.length > 0) return this.roUnits;
+                return filtered;
             },
             getAvailablePiuUnits() {
-                return this.piuUnits.filter(u => {
+                let filtered = this.piuUnits.filter(u => {
                     if (this.filters.ho.length > 0 && !this.filters.ho.includes(u.ho_user)) return false;
                     if (this.filters.ro.length > 0 && !this.filters.ro.includes(u.ro_user)) return false;
                     return true;
                 });
+                if (filtered.length === 0 && this.piuUnits.length > 0) return this.piuUnits;
+                return filtered;
             },
             getAvailableProjectUserUnits() {
-                return this.projectUserUnits.filter(u => {
+                let filtered = this.projectUserUnits.filter(u => {
                     if (this.filters.ho.length > 0 && !this.filters.ho.includes(u.ho_user)) return false;
                     if (this.filters.ro.length > 0 && !this.filters.ro.includes(u.ro_user)) return false;
                     if (this.filters.piu.length > 0 && !this.filters.piu.includes(u.piu_user)) return false;
                     return true;
                 });
+                if (filtered.length === 0 && this.projectUserUnits.length > 0) return this.projectUserUnits;
+                return filtered;
             },
             getAvailableProjectUnits() {
                 return this.allProjects.filter(p => {
+                    // For projects, we still want some filtering but we'll be lenient if no matches found
                     if (this.filters.ho.length > 0 && !this.filters.ho.includes(p.ho_user)) return false;
                     if (this.filters.ro.length > 0 && !this.filters.ro.includes(p.ro_user)) return false;
                     if (this.filters.piu.length > 0 && !this.filters.piu.includes(p.piu_user)) return false;
                     if (this.filters.projectUser.length > 0 && !this.filters.projectUser.includes(p.project_user)) return false;
                     return true;
                 });
+            },
+
+            getAvailableRoadChoices() {
+                // This helper returns roads that are available based on project selection,
+                // but NOT filtered by the road filter itself (to allow multi-selection).
+                let roads = this.allRoads;
+                if (this.filters.project.length > 0) {
+                    roads = roads.filter(r => this.filters.project.includes(r.project));
+                }
+                return roads;
             },
 
             async loadRoads() {

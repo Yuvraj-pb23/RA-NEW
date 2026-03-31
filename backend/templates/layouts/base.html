@@ -251,7 +251,7 @@
 <body class="h-full bg-slate-100 antialiased" x-data="layout()" x-cloak>
 
   <!-- ═══ MOBILE BACKDROP ═══ -->
-  <div x-show="mob" @click="mob=false" x-cloak class="fixed inset-0 z-40 bg-black/50 lg:hidden"
+  <div x-show="mob" @click="mob=false" x-cloak class="fixed inset-0 z-[1020] bg-black/50 lg:hidden"
     x-transition:enter="transition-opacity ease-linear duration-200" x-transition:enter-start="opacity-0"
     x-transition:enter-end="opacity-100" x-transition:leave="transition-opacity ease-linear duration-200"
     x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
@@ -259,7 +259,7 @@
   <!-- ═══ SIDEBAR (hidden for GIS Map — it uses its own sidebar) ═══ -->
   {% if active_page != 'gis' %}
   <aside :class="[mob ? 'translate-x-0' : '-translate-x-full lg:translate-x-0', col ? 'w-[72px]' : 'w-60']"
-    class="fixed inset-y-0 left-0 z-50 flex flex-col transition-[width,transform] duration-300 ease-in-out overflow-hidden"
+    class="fixed inset-y-0 left-0 z-[1030] flex flex-col transition-[width,transform] duration-300 ease-in-out overflow-hidden"
     style="background: linear-gradient(165deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);">
 
     <!-- Brand -->
@@ -358,8 +358,8 @@
       </a>
       {% endif %}
 
-      <!-- ── HO USER: Limited view ── -->
-      {% if ur == 'HO_USER' %}
+      <!-- ── HO USER / SUPERVISOR: Limited view ── -->
+      {% if ur == 'HO_USER' or is_supervisor_user %}
       <div x-show="!col" x-cloak class="px-2 pt-5 pb-1.5">
         <p class="text-[9px] font-bold uppercase tracking-[0.12em]" style="color: #475569;">GIS & Intelligence</p>
       </div>
@@ -404,7 +404,7 @@
       {% endif %}
 
       <!-- ── RO/PIU/PROJECT/CONTRACTOR: Minimal view ── -->
-      {% if ur == 'RO_USER' or ur == 'PIU_USER' or ur == 'PROJECT_USER' or ur == 'CONTRACTOR' %}
+      {% if ur in 'RO_USER,PIU_USER,PROJECT_USER,CONTRACTOR' and not is_supervisor_user %}
       <div x-show="!col" x-cloak class="px-2 pt-5 pb-1.5">
         <p class="text-[9px] font-bold uppercase tracking-[0.12em]" style="color: #475569;">My Work</p>
       </div>
@@ -452,7 +452,7 @@
   <!-- ═══ SIDEBAR EDGE TOGGLE (desktop) ═══ -->
   {% if active_page != 'gis' %}
   <!-- Floats at the right edge of the sidebar, always visible, slides with it -->
-  <button @click="col=!col" :style="col ? 'left: 72px' : 'left: 240px'" class="hidden lg:flex fixed top-1/2 -translate-y-1/2 -translate-x-1/2 z-[60]
+  <button @click="col=!col" :style="col ? 'left: 72px' : 'left: 240px'" class="hidden lg:flex fixed top-1/2 -translate-y-1/2 -translate-x-1/2 z-[1040]
            w-6 h-12 items-center justify-center
            transition-[left] duration-300 ease-in-out
            focus:outline-none group" style="background: transparent;" title="Toggle sidebar">
@@ -475,7 +475,7 @@
 
     <!-- Topbar -->
     <header
-      class="sticky top-0 z-30 h-16 shrink-0 flex items-center gap-3 topbar-glass border-b border-slate-200/80 px-4 lg:px-6">
+      class="sticky top-0 z-[1010] h-16 shrink-0 flex items-center gap-3 topbar-glass border-b border-slate-200/80 px-4 lg:px-6">
       <!-- Mobile hamburger -->
       <button @click="mob=true" class="lg:hidden p-2 rounded-lg text-slate-500 hover:bg-slate-100 transition-colors">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -503,14 +503,14 @@
         {% with ur=request.user.role %}
         <span class="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold
           {% if ur == 'SUPER_ADMIN' %}role-badge-super
-          {% elif ur == 'ORG_ADMIN' %}role-badge-org
+          {% elif ur == 'ORG_ADMIN' or is_supervisor_user %}role-badge-org
           {% elif ur == 'HO_USER' %}role-badge-ho
           {% elif ur == 'RO_USER' %}role-badge-ro
           {% elif ur == 'PIU_USER' %}role-badge-piu
           {% elif ur == 'PROJECT_USER' %}role-badge-project
           {% else %}role-badge-contractor
           {% endif %}">
-          {{ request.user.get_role_display }}
+          {% if is_supervisor_user %}Supervisor{% elif request.user.custom_role %}{{ request.user.custom_role.role_name }}{% else %}{{ request.user.get_role_display }}{% endif %}
         </span>
         {% endwith %}
 

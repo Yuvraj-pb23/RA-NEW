@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='utf-8'?>
+<gpx xmlns="http://www.topografix.com/GPX/1/0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.0" creator="BasicAirData GPS Logger 3.2.3" xsi:schemaLocation="http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd">
+<name>GPS Logger 20260127-160653</name>
+<desc>TL L 1</desc>
+<time>2026-01-27T15:33:07Z</time>
+<keywords>steady</keywords>
+<bounds minlat="26.99990333" minlon="76.27683167" maxlat="27.00141333" maxlon="76.27747333" />
+
+<trk>
+ <name>Track 20260127-160653</name>
+ <trkseg>
+  <trkpt lat="27.00141333" lon="76.27683167"><ele>274.300</ele><time>2026-01-27T16:06:37Z</time><speed>5.243</speed><sat>39</sat></trkpt>
+  <trkpt lat="27.00137500" lon="76.27685667"><ele>274.500</ele><time>2026-01-27T16:06:38Z</time><speed>5.063</speed><sat>39</sat></trkpt>
+  <trkpt lat="27.00133667" lon="76.27688167"><ele>274.500</ele><time>2026-01-27T16:06:39Z</time><speed>5.094</speed><sat>40</sat></trkpt>
+  <trkpt lat="27.00129500" lon="76.27690333"><ele>274.000</ele><time>2026-01-27T16:06:40Z</time><speed>5.724</speed><sat>40</sat></trkpt>
+  <trkpt lat="27.00124833" lon="76.27693000"><ele>273.800</ele><time>2026-01-27T16:06:41Z</time><speed>6.330</speed><sat>40</sat></trkpt>
+  <trkpt lat="27.00119500" lon="76.27695333"><ele>273.300</ele><time>2026-01-27T16:06:42Z</time><speed>6.320</speed><sat>40</sat></trkpt>
+  <trkpt lat="27.00114000" lon="76.27698167"><ele>272.700</ele><time>2026-01-27T16:06:43Z</time><speed>6.924</speed><sat>40</sat></trkpt>
+  <trkpt lat="27.00108167" lon="76.27701333"><ele>272.200</ele><time>2026-01-27T16:06:44Z</time><speed>7.664</speed><sat>39</sat></trkpt>
+  <trkpt lat="27.00101833" lon="76.27704833"><ele>271.600</ele><time>2026-01-27T16:06:45Z</time><speed>8.019</speed><sat>42</sat></trkpt>
+  <trkpt lat="27.00095167" lon="76.27708167"><ele>271.200</ele><time>2026-01-27T16:06:46Z</time><speed>8.290</speed><sat>42</sat></trkpt>
+  <trkpt lat="27.00088167" lon="76.27711500"><ele>270.900</ele><time>2026-01-27T16:06:47Z</time><speed>8.175</speed><sat>42</sat></trkpt>
+  <trkpt lat="27.00081333" lon="76.27714833"><ele>270.500</ele><time>2026-01-27T16:06:48Z</time><speed>8.173</speed><sat>43</sat></trkpt>
+  <trkpt lat="27.00074500" lon="76.27718000"><ele>270.300</ele><time>2026-01-27T16:06:49Z</time><speed>8.091</speed><sat>44</sat></trkpt>
+  <trkpt lat="27.00067833" lon="76.27720833"><ele>270.700</ele><time>2026-01-27T16:06:50Z</time><speed>8.090</speed><sat>42</sat></trkpt>
+  <trkpt lat="27.00060833" lon="76.27723833"><ele>270.900</ele><time>2026-01-27T16:06:51Z</time><speed>8.211</speed><sat>41</sat></trkpt>
+  <trkpt lat="27.00053833" lon="76.27726333"><ele>271.300</ele><time>2026-01-27T16:06:52Z</time><speed>8.326</speed><sat>41</sat></trkpt>
+  <trkpt lat="27.00047000" lon="76.27728833"><ele>271.700</ele><time>2026-01-27T16:06:53Z</time><speed>7.918</speed><sat>41</sat></trkpt>
+  <trkpt lat="27.00040333" lon="76.27731000"><ele>271.900</ele><time>2026-01-27T16:06:54Z</time><speed>7.393</speed><sat>40</sat></trkpt>
+  <trkpt lat="27.00034167" lon="76.27733000"><ele>271.900</ele><time>2026-01-27T16:06:55Z</time><speed>7.138</speed><sat>39</sat></trkpt>
+  <trkpt lat="27.00028167" lon="76.27735167"><ele>272.100</ele><time>2026-01-27T16:06:56Z</time><speed>6.793</speed><sat>39</sat></trkpt>
+  <trkpt lat="27.00022333" lon="76.27737000"><ele>272.100</ele><time>2026-01-27T16:06:57Z</time><speed>6.761</speed><sat>40</sat></trkpt>
+  <trkpt lat="27.00016333" lon="76.27738833"><ele>272.300</ele><time>2026-01-27T16:06:58Z</time><speed>6.929</speed><sat>41</sat></trkpt>
+  <trkpt lat="27.00010167" lon="76.27741000"><ele>272.300</ele><time>2026-01-27T16:06:59Z</time><speed>7.382</speed><sat>40</sat></trkpt>
+  <trkpt lat="27.00003833" lon="76.27743000"><ele>272.300</ele><time>2026-01-27T16:07:00Z</time><speed>7.725</speed><sat>37</sat></trkpt>
+  <trkpt lat="26.99997000" lon="76.27745167"><ele>272.600</ele><time>2026-01-27T16:07:01Z</time><speed>8.087</speed><sat>39</sat></trkpt>
+  <trkpt lat="26.99990333" lon="76.27747333"><ele>272.700</ele><time>2026-01-27T16:07:02Z</time><speed>7.566</speed><sat>39</sat></trkpt>
+ </trkseg>
+</trk>
+
+</gpx>

@@ -152,7 +152,10 @@ class ProjectViewSet(ModelViewSet):
         if role == SystemRole.SUPER_ADMIN:
             return qs
             
-        if role in [SystemRole.ORG_ADMIN, SystemRole.HO_USER]:
+        custom_role = getattr(user, 'custom_role', None)
+        is_supervisor = custom_role and (custom_role.is_supervisor_role or custom_role.has_supervisor_visibility)
+            
+        if role in [SystemRole.ORG_ADMIN, SystemRole.HO_USER] or is_supervisor:
             if user.organization:
                 return qs.filter(organization=user.organization)
             return qs.none()

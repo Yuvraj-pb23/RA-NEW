@@ -28,6 +28,9 @@ class DashboardMixin(LoginRequiredMixin):
         ctx['user_role'] = getattr(user, 'role', None)
         ctx['user_org']  = getattr(user, 'organization', None)
         ctx['active_page'] = self.active_page
+        
+        custom_role = getattr(user, 'custom_role', None)
+        ctx['is_supervisor_user'] = bool(custom_role and (custom_role.is_supervisor_role or custom_role.has_supervisor_visibility))
 
         # Resolve the user's primary org unit label for the welcome banner
         try:
@@ -41,6 +44,52 @@ class DashboardMixin(LoginRequiredMixin):
             ctx['user_unit'] = first_access.org_unit if first_access else None
         except Exception:
             ctx['user_unit'] = None
+
+        # Inject org's dynamic custom roles (sorted by hierarchy_level) for every page
+        # This lets templates replace hardcoded "HO User", "RO User", etc. labels
+        try:
+            from roles.models import Role
+            import json
+            org = getattr(user, 'organization', None)
+            if org:
+                hierarchy_roles = list(
+                    Role.objects
+                    .filter(organization=org, status='active', is_supervisor_role=False)
+                    .exclude(hierarchy_level=None)
+                    .order_by('hierarchy_level', 'role_name')
+                    .values('id', 'role_name', 'hierarchy_level')[:4]
+                )
+                supervisor_roles = list(
+                    Role.objects
+                    .filter(organization=org, status='active', is_supervisor_role=True)
+                    .order_by('role_name')
+                    .values('id', 'role_name', 'hierarchy_level')
+                )
+            else:
+                hierarchy_roles = []
+                supervisor_roles = []
+
+            # role_labels[0..3] = names for slot 1..4 (ho/ro/piu/project)
+            ctx['org_role_labels'] = {
+                0: hierarchy_roles[0]['role_name'] if len(hierarchy_roles) > 0 else 'HO',
+                1: hierarchy_roles[1]['role_name'] if len(hierarchy_roles) > 1 else 'RO',
+                2: hierarchy_roles[2]['role_name'] if len(hierarchy_roles) > 2 else 'PIU',
+                3: hierarchy_roles[3]['role_name'] if len(hierarchy_roles) > 3 else 'Project',
+            }
+            ctx['org_hierarchy_roles'] = hierarchy_roles
+            ctx['org_supervisor_roles'] = supervisor_roles
+            # Explicitly convert UUIDs to str so json.dumps doesn't fail
+            serializable_roles = [
+                {'id': str(r['id']), 'role_name': r['role_name'], 'hierarchy_level': r['hierarchy_level']}
+                for r in hierarchy_roles
+            ]
+            ctx['org_roles_json'] = json.dumps(serializable_roles)
+        except Exception as e:
+            logger.warning(f"DashboardMixin: failed to load org roles: {e}")
+            ctx['org_role_labels'] = {0: 'HO', 1: 'RO', 2: 'PIU', 3: 'Project'}
+            ctx['org_hierarchy_roles'] = []
+            ctx['org_supervisor_roles'] = []
+            ctx['org_roles_json'] = '[]'
 
         return ctx
 
@@ -62,9 +111,13 @@ class OrgAdminRequiredMixin:
 
 
 class UpperTierRequiredMixin:
-    """SUPER_ADMIN, ORG_ADMIN, and HO_USER may pass."""
+    """SUPER_ADMIN, ORG_ADMIN, HO_USER, and supervisor roles may pass."""
     def dispatch(self, request, *args, **kwargs):
-        if not check_role(request.user, [SystemRole.SUPER_ADMIN, SystemRole.ORG_ADMIN, SystemRole.HO_USER]):
+        user = request.user
+        custom_role = getattr(user, 'custom_role', None)
+        is_supervisor = custom_role and (custom_role.is_supervisor_role or custom_role.has_supervisor_visibility)
+        
+        if not (check_role(user, [SystemRole.SUPER_ADMIN, SystemRole.ORG_ADMIN, SystemRole.HO_USER]) or is_supervisor):
             return redirect('dashboard:home')
         return super().dispatch(request, *args, **kwargs)
 
@@ -333,55 +386,58 @@ class GISMapView(DashboardMixin, TemplateView):
         assigned_piu_name = ""
         assigned_project_name = ""
 
-        if role == SystemRole.HO_USER:
-            lock_ho_filter = True
-            assigned_ho = str(user.id)
-            assigned_ho_name = user.display_name
-                
-        elif role == SystemRole.RO_USER:
-            lock_ho_filter = True
-            lock_ro_filter = True
-            assigned_ro = str(user.id)
-            assigned_ro_name = user.display_name
-            ho_u = User.objects.filter(role=SystemRole.HO_USER, organization=user.organization, is_active=True).first()
-            if ho_u:
-                assigned_ho = str(ho_u.id)
-                assigned_ho_name = ho_u.display_name
-                    
-        elif role == SystemRole.PIU_USER:
-            lock_ho_filter = True
-            lock_ro_filter = True
-            lock_piu_filter = True
-            assigned_piu = str(user.id)
-            assigned_piu_name = user.display_name
-            ro_u = User.objects.filter(role=SystemRole.RO_USER, organization=user.organization, is_active=True).first()
-            if ro_u:
-                assigned_ro = str(ro_u.id)
-                assigned_ro_name = ro_u.display_name
-            ho_u = User.objects.filter(role=SystemRole.HO_USER, organization=user.organization, is_active=True).first()
-            if ho_u:
-                assigned_ho = str(ho_u.id)
-                assigned_ho_name = ho_u.display_name
+        is_supervisor = ctx.get('is_supervisor_user', False)
 
-        elif role == SystemRole.PROJECT_USER:
-            lock_ho_filter = True
-            lock_ro_filter = True
-            lock_piu_filter = True
-            lock_project_filter = True
-            assigned_project = str(user.id)
-            assigned_project_name = user.display_name
-            piu_u = User.objects.filter(role=SystemRole.PIU_USER, organization=user.organization, is_active=True).first()
-            if piu_u:
-                assigned_piu = str(piu_u.id)
-                assigned_piu_name = piu_u.display_name
-            ro_u = User.objects.filter(role=SystemRole.RO_USER, organization=user.organization, is_active=True).first()
-            if ro_u:
-                assigned_ro = str(ro_u.id)
-                assigned_ro_name = ro_u.display_name
-            ho_u = User.objects.filter(role=SystemRole.HO_USER, organization=user.organization, is_active=True).first()
-            if ho_u:
-                assigned_ho = str(ho_u.id)
-                assigned_ho_name = ho_u.display_name
+        if not is_supervisor:
+            if role == SystemRole.HO_USER:
+                lock_ho_filter = True
+                assigned_ho = str(user.id)
+                assigned_ho_name = user.display_name
+                    
+            elif role == SystemRole.RO_USER:
+                lock_ho_filter = True
+                lock_ro_filter = True
+                assigned_ro = str(user.id)
+                assigned_ro_name = user.display_name
+                ho_u = User.objects.filter(role=SystemRole.HO_USER, organization=user.organization, is_active=True).first()
+                if ho_u:
+                    assigned_ho = str(ho_u.id)
+                    assigned_ho_name = ho_u.display_name
+                        
+            elif role == SystemRole.PIU_USER:
+                lock_ho_filter = True
+                lock_ro_filter = True
+                lock_piu_filter = True
+                assigned_piu = str(user.id)
+                assigned_piu_name = user.display_name
+                ro_u = User.objects.filter(role=SystemRole.RO_USER, organization=user.organization, is_active=True).first()
+                if ro_u:
+                    assigned_ro = str(ro_u.id)
+                    assigned_ro_name = ro_u.display_name
+                ho_u = User.objects.filter(role=SystemRole.HO_USER, organization=user.organization, is_active=True).first()
+                if ho_u:
+                    assigned_ho = str(ho_u.id)
+                    assigned_ho_name = ho_u.display_name
+
+            elif role == SystemRole.PROJECT_USER:
+                lock_ho_filter = True
+                lock_ro_filter = True
+                lock_piu_filter = True
+                lock_project_filter = True
+                assigned_project = str(user.id)
+                assigned_project_name = user.display_name
+                piu_u = User.objects.filter(role=SystemRole.PIU_USER, organization=user.organization, is_active=True).first()
+                if piu_u:
+                    assigned_piu = str(piu_u.id)
+                    assigned_piu_name = piu_u.display_name
+                ro_u = User.objects.filter(role=SystemRole.RO_USER, organization=user.organization, is_active=True).first()
+                if ro_u:
+                    assigned_ro = str(ro_u.id)
+                    assigned_ro_name = ro_u.display_name
+                ho_u = User.objects.filter(role=SystemRole.HO_USER, organization=user.organization, is_active=True).first()
+                if ho_u:
+                    assigned_ho = str(ho_u.id)
+                    assigned_ho_name = ho_u.display_name
 
         ctx['lock_ho_filter'] = lock_ho_filter
         ctx['lock_ro_filter'] = lock_ro_filter
@@ -418,7 +474,10 @@ class RoadDetailView(DashboardMixin, DetailView):
         if role == SystemRole.SUPER_ADMIN:
             return qs
             
-        if role in [SystemRole.ORG_ADMIN, SystemRole.HO_USER]:
+        custom_role = getattr(user, 'custom_role', None)
+        is_supervisor = custom_role and (custom_role.is_supervisor_role or custom_role.has_supervisor_visibility)
+            
+        if role in [SystemRole.ORG_ADMIN, SystemRole.HO_USER] or is_supervisor:
             if user.organization:
                 return qs.filter(project__organization=user.organization)
             return qs.none()
