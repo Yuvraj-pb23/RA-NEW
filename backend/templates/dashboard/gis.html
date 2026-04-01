@@ -493,12 +493,15 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 32px;
+        gap: 8px;
+        padding: 0 12px;
         height: 32px;
         background: #f1f5f9;
         border: 1px solid #e2e8f0;
         border-radius: 6px;
         color: #475569;
+        font-size: 12px;
+        font-weight: 600;
         cursor: pointer;
         transition: all 150ms ease;
     }
@@ -509,16 +512,44 @@
         transform: translateY(-1px);
     }
 
-    /* Leaflet overrides */
-    .leaflet-control-zoom {
-        border: none !important;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, .15) !important;
+    /* ── Bottom Stats Bar ── */
+    .gis-stats-bar {
+        background: #fff;
+        border-top: 1px solid #e2e8f0;
+        padding: 12px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 40px;
+        flex-shrink: 0;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.02);
     }
 
-    .leaflet-control-zoom a {
-        border-radius: 6px !important;
-        color: #374151 !important;
-        font-weight: 700 !important;
+    .stat-metric {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .stat-metric-label {
+        font-size: 10px;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .stat-metric-value {
+        font-size: 18px;
+        font-weight: 800;
+        color: #1e293b;
+        font-feature-settings: "tnum";
+    }
+
+    .stat-separator {
+        width: 1px;
+        height: 24px;
+        background: #e2e8f0;
     }
 </style>
 {% endblock %}
@@ -546,76 +577,107 @@
                 </svg>
             </button>
 
-            <!-- Inline filters (always visible when sidebar open) -->
+            <!-- Inline filters (Checklist version) -->
             <div x-show="view === 'map' && filtersExpanded && sidebarOpen" x-collapse x-cloak
-                style="background: #f8fafc; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; padding: 10px 0 6px;">
+                style="background: #f8fafc; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; padding: 10px 12px 6px;">
                 <p class="gis-section-label" style="padding-top: 0;">Filters</p>
+                
                 {% if show_ho_filter %}
                 <p class="gis-filter-label">{{ org_role_labels.0 }} Unit</p>
-                <select class="gis-select" x-model="filters.ho" @change="onHoChange()" :disabled="locks.ho">
-                    {% if lock_ho_filter %}
-                    <option value="{{ assigned_ho }}">{{ assigned_ho_name|default:"Unassigned HO" }}</option>
-                    {% else %}
-                    <option value="">All {{ org_role_labels.0 }}s</option>
-                    <template x-for="u in hoUnits" :key="u.id">
-                        <option :value="u.id" x-text="u.display_name || u.email || 'Unnamed User'"></option>
-                    </template>
-                    {% endif %}
-                </select>
+                <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }" @click.away="open = false" style="margin-bottom: 10px;">
+                    <div class="gis-check-trigger" :class="{'locked': locks.ho}" @click="if(!locks.ho) open = !open">
+                        <span x-text="filters.ho.length === 0 ? 'Select {{ org_role_labels.0 }}' : (filters.ho.length === 1 ? (getAvailableHoUnits().find(u => u.id === filters.ho[0])?.display_name || '1 Selected') : filters.ho.length + ' Selected')"></span>
+                    </div>
+                    <div class="gis-check-dropdown" x-show="open" style="display: none; left: -10px; width: 200px;">
+                        <div class="gis-check-options">
+                            <template x-for="u in getAvailableHoUnits()" :key="u.id">
+                                <div class="gis-check-option" @click="toggleSelection(filters.ho, u.id, () => onHoChange())">
+                                    <input type="checkbox" :checked="filters.ho.includes(u.id)">
+                                    <span class="gis-check-label" x-text="u.display_name || u.email"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
                 {% endif %}
+
                 {% if show_ro_filter %}
                 <p class="gis-filter-label">{{ org_role_labels.1 }} Unit</p>
-                <select class="gis-select" x-model="filters.ro" @change="onRoChange()"
-                    :disabled="locks.ro">
-                    {% if lock_ro_filter %}
-                    <option value="{{ assigned_ro }}">{{ assigned_ro_name|default:"Unassigned RO" }}</option>
-                    {% else %}
-                    <option value="">All {{ org_role_labels.1 }}s</option>
-                    <template x-for="u in roUnits" :key="u.id">
-                        <option :value="u.id" x-text="u.display_name || u.email || 'Unnamed User'"></option>
-                    </template>
-                    {% endif %}
-                </select>
+                <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }" @click.away="open = false" style="margin-bottom: 10px;">
+                    <div class="gis-check-trigger" :class="{'locked': locks.ro}" @click="if(!locks.ro) open = !open">
+                        <span x-text="filters.ro.length === 0 ? 'Select {{ org_role_labels.1 }}' : (filters.ro.length === 1 ? (getAvailableRoUnits().find(u => u.id === filters.ro[0])?.display_name || '1 Selected') : filters.ro.length + ' Selected')"></span>
+                    </div>
+                    <div class="gis-check-dropdown" x-show="open" style="display: none; left: -10px; width: 200px;">
+                        <div class="gis-check-options">
+                            <template x-for="u in getAvailableRoUnits()" :key="u.id">
+                                <div class="gis-check-option" @click="toggleSelection(filters.ro, u.id, () => onRoChange())">
+                                    <input type="checkbox" :checked="filters.ro.includes(u.id)">
+                                    <span class="gis-check-label" x-text="u.display_name || u.email"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
                 {% endif %}
+
                 {% if show_piu_filter %}
                 <p class="gis-filter-label">{{ org_role_labels.2 }}</p>
-                <select class="gis-select" x-model="filters.piu" @change="onPiuChange()"
-                    :disabled="locks.piu">
-                    {% if lock_piu_filter %}
-                    <option value="{{ assigned_piu }}">{{ assigned_piu_name|default:"Unassigned PIU" }}</option>
-                    {% else %}
-                    <option value="">All {{ org_role_labels.2 }}s</option>
-                    <template x-for="u in piuUnits" :key="u.id">
-                        <option :value="u.id" x-text="u.display_name || u.email || 'Unnamed User'"></option>
-                    </template>
-                    {% endif %}
-                </select>
+                <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }" @click.away="open = false" style="margin-bottom: 10px;">
+                    <div class="gis-check-trigger" :class="{'locked': locks.piu}" @click="if(!locks.piu) open = !open">
+                        <span x-text="filters.piu.length === 0 ? 'Select {{ org_role_labels.2 }}' : (filters.piu.length === 1 ? (getAvailablePiuUnits().find(u => u.id === filters.piu[0])?.display_name || '1 Selected') : filters.piu.length + ' Selected')"></span>
+                    </div>
+                    <div class="gis-check-dropdown" x-show="open" style="display: none; left: -10px; width: 200px;">
+                        <div class="gis-check-options">
+                            <template x-for="u in getAvailablePiuUnits()" :key="u.id">
+                                <div class="gis-check-option" @click="toggleSelection(filters.piu, u.id, () => onPiuChange())">
+                                    <input type="checkbox" :checked="filters.piu.includes(u.id)">
+                                    <span class="gis-check-label" x-text="u.display_name || u.email"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
                 {% endif %}
+
                 {% if show_project_filter %}
                 <p class="gis-filter-label">{{ org_role_labels.3 }}</p>
-                <select class="gis-select" x-model="filters.project_user" @change="onProjectUserChange()"
-                    :disabled="locks.projectUser">
-                    {% if lock_project_filter %}
-                    <option value="{{ assigned_project }}">{{ assigned_project_name|default:"Unassigned Project" }}
-                    </option>
-                    {% else %}
-                    <option value="">All {{ org_role_labels.3 }}s</option>
-                    <template x-for="u in projectUserUnits" :key="u.id">
-                        <option :value="u.id" x-text="u.display_name || u.email || 'Unnamed User'"></option>
-                    </template>
-                    {% endif %}
-                </select>
+                <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }" @click.away="open = false" style="margin-bottom: 10px;">
+                    <div class="gis-check-trigger" :class="{'locked': locks.projectUser}" @click="if(!locks.projectUser) open = !open">
+                        <span x-text="filters.projectUser.length === 0 ? 'Select {{ org_role_labels.3 }}' : (filters.projectUser.length === 1 ? (getAvailableProjectUserUnits().find(u => u.id === filters.projectUser[0])?.display_name || '1 Selected') : filters.projectUser.length + ' Selected')"></span>
+                    </div>
+                    <div class="gis-check-dropdown" x-show="open" style="display: none; left: -10px; width: 200px;">
+                        <div class="gis-check-options">
+                            <template x-for="u in getAvailableProjectUserUnits()" :key="u.id">
+                                <div class="gis-check-option" @click="toggleSelection(filters.projectUser, u.id, () => onProjectUserChange())">
+                                    <input type="checkbox" :checked="filters.projectUser.includes(u.id)">
+                                    <span class="gis-check-label" x-text="u.display_name || u.email"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
                 {% endif %}
+
                 <p class="gis-filter-label">Road</p>
-                <select class="gis-select" x-model="filters.road" @change="onRoadChange()">
-                    <option value="">All Roads</option>
-                    <template x-for="r in getAvailableRoadChoices()" :key="r.id">
-                        <option :value="r.id" x-text="r.name"></option>
-                    </template>
-                </select>
-                <template x-if="filters.ho || filters.ro || filters.piu || filters.project || filters.road">
+                <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }" @click.away="open = false" style="margin-bottom: 10px;">
+                    <div class="gis-check-trigger" @click="open = !open">
+                        <span x-text="filters.road.length === 0 ? 'Select Road' : (filters.road.length === 1 ? (allRoads.find(r => r.id === filters.road[0])?.name || '1 Selected') : filters.road.length + ' Selected')"></span>
+                    </div>
+                    <div class="gis-check-dropdown" x-show="open" style="display: none; left: -10px; width: 200px;">
+                        <div class="gis-check-options">
+                            <template x-for="r in getAvailableRoadChoices()" :key="r.id">
+                                <div class="gis-check-option" @click="toggleSelection(filters.road, r.id, () => onRoadChange())">
+                                    <input type="checkbox" :checked="filters.road.includes(r.id)">
+                                    <span class="gis-check-label" x-text="r.name"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <template x-if="filters.ho.length > 0 || filters.ro.length > 0 || filters.piu.length > 0 || filters.projectUser.length > 0 || filters.road.length > 0">
                     <button @click="clearFilters()"
-                        style="margin: 4px 12px 0; font-size: 11px; color: #2563eb; font-weight: 600; background: none; border: none; cursor: pointer; padding: 2px 0;">
+                        style="margin: 4px 12px 10px; font-size: 11px; color: #2563eb; font-weight: 600; background: none; border: none; cursor: pointer; padding: 2px 0;">
                         Clear all filters
                     </button>
                 </template>
@@ -723,10 +785,11 @@
                             <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                             </svg>
+                            <span>Download Excel</span>
                         </button>
                         <div x-show="tooltip" x-transition.opacity.duration.200ms
-                            style="position: absolute; right: 0; top: calc(100% + 8px); background: #1e293b; color: #fff; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 500; white-space: nowrap; box-shadow: 0 4px 6px rgba(0,0,0,0.1); pointer-events: none; z-index: 50;">
-                            Download Excel Data
+                            style="position: absolute; right: 0; top: calc(100% + 8px); background: #1e293b; color: #fff; padding: 8px 12px; border-radius: 6px; font-size: 11px; font-weight: 500; white-space: normal; width: 220px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); pointer-events: none; z-index: 50;">
+                            ⚡ Exports all road details based on the selected region from dropdowns.
                             <div style="position: absolute; top: -4px; right: 10px; width: 8px; height: 8px; background: #1e293b; transform: rotate(45deg);"></div>
                         </div>
                     </div>
@@ -889,32 +952,75 @@
             </div>
 
             <!-- Map switches -->
-            <div style="position: relative; flex: 1; min-height: 0;">
-                <div
-                    style="position: absolute; top: 12px; left: 12px; z-index: 1000; display: flex; background: rgba(255,255,255,0.95); border-radius: 9px; padding: 3px; box-shadow: 0 2px 12px rgba(0,0,0,.12); gap: 2px;">
-                    <button @click="mapType='street'"
-                        :class="mapType==='street' ? 'bg-slate-800 text-white' : 'text-slate-600'"
-                        style="padding: 5px 14px; border-radius: 7px; font-size: 12px; font-weight: 600; border: none; cursor: pointer; transition: all 150ms; display: flex; align-items: center; gap: 5px;">
-                        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7" />
-                        </svg>
-                        Map
-                    </button>
-                    <button @click="mapType='satellite'"
-                        :class="mapType==='satellite' ? 'bg-slate-800 text-white' : 'text-slate-600'"
-                        style="padding: 5px 14px; border-radius: 7px; font-size: 12px; font-weight: 600; border: none; cursor: pointer; transition: all 150ms;">
-                        Satellite
-                    </button>
-                </div>
-                <div id="gis-map" style="width: 100%; height: 100%;"></div>
-
-                <!-- Road count badge -->
-                <div style="position: absolute; bottom: 16px; right: 16px; z-index: 1000;">
+            <!-- Map and dynamic bottom bar -->
+            <div style="display: flex; flex-direction: column; flex: 1; min-height: 0;">
+                <div style="position: relative; flex: 1; min-height: 0;">
                     <div
-                        style="background: rgba(255,255,255,.95); border-radius: 10px; padding: 8px 14px; box-shadow: 0 2px 12px rgba(0,0,0,.12); font-size: 12px;">
-                        <span style="font-weight: 700; color: #2563eb;" x-text="shownRoads"></span>
-                        <span style="color: #6b7280;"> roads shown</span>
+                        style="position: absolute; top: 12px; left: 12px; z-index: 1000; display: flex; background: rgba(255,255,255,0.95); border-radius: 9px; padding: 3px; box-shadow: 0 2px 12px rgba(0,0,0,.12); gap: 2px;">
+                        <button @click="mapType='street'"
+                            :class="mapType==='street' ? 'bg-slate-800 text-white' : 'text-slate-600'"
+                            style="padding: 5px 14px; border-radius: 7px; font-size: 12px; font-weight: 600; border: none; cursor: pointer; transition: all 150ms; display: flex; align-items: center; gap: 5px;">
+                            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7" />
+                            </svg>
+                            Map
+                        </button>
+                        <button @click="mapType='satellite'"
+                            :class="mapType==='satellite' ? 'bg-slate-800 text-white' : 'text-slate-600'"
+                            style="padding: 5px 14px; border-radius: 7px; font-size: 12px; font-weight: 600; border: none; cursor: pointer; transition: all 150ms;">
+                            Satellite
+                        </button>
+                    </div>
+                    <div id="gis-map" style="width: 100%; height: 100%;"></div>
+
+                    <!-- Road count badge (floating) -->
+                    <div style="position: absolute; bottom: 16px; right: 16px; z-index: 1000;">
+                        <div
+                            style="background: rgba(255,255,255,.95); border-radius: 10px; padding: 8px 14px; box-shadow: 0 2px 12px rgba(0,0,0,.12); font-size: 12px; display: flex; align-items: center; gap: 4px;">
+                            <span style="font-weight: 700; color: #2563eb;" x-text="stats.roads"></span>
+                            <span style="color: #6b7280; margin-right: 4px;"> roads</span>
+                            <span style="color: #cbd5e1; margin-right: 4px;">|</span>
+                            <span style="font-weight: 700; color: #374151;" x-text="stats.length"></span>
+                            <span style="color: #6b7280;"> km</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dynamic Statistics Bar (Below Map) -->
+                <div class="gis-stats-bar">
+                    {% if show_ho_filter %}
+                    <div class="stat-metric">
+                        <span class="stat-metric-label">{{ org_role_labels.0 }} Units</span>
+                        <span class="stat-metric-value" x-text="stats.hoCount"></span>
+                    </div>
+                    <div class="stat-separator"></div>
+                    {% endif %}
+
+                    {% if show_ro_filter %}
+                    <div class="stat-metric">
+                        <span class="stat-metric-label">{{ org_role_labels.1 }} Units</span>
+                        <span class="stat-metric-value" x-text="stats.roCount"></span>
+                    </div>
+                    <div class="stat-separator"></div>
+                    {% endif %}
+
+                    {% if show_piu_filter %}
+                    <div class="stat-metric">
+                        <span class="stat-metric-label">{{ org_role_labels.2 }} Units</span>
+                        <span class="stat-metric-value" x-text="stats.piuCount"></span>
+                    </div>
+                    <div class="stat-separator"></div>
+                    {% endif %}
+
+                    <div class="stat-metric">
+                        <span class="stat-metric-label">Filtered Projects</span>
+                        <span class="stat-metric-value" x-text="stats.projectCount"></span>
+                    </div>
+                    <div class="stat-separator"></div>
+                    <div class="stat-metric">
+                        <span class="stat-metric-label">Total Projects</span>
+                        <span class="stat-metric-value" x-text="allProjects.length"></span>
                     </div>
                 </div>
             </div>
@@ -1163,7 +1269,8 @@
 
             // Stats
             stats: {
-                projects: 0, roads: 0, length: 0, orgUnits: 0,
+                projects: 0, roads: 0, length: 0,
+                hoCount: 0, roCount: 0, piuCount: 0, projectCount: 0, projectUserCount: 0,
                 byType: {
                     'NH': { count: 0, color: '#1d4ed8' },
                     'SH': { count: 0, color: '#3b82f6' },
@@ -1180,9 +1287,7 @@
                 if ('{{ assigned_piu|escapejs }}') this.filters.piu = ['{{ assigned_piu|escapejs }}'];
                 if ('{{ assigned_project|escapejs }}') this.filters.projectUser = ['{{ assigned_project|escapejs }}'];
 
-                // Init Leaflet map
                 this.$nextTick(() => { this.initMap(); });
-                // Load data
                 await Promise.all([this.loadOrgUnits(), this.loadProjects(), this.loadRoads()]);
             },
 
@@ -1200,7 +1305,6 @@
 
                 L.control.zoom({ position: 'bottomleft' }).addTo(this.map);
 
-                // Define layers
                 this.streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
                     attribution: '&copy; OpenStreetMap contributors',
                     maxZoom: 19,
@@ -1213,25 +1317,13 @@
                     maxNativeZoom: 18
                 });
 
-                // Default layer
                 this.streetLayer.addTo(this.map);
-                this.tileLayer = this.streetLayer; // Keep reference for Alpine logic
-
-                // Add standard Layer Control
-                const baseLayers = {
-                    "Street": this.streetLayer,
-                    "Satellite": this.satelliteLayer
-                };
-                // L.control.layers(baseLayers).addTo(this.map);
+                this.tileLayer = this.streetLayer;
 
                 this.$watch('mapType', (type) => {
                     if (!this.map) return;
                     this.map.removeLayer(this.tileLayer);
-                    if (type === 'satellite') {
-                        this.tileLayer = this.satelliteLayer;
-                    } else {
-                        this.tileLayer = this.streetLayer;
-                    }
+                    this.tileLayer = (type === 'satellite') ? this.satelliteLayer : this.streetLayer;
                     this.tileLayer.addTo(this.map);
                 });
             },
@@ -1242,7 +1334,6 @@
                     const d = await r.json();
                     this.allOrgUnits = d.results || [];
 
-                    // Group users exclusively by custom role slot match, or fallback to system role ONLY if no custom role
                     const orgRoles = {{ org_roles_json|safe }};
                     
                     const getRoleUsers = (index, sysRole) => {
@@ -1276,10 +1367,6 @@
                 return this.hoUnits;
             },
             getAvailableRoUnits() {
-                // For supervisors and admins, we allow seeing all ROs even if an HO is selected, 
-                // as long as the selection is not a specific drill-down request.
-                // However, to keep it simple and robust for this role: if ho is selected, we try to filter,
-                // but if that yields nothing, we show all ROs in the organization.
                 let filtered = this.roUnits.filter(u => this.filters.ho.length === 0 || this.filters.ho.includes(u.ho_user));
                 if (filtered.length === 0 && this.roUnits.length > 0) return this.roUnits;
                 return filtered;
@@ -1305,7 +1392,6 @@
             },
             getAvailableProjectUnits() {
                 return this.allProjects.filter(p => {
-                    // For projects, we still want some filtering but we'll be lenient if no matches found
                     if (this.filters.ho.length > 0 && !this.filters.ho.includes(p.ho_user)) return false;
                     if (this.filters.ro.length > 0 && !this.filters.ro.includes(p.ro_user)) return false;
                     if (this.filters.piu.length > 0 && !this.filters.piu.includes(p.piu_user)) return false;
@@ -1315,8 +1401,6 @@
             },
 
             getAvailableRoadChoices() {
-                // This helper returns roads that are available based on project selection,
-                // but NOT filtered by the road filter itself (to allow multi-selection).
                 let roads = this.allRoads;
                 if (this.filters.project.length > 0) {
                     roads = roads.filter(r => this.filters.project.includes(r.project));
@@ -1327,7 +1411,6 @@
             async loadRoads() {
                 try {
                     const params = new URLSearchParams({ page_size: '1000' });
-                    // Handle multi-params for the API
                     if (this.filters.ho.length > 0) params.append('ho_user', this.filters.ho.join(','));
                     if (this.filters.ro.length > 0) params.append('ro_user', this.filters.ro.join(','));
                     if (this.filters.piu.length > 0) params.append('piu_user', this.filters.piu.join(','));
@@ -1337,7 +1420,6 @@
                     const d = await r.json();
                     this.allRoads = d.results || [];
 
-                    // Prune selections that are no longer available
                     this.filters.project = this.filters.project.filter(id => this.getAvailableProjectUnits().some(p => p.id === id));
                     this.filters.road = this.filters.road.filter(id => this.allRoads.some(r => r.id === id));
 
@@ -1390,9 +1472,6 @@
             },
 
             onCustomRoleFilterChange() {
-                // When a custom role filter is selected, reload roads
-                // The role filter is purely frontend/display — actual filtering uses the customRole UUID
-                // to filter users and then their roads.
                 this.loadRoads();
             },
 
@@ -1406,20 +1485,33 @@
                 if (callback) callback();
             },
 
-
             computeStats(roads) {
                 const r = roads || this.allRoads;
                 this.stats.roads = r.length;
-                this.stats.length = Math.round(r.reduce((s, rd) => s + parseFloat(rd.length_km || 0), 0));
-                // count by type
+                
+                let totalLen = r.reduce((s, rd) => {
+                    const l = parseFloat(rd.length_km || rd.length || 0);
+                    return s + (isNaN(l) ? 0 : l);
+                }, 0);
+                this.stats.length = Math.round(totalLen * 100) / 100;
+
+                // Dynamic counts from current filters
+                this.stats.hoCount = this.getAvailableHoUnits().length;
+                this.stats.roCount = this.getAvailableRoUnits().length;
+                this.stats.piuCount = this.getAvailablePiuUnits().length;
+                this.stats.projectUserCount = this.getAvailableProjectUserUnits().length;
+                this.stats.projectCount = this.getAvailableProjectUnits().length;
+                this.stats.projects = this.stats.projectCount;
+
                 const byType = { NH: 0, SH: 0, MDR: 0, ODR: 0, VR: 0 };
                 r.forEach(rd => { if (rd.road_type && byType.hasOwnProperty(rd.road_type)) byType[rd.road_type]++; });
-                Object.keys(byType).forEach(k => { this.stats.byType[k].count = byType[k]; });
+                Object.keys(byType).forEach(k => { 
+                    if (this.stats.byType[k]) this.stats.byType[k].count = byType[k]; 
+                });
             },
 
             renderMapRoads(roads) {
                 if (!this.map) return;
-                // Clear existing
                 this.roadLayers.forEach(l => this.map.removeLayer(l));
                 this.roadLayers = [];
                 const toRender = roads || this.allRoads;
@@ -1436,10 +1528,11 @@
 
                         const colors = { NH: '#1d4ed8', SH: '#3b82f6', MDR: '#b45309', ODR: '#7c3aed', VR: '#0369a1' };
                         const color = colors[r.road_type] || '#4f46e5';
+                        const lengthVal = r.length || r.length_km || 0;
                         const lengthDisplay = r.length ? parseFloat(r.length).toFixed(3) : (r.length_km ? parseFloat(r.length_km).toFixed(3) : '—');
                         const gpxBadge = r.gpx_file ? '<span style="background:#dbeafe;color:#1d4ed8;font-size:10px;padding:1px 6px;border-radius:4px;margin-left:4px;font-weight:600;">GPX</span>' : '';
 
-                        const poly = L.polyline(coords, { color, weight: 3.5, opacity: 0.9 });
+                        const poly = L.polyline(coords, { color, weight: 3.5, opacity: 0.9, ra_length: lengthVal });
                         poly.bindPopup(`<b>${r.name}</b>${gpxBadge}<br>Type: ${r.road_type || '—'}<br>Length: ${lengthDisplay} km`);
                         poly.addTo(this.map);
                         this.roadLayers.push(poly);
@@ -1456,7 +1549,6 @@
             },
 
             async downloadExcel() {
-                // Placeholder - would generate and download CSV
                 const rows = [['Road Name', 'Type', 'Length (km)', 'Project']];
                 this.filteredRoads.forEach(r => {
                     rows.push([r.name, r.road_type || '', r.length_km || '', r.project_name || '']);
