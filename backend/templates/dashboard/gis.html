@@ -514,42 +514,71 @@
 
     /* ── Bottom Stats Bar ── */
     .gis-stats-bar {
-        background: #fff;
-        border-top: 1px solid #e2e8f0;
-        padding: 12px 24px;
         display: flex;
-        align-items: center;
+        align-items: stretch;
         justify-content: flex-start;
-        gap: 40px;
-        flex-shrink: 0;
-        box-shadow: 0 -2px 10px rgba(0,0,0,0.02);
+        gap: 24px;
+        padding: 16px 24px;
+        background: linear-gradient(to right, #ffffff, #f8fafc);
+        border-top: 1px solid #e2e8f0;
+        overflow-x: auto;
+        scrollbar-width: none;
     }
+    .gis-stats-bar::-webkit-scrollbar { display: none; }
 
     .stat-metric {
         display: flex;
-        flex-direction: column;
-        gap: 2px;
+        align-items: center;
+        gap: 16px;
+        min-width: fit-content;
+        transition: transform 0.2s;
     }
+    .stat-metric:hover { transform: translateY(-1px); }
+
+    .stat-icon-box {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: #f1f5f9;
+        color: #475569;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .stat-metric:hover .stat-icon-box {
+        background: #e2e8f0;
+        color: #2563eb;
+        transform: scale(1.05);
+    }
+
+    .stat-info { display: flex; flex-direction: column; }
 
     .stat-metric-label {
         font-size: 10px;
         font-weight: 700;
         color: #64748b;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.5px;
+        margin-bottom: 2px;
     }
 
     .stat-metric-value {
-        font-size: 18px;
+        font-size: 24px;
         font-weight: 800;
-        color: #1e293b;
-        font-feature-settings: "tnum";
+        color: #0f172a;
+        line-height: 1;
+        font-feature-settings: 'tnum' on, 'lnum' on;
+        transition: all 0.3s;
     }
 
     .stat-separator {
         width: 1px;
-        height: 24px;
+        height: 32px;
         background: #e2e8f0;
+        align-self: center;
+        opacity: 0.5;
     }
 </style>
 {% endblock %}
@@ -991,36 +1020,61 @@
                 <div class="gis-stats-bar">
                     {% if show_ho_filter %}
                     <div class="stat-metric">
-                        <span class="stat-metric-label">{{ org_role_labels.0 }} Units</span>
-                        <span class="stat-metric-value" x-text="stats.hoCount"></span>
+                        <div class="stat-icon-box">
+                            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-metric-label">{{ org_role_labels.0 }} Units</span>
+                            <span class="stat-metric-value" x-text="stats.hoCount"></span>
+                        </div>
                     </div>
                     <div class="stat-separator"></div>
                     {% endif %}
 
                     {% if show_ro_filter %}
                     <div class="stat-metric">
-                        <span class="stat-metric-label">{{ org_role_labels.1 }} Units</span>
-                        <span class="stat-metric-value" x-text="stats.roCount"></span>
+                        <div class="stat-icon-box">
+                            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-metric-label">{{ org_role_labels.1 }} Units</span>
+                            <span class="stat-metric-value" x-text="stats.roCount"></span>
+                        </div>
                     </div>
                     <div class="stat-separator"></div>
                     {% endif %}
 
                     {% if show_piu_filter %}
                     <div class="stat-metric">
-                        <span class="stat-metric-label">{{ org_role_labels.2 }} Units</span>
-                        <span class="stat-metric-value" x-text="stats.piuCount"></span>
+                        <div class="stat-icon-box">
+                            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-metric-label">{{ org_role_labels.2 }} Units</span>
+                            <span class="stat-metric-value" x-text="stats.piuCount"></span>
+                        </div>
                     </div>
                     <div class="stat-separator"></div>
                     {% endif %}
 
                     <div class="stat-metric">
-                        <span class="stat-metric-label">Filtered Projects</span>
-                        <span class="stat-metric-value" x-text="stats.projectCount"></span>
+                        <div class="stat-icon-box">
+                            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" /></svg>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-metric-label">Filtered Projects</span>
+                            <span class="stat-metric-value" x-text="stats.projectCount"></span>
+                        </div>
                     </div>
                     <div class="stat-separator"></div>
                     <div class="stat-metric">
-                        <span class="stat-metric-label">Total Projects</span>
-                        <span class="stat-metric-value" x-text="allProjects.length"></span>
+                        <div class="stat-icon-box">
+                            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" /></svg>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-metric-label">Total Projects</span>
+                            <span class="stat-metric-value" x-text="allProjects.length"></span>
+                        </div>
                     </div>
                 </div>
             </div>
