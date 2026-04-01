@@ -4,259 +4,333 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login — RoadAtthena</title>
+    <title>RoadAtthena Unified — Login</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --primary-blue: #2563eb;
+            --primary-blue-gradient: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            --glass-bg: rgba(255, 255, 255, 0.72);
+            --glass-border: rgba(255, 255, 255, 0.45);
+            --text-dark: #0f172a;
+            --text-muted: #475569;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body { 
             font-family: 'Inter', sans-serif; 
-            background: #f3f4f6; 
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            border-top: 6px solid #1e293b;
-            color: #1f2937;
-        }
-
-        .login-wrapper {
-            flex: 1;
+            color: var(--text-dark);
+            background: #000 url('{% static "img/highway_bg.png" %}') center/cover no-repeat fixed;
             display: flex;
             align-items: center;
-            justify-content: center;
-            padding: 24px;
+            justify-content: flex-start;
+            padding: 2.5vh 8%; 
+            position: relative;
+            overflow-y: auto; /* Allow scroll if content exceeds screen height */
         }
 
-        .login-card {
-            display: flex;
-            background: #fff;
-            border-radius: 12px;
-            overflow: hidden;
+        /* The sophisticated "Crystal" overlay - defining modern SaaS */
+        .page-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(90deg, 
+                rgba(255, 255, 255, 0.85) 0%, 
+                rgba(255, 255, 255, 0.7) 20%, 
+                rgba(255, 255, 255, 0.4) 50%, 
+                rgba(255, 255, 255, 0) 100%
+            );
+            z-index: 1;
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-column {
+            position: relative;
+            z-index: 10;
             width: 100%;
-            max-width: 960px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            min-height: 560px;
-        }
-
-        .login-left {
-            flex: 1;
-            padding: 48px 56px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+            max-width: 460px;
+            animation: fadeInDown 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         .brand-header {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin-bottom: 36px;
+            margin-bottom: 2vh; 
+            opacity: 0;
+            animation: fadeInUp 0.8s 0.2s forwards;
         }
 
         .brand-logo {
-            max-width: 150px;
+            max-width: 160px;
             height: auto;
             object-fit: contain;
-            display: block;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05));
         }
 
-        h2 { font-size: 26px; font-weight: 700; color: #111827; margin-bottom: 8px; text-align: left; }
-        p.subtitle { font-size: 14px; color: #6b7280; margin-bottom: 32px; text-align: left; }
+        .intro-text h1 { 
+            font-size: clamp(28px, 4vh, 38px); 
+            font-weight: 800; 
+            color: var(--text-dark); 
+            margin-bottom: 8px; 
+            letter-spacing: -1.5px;
+            line-height: 1.1;
+        }
+        .intro-text p { 
+            font-size: clamp(14px, 1.8vh, 15.5px); 
+            font-weight: 500; 
+            color: var(--text-muted); 
+            margin-bottom: 3vh; 
+            line-height: 1.5;
+        }
 
-        .form-group { margin-bottom: 20px; text-align: left; }
+        .login-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(28px) saturate(180%);
+            -webkit-backdrop-filter: blur(28px) saturate(180%);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: clamp(20px, 4vh, 36px) clamp(20px, 4vw, 36px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+            opacity: 0;
+            animation: fadeInUp 0.8s 0.4s forwards;
+        }
+
+        .form-group { margin-bottom: 24px; position: relative; }
         .form-label {
             display: block;
-            font-size: 13px;
+            font-size: 11.5px;
             font-weight: 700;
-            color: #1f2937;
-            margin-bottom: 8px;
-        }
-        .form-label span { color: #dc2626; } /* Red asterisk */
-
-        .input-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
+        .input-wrapper { display: flex; align-items: center; position: relative; }
+        
         .form-control {
             width: 100%;
-            padding: 12px 14px;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            font-size: 14px;
+            height: 56px;
+            padding: 0 48px;
+            background: rgba(255, 255, 255, 0.5);
+            border: 1.5px solid transparent;
+            border-radius: 12px;
+            font-size: 14.5px;
+            font-weight: 600;
             outline: none;
-            transition: border-color 0.2s;
-            color: #111827;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--text-dark);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
         }
-        .form-control::placeholder { color: #9ca3af; font-weight: 400; }
-        .form-control:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); }
+        .form-control::placeholder { color: #94a3b8; font-weight: 500; }
+        
+        .form-control:focus { 
+            background: #fff;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08); 
+        }
+
+        .input-icon-left {
+            position: absolute;
+            left: 16px;
+            width: 20px;
+            height: 20px;
+            color: #94a3b8;
+            transition: color 0.3s;
+            pointer-events: none;
+        }
+        .form-control:focus + .input-icon-left { color: var(--primary-blue); }
 
         .eye-icon {
             position: absolute;
-            right: 14px;
-            color: #9ca3af;
+            right: 16px;
+            color: #94a3b8;
             cursor: pointer;
             width: 20px;
             height: 20px;
+            transition: color 0.2s;
         }
-        .eye-icon:hover { color: #6b7280; }
+        .eye-icon:hover { color: var(--text-dark); }
 
-        .remember-row {
+        .remember-forgot {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 8px;
-            margin-bottom: 32px;
+            margin-bottom: 4vh;
             margin-top: 10px;
         }
-        .remember-row input {
-            width: 14px; height: 14px; border-radius: 4px; border: 1px solid #d1d5db; cursor: pointer;
+        .check-group { display: flex; align-items: center; gap: 8px; }
+        .check-group input { 
+            width: 18px; height: 18px; border-radius: 6px; accent-color: var(--primary-blue); cursor: pointer;
         }
-        .remember-row label {
-            font-size: 13px; color: #6b7280; cursor: pointer;
+        .check-group label { font-size: 13.5px; font-weight: 600; color: var(--text-muted); cursor: pointer; }
+        
+        .forgot-link {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--primary-blue);
+            text-decoration: none;
+            transition: opacity 0.2s;
         }
+        .forgot-link:hover { opacity: 0.8; }
 
-        .button-row { display: flex; gap: 12px; }
-        .btn {
-            flex: 1;
-            padding: 12px;
-            font-size: 14.5px;
-            font-weight: 600;
-            border-radius: 6px;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.2s;
-        }
-        .btn-primary {
-            background: #2563eb; color: #fff; border: 1px solid #2563eb; box-shadow: 0 2px 4px rgba(37,99,235,0.1);
-        }
-        .btn-primary:hover { background: #1d4ed8; }
-        .btn-outline {
-            background: #fff; color: #2563eb; border: 1px solid #60a5fa;
-        }
-        .btn-outline:hover { background: #eff6ff; border-color: #3b82f6; }
-
-        .error-banner {
-            background: #fef2f2; border: 1px solid #fecaca; color: #ef4444;
-            padding: 10px 14px; border-radius: 6px; font-size: 13px; font-weight: 500;
-            margin-bottom: 24px; display: flex; align-items: center; gap: 8px;
-        }
-
-        /* RIGHT PANEL */
-        .login-right {
-            flex: 1;
-            background: url('{% static "img/highway_bg.png" %}') center/cover no-repeat;
-            position: relative;
-            display: flex;
-            align-items: flex-end;
-            padding: 48px;
+        .btn-submit {
+            width: 100%;
+            height: 56px;
+            background: var(--primary-blue-gradient);
             color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.35);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
-        .gradient-overlay {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(to bottom, rgba(30,41,59,0) 20%, rgba(30,41,59,0.92) 85%);
-            z-index: 1;
+        .btn-submit:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px -5px rgba(37, 99, 235, 0.45);
         }
-        .right-content {
+        .btn-submit:active { transform: translateY(0); }
+
+        .error-msg {
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            padding: 14px 18px;
+            border-radius: 8px;
+            color: #dc2626;
+            font-size: 13.5px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legal-footer {
             position: relative;
-            z-index: 2;
+            margin-top: 4vh;
+            padding-bottom: 2vh;
+            left: 0;
+            z-index: 10;
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            opacity: 0;
+            animation: fadeIn 1s 1s forwards;
         }
-        .right-content h1 { font-size: 34px; font-weight: 700; margin-bottom: 12px; letter-spacing: -0.5px; }
-        .right-content h3 { font-size: 14.5px; font-weight: 600; margin-bottom: 24px; line-height: 1.4; letter-spacing: 0.2px; }
-        .right-content p { font-size: 13px; font-weight: 400; color: #e2e8f0; line-height: 1.6; }
+        @keyframes fadeIn { to { opacity: 1; } }
 
-        .footer-note {
-            text-align: center;
-            font-size: 12.5px;
-            color: #6b7280;
-            padding: 24px;
-        }
-
-        @media (max-width: 800px) {
-            .login-card { flex-direction: column; }
-            .login-right { display: none; }
-            .login-left { padding: 32px 24px; }
+        @media (max-width: 900px) {
+            body { justify-content: center; padding: 24px 8%; align-items: flex-start; }
+            .page-overlay { background: rgba(255, 255, 255, 0.94); }
+            .form-column { margin-top: 40px; }
+            .legal-footer { left: 0; width: 100%; text-align: center; bottom: 20px; }
         }
     </style>
 </head>
 <body>
-    <div class="login-wrapper">
-        <div class="login-card">
-            
-            <!-- Left Form Side -->
-            <div class="login-left">
-                <div class="brand-header">
-                    <img src="{% static 'img/logo_full.png' %}" alt="RoadAtthena Logo" class="brand-logo">
-                </div>
-                <h2>Welcome Back</h2>
-                <p class="subtitle">Please login to your account to access the Dashboard</p>
-
-                {% if form.errors or request.GET.error == '1' %}
-                <div class="error-banner">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>
-                    Invalid email or password.
-                </div>
-                {% endif %}
-
-                <form method="post" action="{% url 'dashboard:login' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="next" value="{{ next|default:'/dashboard/' }}">
-                    
-                    <div class="form-group">
-                        <label class="form-label" for="id_username">Email Address <span>*</span></label>
-                        <input type="email" name="username" id="id_username" class="form-control" placeholder="Enter your email" required autocomplete="email" autofocus>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label" for="id_password">Password <span>*</span></label>
-                        <div class="input-wrapper">
-                            <input type="password" name="password" id="id_password" class="form-control" placeholder="••••••••" required autocomplete="current-password">
-                            <!-- SVG Eye Icon -->
-                            <svg class="eye-icon" onclick="togglePassword()" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                        </div>
-                    </div>
-
-                    <div class="remember-row">
-                        <input type="checkbox" id="remember_me" name="remember_me">
-                        <label for="remember_me">Keep me signed in</label>
-                    </div>
-
-                    <div class="button-row">
-                        <button type="submit" class="btn btn-primary">Log In</button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Right Image Side -->
-            <div class="login-right">
-                <div class="gradient-overlay"></div>
-                <div class="right-content">
-                    <h1>Road for Growth</h1>
-                    <h3>AI-powered solution to make the world better for a safe ride</h3>
-                    <p>We are using AI for video processing to detect anomalies on roads. Our system is able to detect and classify different types of road anomalies. Our main focus is to make this system more efficient so that we can make roads anomaly-free for everyone.</p>
-                </div>
-            </div>
-
-        </div>
-    </div>
+    <div class="page-overlay"></div>
     
-    <div class="footer-note">
-        © RoadAtthena All Rights Reserved.
+    <div class="form-column">
+        <header class="brand-header">
+            <img src="{% static 'img/logo_full.png' %}" alt="RoadAtthena Logo" class="brand-logo">
+        </header>
+
+        <section class="intro-text">
+            <h1 id="dynamic-greeting">Welcome back</h1>
+            <p>Access your Road Intelligence Suite to manage projects and analyze anomalies.</p>
+        </section>
+
+        <div class="login-card">
+            {% if form.errors or request.GET.error == '1' %}
+            <div class="error-msg">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>
+                Authentication failed. Please verify your credentials.
+            </div>
+            {% endif %}
+
+            <form method="post" action="{% url 'dashboard:login' %}">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ next|default:'/dashboard/' }}">
+                
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <div class="input-wrapper">
+                        <input type="email" name="username" id="id_username" class="form-control" placeholder="example@roadatthena.com" required autocomplete="email" autofocus>
+                        <svg class="input-icon-left" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.206" />
+                        </svg>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Secure Password</label>
+                    <div class="input-wrapper">
+                        <input type="password" name="password" id="id_password" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+                        <svg class="input-icon-left" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                        <svg class="eye-icon" onclick="togglePassword()" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="remember-forgot">
+                    <div class="check-group">
+                        <input type="checkbox" id="remember_me" name="remember_me">
+                        <label for="remember_me">Stay logged in</label>
+                    </div>
+                    <a href="#" class="forgot-link">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    Log in to Suite
+                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                </button>
+            </form>
+        </div>
+        <footer class="legal-footer">
+            © 2026 RoadAtthena Technology. All assets protected.
+        </footer>
     </div>
 
     <script>
+        // Dynamic Greeting Logic
+        const greetingEl = document.getElementById('dynamic-greeting');
+        const hasVisited = localStorage.getItem('ra_visited');
+        
+        if (!hasVisited) {
+            greetingEl.textContent = 'Welcome';
+            localStorage.setItem('ra_visited', 'true');
+        } else {
+            greetingEl.textContent = 'Welcome back';
+        }
+
         function togglePassword() {
             const input = document.getElementById('id_password');
-            if (input.type === 'password') {
-                input.type = 'text';
-            } else {
-                input.type = 'password';
-            }
+            input.type = input.type === 'password' ? 'text' : 'password';
         }
     </script>
 </body>
