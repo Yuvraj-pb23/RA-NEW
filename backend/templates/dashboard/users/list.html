@@ -277,36 +277,35 @@
 
           <!-- Roles loaded -->
           <div x-show="!rolesLoading">
-            <select x-model="form.custom_role" class="input-base">
+            <select x-model="form.custom_role" @change="saveError = null" class="input-base">
+              <option value="">— Select a role —</option>
+              
               <optgroup label="── System Roles ──">
                 {% if request.user.role == 'SUPER_ADMIN' %}
                 <option value="SYSTEM:SUPER_ADMIN">Platform Super Admin</option>
                 <option value="SYSTEM:ORG_ADMIN">Organization Admin</option>
                 {% endif %}
-                <!-- Org Admins can't create Super Admins, so just default roles if any? -->
               </optgroup>
 
               {% if request.user.role == 'ORG_ADMIN' %}
               <!-- Supervisor roles -->
-              <template x-if="availableRoles.filter(r => r.is_supervisor_role).length > 0">
-                <optgroup label="── Supervisor Roles ──">
-                  <template x-for="r in availableRoles.filter(r => r.is_supervisor_role)" :key="r.id">
-                    <option :value="r.id" x-text="`👁  ${r.role_name}`"></option>
-                  </template>
-                </optgroup>
-              </template>
+              <optgroup label="── Supervisor Roles ──" x-show="availableRoles.some(r => r.is_supervisor_role)">
+                <template x-for="r in availableRoles.filter(r => r.is_supervisor_role)" :key="r.id">
+                  <option :value="r.id" x-text="`👁  ${r.role_name}`"></option>
+                </template>
+              </optgroup>
+
               <!-- Hierarchy roles sorted by level -->
-              <template x-if="availableRoles.filter(r => !r.is_supervisor_role).length > 0">
-                <optgroup label="── Hierarchy Roles ──">
-                  <template x-for="r in availableRoles.filter(r => !r.is_supervisor_role).sort((a,b) => (a.hierarchy_level||99) - (b.hierarchy_level||99))" :key="r.id">
-                    <option :value="r.id" x-text="`${r.role_name}  (Level ${r.hierarchy_level})`"></option>
-                  </template>
-                </optgroup>
-              </template>
+              <optgroup label="── Hierarchy Roles ──" x-show="availableRoles.some(r => !r.is_supervisor_role)">
+                <template x-for="r in availableRoles.filter(r => !r.is_supervisor_role).sort((a,b) => (a.hierarchy_level||99) - (b.hierarchy_level||99))" :key="r.id">
+                  <option :value="r.id" x-text="`${r.role_name}  (Level ${r.hierarchy_level})`"></option>
+                </template>
+              </optgroup>
               {% endif %}
             </select>
 
             <!-- No roles created yet -->
+            {% if request.user.role != 'SUPER_ADMIN' %}
             <div x-show="!rolesLoading && availableRoles.length === 0 && form.organization"
               class="mt-2 flex items-start gap-2 text-[12px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5">
               <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -320,6 +319,7 @@
                 in Role Management first.
               </span>
             </div>
+            {% endif %}
           </div>
         </div>
 
@@ -451,7 +451,7 @@
           if (!customRoleId) return '';
           if (customRoleId.startsWith('SYSTEM:')) return customRoleId.replace('SYSTEM:', '');
           
-          const cr = this.availableRoles.find(r => r.id === customRoleId);
+          const cr = this.availableRoles.find(r => r.id == customRoleId);
           if (!cr) return 'HO_USER';
           if (cr.is_supervisor_role) return 'HO_USER';
           const level = cr.hierarchy_level || 99;
@@ -515,7 +515,7 @@
         openCreate() {
           this.form = {
             email: '', password: '', password_confirm: '', full_name: '', phone: '',
-            role: '', custom_role: '{% if request.user.role == "SUPER_ADMIN" %}SYSTEM:ORG_ADMIN{% endif %}',
+            role: '', custom_role: '',
             // Pre-fill org for Org Admin
             organization: '{% if request.user.role == "ORG_ADMIN" and request.user.organization_id %}{{ request.user.organization_id }}{% else %}{% endif %}',
             ho_user: '', ro_user: '', piu_user: '', project_user: ''

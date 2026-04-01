@@ -250,10 +250,11 @@
           </select>
         </div>
 
-        <!-- Dynamic role-based user assignment -->
+        {% if request.user.role != 'SUPER_ADMIN' %}
         <div x-show="orgRoles.length === 0 && form.organization" class="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
           No custom roles found for this organization. Please create roles in Role Management first.
         </div>
+        {% endif %}
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <!-- Slot 1: ho_user -->
