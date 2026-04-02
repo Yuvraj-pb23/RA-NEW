@@ -5,55 +5,62 @@
 {% block content %}
 <div x-data="usersPage()">
 
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
-    <p class="text-sm text-slate-500">
-      {% if request.user.role == 'SUPER_ADMIN' %}All platform users and their account status.
-      {% elif request.user.role == 'ORG_ADMIN' or is_supervisor_user %}Users within your organization.
-      {% else %}Team members within your scope.
-      {% endif %}
-    </p>
+  <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+    <div>
+        <div class="flex items-center gap-2 text-indigo-600 font-bold text-[10px] uppercase tracking-[0.2em] mb-1">
+            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+            People & Access
+        </div>
+        <h1 class="text-3xl font-black text-slate-900 font-heading tracking-tight">Team Directory</h1>
+        <p class="text-slate-500 text-sm mt-1 max-w-md">
+          {% if request.user.role == 'SUPER_ADMIN' %}Global user management – oversee all administrative and operational accounts.
+          {% elif request.user.role == 'ORG_ADMIN' or is_supervisor_user %}Organization member management – invite and manage your team and subordinates.
+          {% else %}View your team members and fellow project staff.{% endif %}
+        </p>
+    </div>
     {% if request.user.role in 'SUPER_ADMIN,ORG_ADMIN' %}
-    <button @click="openCreate()" class="btn-primary self-start sm:self-auto">
-      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+    <button @click="openCreate()" class="btn-primary group">
+      <svg class="w-4 h-4 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
       </svg>
-      Invite User
+      Add Team Member
     </button>
     {% endif %}
   </div>
 
   <!-- Tabs -->
-  <div class="flex border-b border-slate-200 mb-4 px-1">
+  <div class="flex gap-1 bg-slate-100 p-1.5 rounded-2xl mb-8 w-fit shadow-inner">
     <button @click="switchTab('assigned')" 
-      :class="currentTab === 'assigned' ? 'border-b-2 border-blue-600 text-blue-600 font-semibold' : 'text-slate-500 hover:text-slate-700 font-medium'" 
-      class="px-4 py-2.5 text-sm transition-colors cursor-pointer">
-      Assigned Users
+      :class="currentTab === 'assigned' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'" 
+      class="px-6 py-2 rounded-xl text-xs font-bold transition-all duration-200 uppercase tracking-wider">
+      All Members
     </button>
     <button @click="switchTab('unassigned')" 
-      :class="currentTab === 'unassigned' ? 'border-b-2 border-blue-600 text-blue-600 font-semibold' : 'text-slate-500 hover:text-slate-700 font-medium'" 
-      class="px-4 py-2.5 text-sm transition-colors cursor-pointer inline-flex items-center gap-2">
+      :class="currentTab === 'unassigned' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'" 
+      class="px-6 py-2 rounded-xl text-xs font-bold transition-all duration-200 uppercase tracking-wider flex items-center gap-2">
       Unassigned
-      <!-- Minimal badge if we wanted to show count, currently static but easily dynamic -->
     </button>
   </div>
 
-  <!-- Filters -->
-  <div class="card p-3 mb-4">
-    <div class="flex flex-col sm:flex-row gap-2.5">
-      <div class="relative flex-1">
-        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24"
-          stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+  <!-- Smart Filter Bar -->
+  <div class="card p-4 mb-6 bg-slate-50/50 backdrop-blur-sm">
+    <div class="flex flex-col md:flex-row items-center gap-4">
+      <!-- Search Input -->
+      <div class="relative w-full flex-1">
+        <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
-        <input type="text" x-model="search" @input="onSearch()" placeholder="Search by name or email…"
-          class="input-base pl-9">
+        <input type="text" x-model="search" @input="onSearch()" placeholder="Search members by name, email or project assignation…" class="input-base pl-10 h-11">
       </div>
-      <select x-model="activeFilter" @change="applyFilter()" class="input-base sm:w-40">
-        <option value="">All Users</option>
-        <option value="true">Active</option>
-        <option value="false">Inactive</option>
-      </select>
+
+      <!-- Status Filter dropdown -->
+      <div class="shrink-0 w-full md:w-auto">
+        <select x-model="activeFilter" @change="applyFilter()" class="input-base h-11 min-w-[160px] font-semibold text-xs uppercase tracking-widest bg-white border-transparent hover:border-slate-200">
+            <option value="">All Statuses</option>
+            <option value="true">Active Members</option>
+            <option value="false">Inactive</option>
+        </select>
+      </div>
     </div>
   </div>
 
@@ -61,17 +68,14 @@
   <div class="card overflow-hidden">
     <div class="overflow-x-auto">
       <table class="w-full">
-        <thead class="bg-slate-50 border-b border-slate-200">
+        <thead class="bg-slate-50/50 border-b border-slate-100">
           <tr>
-            <th class="table-th">User</th>
-            <th class="table-th hidden sm:table-cell">Email</th>
-            <th class="table-th">Role</th>
-            <th class="table-th hidden sm:table-cell">Assigned Unit</th>
-            <th class="table-th">Status</th>
-            <th class="table-th hidden md:table-cell">Phone</th>
-            <th class="table-th hidden lg:table-cell">Joined</th>
-            <th class="table-th hidden lg:table-cell">Last Login</th>
-            <th class="table-th text-right">Actions</th>
+            <th class="table-th text-slate-900">Member Portfolio</th>
+            <th class="table-th hidden md:table-cell text-slate-900">Official Email</th>
+            <th class="table-th text-slate-900">System Role</th>
+            <th class="table-th hidden sm:table-cell text-slate-900">Assigned Unit</th>
+            <th class="table-th text-slate-900">Status</th>
+            <th class="table-th text-right text-slate-900">Management</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-100">
@@ -129,23 +133,28 @@
 
           <template x-if="!loading && !error">
             <template x-for="user in items" :key="user.id">
-              <tr class="hover:bg-slate-50 transition-colors">
+              <tr class="hover:bg-slate-50/80 transition-all duration-200 group">
                 <td class="table-td">
-                  <div class="flex items-center gap-3">
+                  <div class="flex items-center gap-3.5">
                     <div
-                      class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-xs font-bold text-white shrink-0"
+                      class="w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black text-white shrink-0 shadow-lg group-hover:scale-105 transition-transform"
+                      :style="'background: linear-gradient(135deg, ' + (user.is_active ? '#10b981, #059669' : '#94a3b8, #64748b') + ');'"
                       x-text="(user.full_name || user.email || '?').charAt(0).toUpperCase()"></div>
-                    <span class="font-medium text-slate-800 truncate max-w-[140px]"
-                      x-text="user.full_name || '(no name)'"></span>
+                    <div class="flex flex-col min-w-0">
+                        <span class="text-sm font-black text-slate-900 font-heading tracking-tight truncate max-w-[180px]"
+                        x-text="user.full_name || '(no name)'"></span>
+                    </div>
                   </div>
                 </td>
-                <td class="table-td hidden sm:table-cell text-slate-500" x-text="user.email"></td>
+                <td class="table-td hidden md:table-cell">
+                    <span class="text-xs font-bold text-slate-600" x-text="user.email"></span>
+                </td>
                 <td class="table-td">
-                  <span class="text-xs text-slate-600"
+                  <span class="inline-flex px-2 py-0.5 rounded-md bg-slate-100 text-[10px] font-black text-slate-600 uppercase tracking-widest"
                     x-text="user.custom_role_name || (user.role || '').replace(/_/g, ' ')"></span>
                 </td>
                 <td class="table-td hidden sm:table-cell">
-                  <span class="text-xs text-slate-500"
+                  <span class="text-xs font-bold text-slate-500"
                     x-text="user.assigned_unit ? user.assigned_unit.name : '—'"></span>
                 </td>
                 <td class="table-td">

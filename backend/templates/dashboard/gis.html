@@ -1066,7 +1066,7 @@
                     <div id="gis-map" style="width: 100%; height: 100%;"></div>
 
                     <!-- Road count badge (floating) -->
-                    <div style="position: absolute; bottom: 16px; right: 16px; z-index: 1000;">
+                    <div style="position: absolute; top: 12px; right: 12px; z-index: 1000;">
                         <div
                             style="background: rgba(255,255,255,.98); border-radius: 14px; padding: 12px 24px; box-shadow: 0 4px 20px rgba(0,0,0,.15); font-size: 15px; display: flex; align-items: center; gap: 8px; border: 1px solid rgba(255,255,255,0.4); backdrop-filter: blur(8px);">
                             <div style="display: flex; align-items: baseline; gap: 4px;">
@@ -1346,6 +1346,25 @@
                 if ('{{ assigned_ro|escapejs }}') this.filters.ro = ['{{ assigned_ro|escapejs }}'];
                 if ('{{ assigned_piu|escapejs }}') this.filters.piu = ['{{ assigned_piu|escapejs }}'];
                 if ('{{ assigned_project|escapejs }}') this.filters.projectUser = ['{{ assigned_project|escapejs }}'];
+
+                // Dynamic header titles
+                const vt = {
+                    'map': "{% filter escapejs %}{% if user_unit %}{{ user_unit.name }} — GIS Map{% else %}GIS Map{% endif %}{% endfilter %}",
+                    'statistics': 'GIS Statistics Dashboard',
+                    'rsa': 'Road Safety Audit (RSA)',
+                    'surveys': 'GIS Infrastructure Surveys',
+                    'digital': 'Digital Twin View'
+                };
+
+                this.$watch('view', v => {
+                    const title = vt[v] || 'GIS Dashboard';
+                    window.dispatchEvent(new CustomEvent('update-title', { detail: title }));
+                });
+
+                // Set initial title with slight delay to ensure base layout is ready
+                setTimeout(() => {
+                    window.dispatchEvent(new CustomEvent('update-title', { detail: vt[this.view] }));
+                }, 150);
 
                 this.$nextTick(() => { this.initMap(); });
                 await Promise.all([this.loadOrgUnits(), this.loadProjects(), this.loadRoads()]);

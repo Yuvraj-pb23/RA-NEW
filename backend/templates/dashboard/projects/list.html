@@ -5,20 +5,23 @@
 {% block content %}
 <div x-data="projectsPage()">
 
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
-    <p class="text-sm text-slate-500">
-      {% if request.user.role == 'SUPER_ADMIN' %}All road projects across the platform.
-      {% elif request.user.role == 'ORG_ADMIN' or is_supervisor_user %}Road projects within your organization.
-      {% elif request.user.role == 'HO_USER' %}Projects under your Head Office jurisdiction.
-      {% elif request.user.role == 'RO_USER' %}Projects under your Regional Office.
-      {% elif request.user.role == 'PIU_USER' %}Projects managed by your PIU.
-      {% else %}Projects assigned to you.
-      {% endif %}
-    </p>
+  <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+    <div>
+        <div class="flex items-center gap-2 text-emerald-600 font-bold text-[10px] uppercase tracking-[0.2em] mb-1">
+            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2" /></svg>
+            Operations
+        </div>
+        <h1 class="text-3xl font-black text-slate-900 font-heading tracking-tight">Road Projects</h1>
+        <p class="text-slate-500 text-sm mt-1 max-w-md">
+          {% if request.user.role == 'SUPER_ADMIN' %}Global infrastructure overview across all platform participants.
+          {% elif request.user.role == 'ORG_ADMIN' or is_supervisor_user %}Central repository of all road projects in your organization.
+          {% else %}Managing and tracking your active road project assignments.{% endif %}
+        </p>
+    </div>
     {% if request.user.role in 'SUPER_ADMIN,ORG_ADMIN' %}
-    <button @click="openCreate()" class="btn-primary self-start sm:self-auto">
-      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+    <button @click="openCreate()" class="btn-primary group">
+      <svg class="w-4 h-4 transition-transform group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
       </svg>
       New Project
     </button>
@@ -26,79 +29,69 @@
   </div>
 
   <!-- Tabs -->
-  <div class="flex border-b border-slate-200 mb-4 px-1">
+  <div class="flex gap-1 bg-slate-100 p-1.5 rounded-2xl mb-8 w-fit shadow-inner">
     <button @click="switchTab('assigned')" 
-      :class="currentTab === 'assigned' ? 'border-b-2 border-blue-600 text-blue-600 font-semibold' : 'text-slate-500 hover:text-slate-700 font-medium'" 
-      class="px-4 py-2.5 text-sm transition-colors cursor-pointer">
+      :class="currentTab === 'assigned' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'" 
+      class="px-6 py-2 rounded-xl text-xs font-bold transition-all duration-200 uppercase tracking-wider">
       Assigned Projects
     </button>
     <button @click="switchTab('unassigned')" 
-      :class="currentTab === 'unassigned' ? 'border-b-2 border-blue-600 text-blue-600 font-semibold' : 'text-slate-500 hover:text-slate-700 font-medium'" 
-      class="px-4 py-2.5 text-sm transition-colors cursor-pointer inline-flex items-center gap-2">
-      Unassigned
+      :class="currentTab === 'unassigned' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'" 
+      class="px-6 py-2 rounded-xl text-xs font-bold transition-all duration-200 uppercase tracking-wider flex items-center gap-2">
+      Unassigned Listing
     </button>
   </div>
 
-  <!-- Filters -->
-  <div class="card p-3 mb-4">
-    <div class="flex flex-col sm:flex-row gap-2.5">
-      <div class="relative flex-1">
-        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24"
-          stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+  <!-- Smart Filter Bar -->
+  <div class="card p-4 mb-6 bg-slate-50/50 backdrop-blur-sm">
+    <div class="flex flex-col lg:flex-row items-center gap-4">
+      <!-- Search Input -->
+      <div class="relative w-full lg:max-w-md">
+        <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
-        <input type="text" x-model="search" @input="onSearch()" placeholder="Search projects…" class="input-base pl-9">
-      </div>
-    </div>
-  </div>
-
-  <!-- Table -->
-
-  <!-- Role Filter Bar (dynamic) -->
-  <div class="card p-3 mb-4">
-    <div class="flex flex-wrap items-center gap-3">
-      <span class="text-sm font-medium text-slate-600">Filter by Assignee:</span>
-
-      <!-- Only show a dropdown if the org has that role defined -->
-      <!-- Slot 1: ho_user (hierarchy level 1) -->
-      <div class="flex items-center gap-2" x-show="_serverOrgRoles.length > 0">
-        <select x-model="filterHo" @change="onFilterChange()" class="input-base text-sm py-1.5 min-w-[140px]">
-          <option value="" x-text="'-- All ' + (_serverOrgRoles[0] ? _serverOrgRoles[0].role_name : 'Level 1') + ' --'"></option>
-          <template x-for="u in getAvailableHoUsers()" :key="u.id">
-            <option :value="u.id" x-text="u.full_name || u.name || u.email"></option>
-          </template>
-        </select>
+        <input type="text" x-model="search" @input="onSearch()" placeholder="Search project name, code or location…" class="input-base pl-10 h-11">
       </div>
 
-      <!-- Slot 2: ro_user (hierarchy level 2) -->
-      <div class="flex items-center gap-2" x-show="_serverOrgRoles.length > 1">
-        <select x-model="filterRo" @change="onFilterChange()" class="input-base text-sm py-1.5 min-w-[140px]">
-          <option value="" x-text="'-- All ' + (_serverOrgRoles[1] ? _serverOrgRoles[1].role_name : 'Level 2') + ' --'"></option>
-          <template x-for="u in getAvailableRoUsers()" :key="u.id">
-            <option :value="u.id" x-text="u.full_name || u.name || u.email"></option>
-          </template>
-        </select>
-      </div>
+      <!-- Vertical divider -->
+      <div class="hidden lg:block h-8 w-[1px] bg-slate-200"></div>
 
-      <!-- Slot 3: piu_user (hierarchy level 3) -->
-      <div class="flex items-center gap-2" x-show="_serverOrgRoles.length > 2">
-        <select x-model="filterPiu" @change="onFilterChange()" class="input-base text-sm py-1.5 min-w-[140px]">
-          <option value="" x-text="'-- All ' + (_serverOrgRoles[2] ? _serverOrgRoles[2].role_name : 'Level 3') + ' --'"></option>
-          <template x-for="u in getAvailablePiuUsers()" :key="u.id">
-            <option :value="u.id" x-text="u.full_name || u.name || u.email"></option>
-          </template>
-        </select>
-      </div>
+      <!-- Dynamic Hierarchy Filters -->
+      <div class="flex flex-wrap items-center gap-2.5 w-full">
+        <div class="flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-100 rounded-lg shadow-sm text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
+            Filter By
+        </div>
 
-      <!-- Slot 4: project_user (hierarchy level 4) -->
-      <div class="flex items-center gap-2" x-show="_serverOrgRoles.length > 3">
-        <select x-model="filterProjectUser" @change="onFilterChange()" class="input-base text-sm py-1.5 min-w-[140px]">
-          <option value="" x-text="'-- All ' + (_serverOrgRoles[3] ? _serverOrgRoles[3].role_name : 'Level 4') + ' --'"></option>
-          <template x-for="u in getAvailableProjectUsers()" :key="u.id">
-            <option :value="u.id" x-text="u.full_name || u.name || u.email"></option>
-          </template>
-        </select>
+        <!-- Slot 1: ho_user -->
+        <div x-show="_serverOrgRoles.length > 0" class="flex-1 min-w-[140px]">
+          <select x-model="filterHo" @change="onFilterChange()" class="input-base text-[13px] font-semibold h-11 border-transparent hover:border-slate-200 bg-white">
+            <option value="" x-text="'-- All ' + (_serverOrgRoles[0]?.role_name || 'Level 1') + ' --'"></option>
+            <template x-for="u in getAvailableHoUsers()" :key="u.id">
+              <option :value="u.id" x-text="u.full_name || u.name || u.email"></option>
+            </template>
+          </select>
+        </div>
+
+        <!-- Slot 2: ro_user -->
+        <div x-show="_serverOrgRoles.length > 1" class="flex-1 min-w-[140px]">
+          <select x-model="filterRo" @change="onFilterChange()" class="input-base text-[13px] font-semibold h-11 border-transparent hover:border-slate-200 bg-white">
+            <option value="" x-text="'-- All ' + (_serverOrgRoles[1]?.role_name || 'Level 2') + ' --'"></option>
+            <template x-for="u in getAvailableRoUsers()" :key="u.id">
+              <option :value="u.id" x-text="u.full_name || u.name || u.email"></option>
+            </template>
+          </select>
+        </div>
+
+        <!-- Slot 3: piu_user -->
+        <div x-show="_serverOrgRoles.length > 2" class="flex-1 min-w-[140px]">
+          <select x-model="filterPiu" @change="onFilterChange()" class="input-base text-[13px] font-semibold h-11 border-transparent hover:border-slate-200 bg-white">
+            <option value="" x-text="'-- All ' + (_serverOrgRoles[2]?.role_name || 'Level 3') + ' --'"></option>
+            <template x-for="u in getAvailablePiuUsers()" :key="u.id">
+              <option :value="u.id" x-text="u.full_name || u.name || u.email"></option>
+            </template>
+          </select>
+        </div>
       </div>
     </div>
   </div>
@@ -107,13 +100,13 @@
   <div class="card overflow-hidden">
     <div class="overflow-x-auto">
       <table class="w-full">
-        <thead class="bg-slate-50 border-b border-slate-200">
+        <thead class="bg-slate-50/50 border-b border-slate-100">
           <tr>
-            <th class="table-th">Project Name</th>
-            <th class="table-th hidden sm:table-cell">Organization</th>
-            <th class="table-th">Assigned To</th>
-            <th class="table-th">Description</th>
-            <th class="table-th text-right">Actions</th>
+            <th class="table-th text-slate-900">Project Workspace</th>
+            <th class="table-th hidden md:table-cell text-slate-900">Organization</th>
+            <th class="table-th text-slate-900">Personnel Breakdown</th>
+            <th class="table-th text-slate-900">Overview</th>
+            <th class="table-th text-right text-slate-900">Management</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-100">
@@ -158,40 +151,42 @@
             </tr>
           </template>
 
-          <template x-if="!loading && !error">
             <template x-for="proj in items" :key="proj.id">
-              <tr class="hover:bg-slate-50 transition-colors">
-                <td class="table-td font-medium text-slate-800" x-text="proj.name"></td>
-                <td class="table-td hidden sm:table-cell text-slate-500 text-xs" x-text="proj.organization_name ?? '—'"></td>
+              <tr class="hover:bg-slate-50/80 transition-all duration-200 group">
+                <td class="table-td">
+                    <div class="flex flex-col">
+                        <span class="text-sm font-black text-slate-900 font-heading tracking-tight" x-text="proj.name"></span>
+                    </div>
+                </td>
+                <td class="table-td hidden md:table-cell">
+                    <div class="flex items-center gap-2">
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                        <span class="text-xs font-bold text-slate-600" x-text="proj.organization_name ?? 'Root Organization'"></span>
+                    </div>
+                </td>
 
                 <td class="table-td">
-                  <div class="flex flex-col gap-1 min-w-[150px]">
+                  <div class="flex flex-col gap-2 min-w-[180px]">
                     <template x-if="proj.ho_user_name">
-                      <div class="flex items-baseline gap-1">
-                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tight w-16" x-text="_serverOrgRoles[0]?.role_name || 'HO'"></span>
-                        <span class="text-xs text-slate-700 font-medium" x-text="proj.ho_user_name"></span>
-                      </div>
+                        <div class="flex items-center gap-2 px-2 py-1 rounded-lg bg-slate-100/50 border border-slate-200/50">
+                          <span class="text-[9px] font-black text-slate-500 uppercase tracking-tighter w-12" x-text="_serverOrgRoles[0]?.role_name || 'HO'"></span>
+                          <span class="text-[11px] text-slate-900 font-bold" x-text="proj.ho_user_name"></span>
+                        </div>
                     </template>
                     <template x-if="proj.ro_user_name">
-                      <div class="flex items-baseline gap-1">
-                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tight w-16" x-text="_serverOrgRoles[1]?.role_name || 'RO'"></span>
-                        <span class="text-xs text-slate-700 font-medium" x-text="proj.ro_user_name"></span>
-                      </div>
+                        <div class="flex items-center gap-2 px-2 py-1 rounded-lg bg-slate-100/50 border border-slate-200/50">
+                          <span class="text-[9px] font-black text-slate-500 uppercase tracking-tighter w-12" x-text="_serverOrgRoles[1]?.role_name || 'RO'"></span>
+                          <span class="text-[11px] text-slate-900 font-bold" x-text="proj.ro_user_name"></span>
+                        </div>
                     </template>
                     <template x-if="proj.piu_user_name">
-                      <div class="flex items-baseline gap-1">
-                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tight w-16" x-text="_serverOrgRoles[2]?.role_name || 'PIU'"></span>
-                        <span class="text-xs text-slate-700 font-medium" x-text="proj.piu_user_name"></span>
-                      </div>
+                        <div class="flex items-center gap-2 px-2 py-1 rounded-lg bg-slate-100/50 border border-slate-200/50">
+                          <span class="text-[9px] font-black text-slate-500 uppercase tracking-tighter w-12" x-text="_serverOrgRoles[2]?.role_name || 'PIU'"></span>
+                          <span class="text-[11px] text-slate-900 font-bold" x-text="proj.piu_user_name"></span>
+                        </div>
                     </template>
-                    <template x-if="proj.project_user_name">
-                      <div class="flex items-baseline gap-1">
-                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tight w-16" x-text="_serverOrgRoles[3]?.role_name || 'User'"></span>
-                        <span class="text-xs text-slate-700 font-medium" x-text="proj.project_user_name"></span>
-                      </div>
-                    </template>
-                    <template x-if="!proj.ho_user_name && !proj.ro_user_name && !proj.piu_user_name && !proj.project_user_name">
-                      <span class="text-xs text-slate-400 italic">No assignments</span>
+                    <template x-if="!proj.ho_user_name && !proj.ro_user_name && !proj.piu_user_name">
+                      <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest italic">Pending Personnel</span>
                     </template>
                   </div>
                 </td>
