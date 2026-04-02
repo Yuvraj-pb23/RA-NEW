@@ -22,6 +22,21 @@
     {% endif %}
   </div>
 
+  <!-- Tabs -->
+  <div class="flex border-b border-slate-200 mb-4 px-1">
+    <button @click="switchTab('assigned')" 
+      :class="currentTab === 'assigned' ? 'border-b-2 border-blue-600 text-blue-600 font-semibold' : 'text-slate-500 hover:text-slate-700 font-medium'" 
+      class="px-4 py-2.5 text-sm transition-colors cursor-pointer">
+      Assigned Users
+    </button>
+    <button @click="switchTab('unassigned')" 
+      :class="currentTab === 'unassigned' ? 'border-b-2 border-blue-600 text-blue-600 font-semibold' : 'text-slate-500 hover:text-slate-700 font-medium'" 
+      class="px-4 py-2.5 text-sm transition-colors cursor-pointer inline-flex items-center gap-2">
+      Unassigned
+      <!-- Minimal badge if we wanted to show count, currently static but easily dynamic -->
+    </button>
+  </div>
+
   <!-- Filters -->
   <div class="card p-3 mb-4">
     <div class="flex flex-col sm:flex-row gap-2.5">
@@ -145,7 +160,7 @@
                   x-text="user.last_login ? new Date(user.last_login).toLocaleDateString('en-IN') : 'Never'"></td>
                 <td class="table-td">
                   <div class="flex items-center justify-end gap-1.5">
-                    <button
+                    <button @click="openEdit(user)"
                       class="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors">
                       <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -207,7 +222,7 @@
       x-transition:enter-end="opacity-100 scale-100">
 
       <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-        <h2 class="text-base font-semibold text-slate-800">New User</h2>
+        <h2 class="text-base font-semibold text-slate-800" x-text="editId ? 'Edit User' : 'New User'"></h2>
         <button @click="formOpen=false"
           class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -231,7 +246,12 @@
           <input x-model="form.full_name" type="text" class="input-base">
         </div>
 
-        <div class="grid grid-cols-2 gap-3">
+        <div class="flex items-center gap-2">
+          <input type="checkbox" x-model="form.is_active" id="userActive" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+          <label for="userActive" class="text-xs font-semibold text-slate-600">Active Account</label>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3" x-show="!editId">
           <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1.5">Password <span
                 class="text-red-500">*</span></label>
@@ -243,6 +263,7 @@
             <input x-model="form.password_confirm" type="password" class="input-base">
           </div>
         </div>
+        <div x-show="editId" class="text-[11px] text-slate-400 italic">Password cannot be changed here. Use the reset option if needed.</div>
 
         <!-- Organization first so roles can load for the right org -->
         {% if request.user.role == 'SUPER_ADMIN' %}
@@ -367,9 +388,9 @@
         </div>
         <div class="flex gap-3 justify-end px-6 py-4 border-t border-slate-100 bg-slate-50 rounded-b-2xl">
           <button @click="formOpen=false" class="btn-secondary">Cancel</button>
-          <button @click="save()" :disabled="saving || !form.email || !form.password"
+          <button @click="save()" :disabled="saving || !form.email || (!editId && !form.password)"
             class="btn-primary disabled:opacity-50">
-            <span x-text="saving ? 'Saving…' : 'Create User'"></span>
+            <span x-text="saving ? 'Saving…' : (editId ? 'Save Changes' : 'Create User')"></span>
           </button>
         </div>
       </div>
@@ -383,6 +404,7 @@
     function usersPage() {
       return Object.assign(listPage({ url: '/api/v1/users/' }), {
         activeFilter: '',
+        currentTab: 'assigned',
 
         // form state
         formOpen: false,
@@ -392,8 +414,9 @@
         form: {
           email: '', password: '', password_confirm: '', full_name: '', phone: '',
           role: 'PROJECT_USER', organization: '', custom_role: '',
-          ho_user: '', ro_user: '', piu_user: '', project_user: ''
+          ho_user: '', ro_user: '', piu_user: '', project_user: '', is_active: true
         },
+        editId: null,
 
         formOrgs: [],
         hoUsers: [], roUsers: [], piuUsers: [], projectUsers: [],
@@ -413,13 +436,27 @@
         },
 
         applyFilter() { this.page = 1; this.load(); },
+        
+        switchTab(tab) {
+          this.currentTab = tab;
+          this.activeFilter = '';
+          this.page = 1;
+          this.load();
+        },
 
         async load() {
           this.loading = true; this.error = null;
           try {
             const p = new URLSearchParams({ page: this.page, page_size: this.pageSize });
             if (this.search) p.set('search', this.search);
-            if (this.activeFilter) p.set('is_active', this.activeFilter);
+            if (this.currentTab === 'unassigned') {
+              p.set('role', 'UNASSIGNED');
+            } else {
+              p.set('exclude_unassigned', 'true');
+              if (this.activeFilter) {
+                p.set('is_active', this.activeFilter);
+              }
+            }
             const r = await fetch(`${this.apiUrl}?${p}`, { credentials: 'include' });
             if (!r.ok) throw new Error('Server error ' + r.status);
             const d = await r.json();
@@ -449,10 +486,11 @@
         // Derive closest system role from custom role hierarchy_level
         _systemRoleFromCustomRole(customRoleId) {
           if (!customRoleId) return '';
-          if (customRoleId.startsWith('SYSTEM:')) return customRoleId.replace('SYSTEM:', '');
+          if (String(customRoleId).startsWith('SYSTEM:')) return customRoleId.replace('SYSTEM:', '');
           
           const cr = this.availableRoles.find(r => r.id == customRoleId);
-          if (!cr) return 'HO_USER';
+          if (!cr) return ''; // If not found, don't guess
+          
           if (cr.is_supervisor_role) return 'HO_USER';
           const level = cr.hierarchy_level || 99;
           if (level <= 1) return 'HO_USER';
@@ -513,29 +551,53 @@
         },
 
         openCreate() {
+          this.editId = null;
           this.form = {
             email: '', password: '', password_confirm: '', full_name: '', phone: '',
-            role: '', custom_role: '',
-            // Pre-fill org for Org Admin
-            organization: '{% if request.user.role == "ORG_ADMIN" and request.user.organization_id %}{{ request.user.organization_id }}{% else %}{% endif %}',
-            ho_user: '', ro_user: '', piu_user: '', project_user: ''
+            role: '', custom_role: '', organization: '{% if request.user.role == "ORG_ADMIN" and request.user.organization_id %}{{ request.user.organization_id }}{% else %}{% endif %}',
+            ho_user: '', ro_user: '', piu_user: '', project_user: '', is_active: true
           };
-          this.hoUsers = [];
-          this.roUsers = [];
-          this.piuUsers = [];
-          this.projectUsers = [];
-          // Don't clear roles — already loaded for Org Admin
+          this.hoUsers = []; this.roUsers = []; this.piuUsers = []; this.projectUsers = [];
           this.saveError = null;
           this.formOpen = true;
         },
 
+        async openEdit(user) {
+          this.editId = user.id;
+          this.saveError = null;
+          // Determine the correct value for the custom_role dropdown.
+          // If it's a platform system role (non-NULL), we map it back to "SYSTEM:X"
+          let initialCustomRole = user.custom_role || '';
+          if (!initialCustomRole && ['SUPER_ADMIN', 'ORG_ADMIN'].includes(user.role)) {
+            initialCustomRole = 'SYSTEM:' + user.role;
+          }
+
+          this.form = {
+            email: user.email,
+            full_name: user.full_name || '',
+            phone: user.phone || '',
+            organization: user.organization || '',
+            custom_role: initialCustomRole,
+            ho_user: user.ho_user || '',
+            ro_user: user.ro_user || '',
+            piu_user: user.piu_user || '',
+            project_user: user.project_user || '',
+            is_active: user.is_active
+          };
+          // Load specific org roles & users to populate dropdowns correctly
+          if (this.form.organization) {
+            await this.onOrgChange();
+          }
+          this.formOpen = true;
+        },
+
         async save() {
-          if (!this.form.email || !this.form.password) return;
+          if (!this.form.email || (!this.editId && !this.form.password)) return;
           if (!this.form.custom_role) {
             this.saveError = 'Please select a role for this user.';
             return;
           }
-          if (this.form.password !== this.form.password_confirm) {
+          if (!this.editId && this.form.password !== this.form.password_confirm) {
             this.saveError = 'Passwords do not match.';
             return;
           }
@@ -543,19 +605,29 @@
           // Auto-derive system role from selected custom role's hierarchy_level
           const systemRole = this._systemRoleFromCustomRole(this.form.custom_role);
           try {
-            const r = await fetch(this.apiUrl, {
-              method: 'POST', credentials: 'include',
+            const url = this.editId ? `${this.apiUrl}${this.editId}/` : this.apiUrl;
+            const method = this.editId ? 'PATCH' : 'POST';
+            const body = {
+              email: this.form.email,
+              full_name: this.form.full_name,
+              phone: this.form.phone,
+              role: systemRole,
+              organization: (systemRole === 'SUPER_ADMIN') ? null : (this.form.organization || null),
+              custom_role: (this.form.custom_role && String(this.form.custom_role).startsWith('SYSTEM:')) ? null : (this.form.custom_role || null),
+              ho_user: this.form.ho_user || null,
+              ro_user: this.form.ro_user || null,
+              piu_user: this.form.piu_user || null,
+              project_user: this.form.project_user || null,
+              is_active: this.form.is_active
+            };
+            if (!this.editId) {
+              body.password = this.form.password;
+            }
+
+            const r = await fetch(url, {
+              method, credentials: 'include',
               headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrf() },
-              body: JSON.stringify({
-                ...this.form,
-                role: systemRole,
-                organization: (systemRole === 'SUPER_ADMIN') ? null : (this.form.organization || null),
-                custom_role: (this.form.custom_role && this.form.custom_role.startsWith('SYSTEM:')) ? null : (this.form.custom_role || null),
-                ho_user: this.form.ho_user || null,
-                ro_user: this.form.ro_user || null,
-                piu_user: this.form.piu_user || null,
-                project_user: this.form.project_user || null
-              })
+              body: JSON.stringify(body)
             });
             if (!r.ok) { this.saveError = _fmtErr(await r.json()); return; }
             this.formOpen = false;

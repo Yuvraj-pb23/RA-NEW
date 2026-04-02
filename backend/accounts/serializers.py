@@ -225,5 +225,6 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             "full_name", "phone", "is_active",
+            "role", "custom_role", "organization",
             "ho_user", "ro_user", "piu_user", "project_user"
         ]

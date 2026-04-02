@@ -25,6 +25,20 @@
     {% endif %}
   </div>
 
+  <!-- Tabs -->
+  <div class="flex border-b border-slate-200 mb-4 px-1">
+    <button @click="switchTab('assigned')" 
+      :class="currentTab === 'assigned' ? 'border-b-2 border-blue-600 text-blue-600 font-semibold' : 'text-slate-500 hover:text-slate-700 font-medium'" 
+      class="px-4 py-2.5 text-sm transition-colors cursor-pointer">
+      Assigned Projects
+    </button>
+    <button @click="switchTab('unassigned')" 
+      :class="currentTab === 'unassigned' ? 'border-b-2 border-blue-600 text-blue-600 font-semibold' : 'text-slate-500 hover:text-slate-700 font-medium'" 
+      class="px-4 py-2.5 text-sm transition-colors cursor-pointer inline-flex items-center gap-2">
+      Unassigned
+    </button>
+  </div>
+
   <!-- Filters -->
   <div class="card p-3 mb-4">
     <div class="flex flex-col sm:flex-row gap-2.5">
@@ -97,7 +111,7 @@
           <tr>
             <th class="table-th">Project Name</th>
             <th class="table-th hidden sm:table-cell">Organization</th>
-
+            <th class="table-th">Assigned To</th>
             <th class="table-th">Description</th>
             <th class="table-th text-right">Actions</th>
           </tr>
@@ -148,9 +162,41 @@
             <template x-for="proj in items" :key="proj.id">
               <tr class="hover:bg-slate-50 transition-colors">
                 <td class="table-td font-medium text-slate-800" x-text="proj.name"></td>
-                <td class="table-td hidden sm:table-cell text-slate-500" x-text="proj.organization_name ?? '—'"></td>
+                <td class="table-td hidden sm:table-cell text-slate-500 text-xs" x-text="proj.organization_name ?? '—'"></td>
 
-                <td class="table-td text-slate-500 truncate max-w-xs" x-text="proj.description ?? '—'"></td>
+                <td class="table-td">
+                  <div class="flex flex-col gap-1 min-w-[150px]">
+                    <template x-if="proj.ho_user_name">
+                      <div class="flex items-baseline gap-1">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tight w-16" x-text="_serverOrgRoles[0]?.role_name || 'HO'"></span>
+                        <span class="text-xs text-slate-700 font-medium" x-text="proj.ho_user_name"></span>
+                      </div>
+                    </template>
+                    <template x-if="proj.ro_user_name">
+                      <div class="flex items-baseline gap-1">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tight w-16" x-text="_serverOrgRoles[1]?.role_name || 'RO'"></span>
+                        <span class="text-xs text-slate-700 font-medium" x-text="proj.ro_user_name"></span>
+                      </div>
+                    </template>
+                    <template x-if="proj.piu_user_name">
+                      <div class="flex items-baseline gap-1">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tight w-16" x-text="_serverOrgRoles[2]?.role_name || 'PIU'"></span>
+                        <span class="text-xs text-slate-700 font-medium" x-text="proj.piu_user_name"></span>
+                      </div>
+                    </template>
+                    <template x-if="proj.project_user_name">
+                      <div class="flex items-baseline gap-1">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tight w-16" x-text="_serverOrgRoles[3]?.role_name || 'User'"></span>
+                        <span class="text-xs text-slate-700 font-medium" x-text="proj.project_user_name"></span>
+                      </div>
+                    </template>
+                    <template x-if="!proj.ho_user_name && !proj.ro_user_name && !proj.piu_user_name && !proj.project_user_name">
+                      <span class="text-xs text-slate-400 italic">No assignments</span>
+                    </template>
+                  </div>
+                </td>
+
+                <td class="table-td text-slate-500 text-xs leading-relaxed max-w-sm" x-text="proj.description ?? '—'"></td>
                 <td class="table-td">
                   <div class="flex items-center justify-end gap-1.5">
                     {% if request.user.role in 'SUPER_ADMIN,ORG_ADMIN' %}
@@ -356,6 +402,14 @@
 
       // Org roles injected by server (used to group filter users by custom_role)
       _serverOrgRoles: {{ org_roles_json|safe }},
+      
+      currentTab: 'assigned',
+      
+      switchTab(tab) {
+        this.currentTab = tab;
+        this.page = 1;
+        this.loadProjects();
+      },
 
       init() {
         this._debouncedSearch = debounce(() => { this.page = 1; this.loadProjects(); }, 350);
@@ -372,6 +426,13 @@
         if (this.filterRo) extra.ro_user = this.filterRo;
         if (this.filterPiu) extra.piu_user = this.filterPiu;
         if (this.filterProjectUser) extra.project_user = this.filterProjectUser;
+        
+        if (this.currentTab === 'unassigned') {
+          extra.only_unassigned = 'true';
+        } else {
+          extra.exclude_unassigned = 'true';
+        }
+        
         this.load(extra);
       },
 

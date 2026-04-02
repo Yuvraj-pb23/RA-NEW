@@ -12,6 +12,7 @@ class SystemRole(models.TextChoices):
     PIU_USER = "PIU_USER", _("PIU User")
     PROJECT_USER = "PROJECT_USER", _("Project User")
     CONTRACTOR = "CONTRACTOR", _("Contractor")
+    UNASSIGNED = "UNASSIGNED", _("Unassigned")
 
 class UserManager(BaseUserManager):
     """

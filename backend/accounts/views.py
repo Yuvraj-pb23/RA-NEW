@@ -37,12 +37,17 @@ class UserViewSet(viewsets.ModelViewSet):
         user = self.request.user
 
         if getattr(user, 'role', None) == 'SUPER_ADMIN':
-            return qs
+            pass
+        elif user.organization:
+            qs = qs.filter(organization=user.organization)
+        else:
+            qs = qs.none()
 
-        if user.organization:
-            return qs.filter(organization=user.organization)
+        exclude_unassigned = self.request.query_params.get("exclude_unassigned", "false").lower() == "true"
+        if exclude_unassigned:
+            qs = qs.exclude(role="UNASSIGNED")
 
-        return qs.none()
+        return qs
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["is_active", "is_staff", "role", "organization"]
     search_fields    = ["email", "full_name", "phone"]
@@ -62,6 +67,19 @@ class UserViewSet(viewsets.ModelViewSet):
             return [IsAuthenticated()]
         # retrieve, update, partial_update, me, set_password → self or admin
         return [IsAuthenticated(), IsSelfOrAdmin()]
+
+    def destroy(self, request, *args, **kwargs):
+        user = self.get_object()
+        
+        # Assign all subordinate users to UNASSIGNED role since their parent is being deleted
+        from django.db.models import Q
+        subordinates = User.objects.filter(
+            Q(ho_user=user) | Q(ro_user=user) | Q(piu_user=user) | Q(project_user=user)
+        )
+        subordinates.update(is_active=False, role="UNASSIGNED", custom_role=None)
+        
+        # Now hard-delete the user
+        return super().destroy(request, *args, **kwargs)
 
     @action(detail=False, methods=["get"], url_path="me")
     def me(self, request):

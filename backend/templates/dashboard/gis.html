@@ -672,13 +672,35 @@
                 </div>
                 {% endif %}
 
-                <p class="gis-filter-label">Road</p>
+                {% if show_project_filter %}
+                <p class="gis-filter-label">Project</p>
                 <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }" @click.away="open = false" style="margin-bottom: 10px;">
                     <div class="gis-check-trigger" @click="open = !open">
-                        <span x-text="filters.road.length === 0 ? 'Select Road' : (filters.road.length === 1 ? (allRoads.find(r => r.id === filters.road[0])?.name || '1 Selected') : filters.road.length + ' Selected')"></span>
+                        <span x-text="filters.project.length === 0 ? 'Select Project' : (filters.project.length === 1 ? (getAvailableProjectUnits().find(p => p.id === filters.project[0])?.name || '1 Selected') : filters.project.length + ' Selected')"></span>
                     </div>
                     <div class="gis-check-dropdown" x-show="open" style="display: none; left: -10px; width: 200px;">
                         <div class="gis-check-options">
+                            <template x-for="p in getAvailableProjectUnits()" :key="p.id">
+                                <div class="gis-check-option" @click="toggleSelection(filters.project, p.id, () => onProjectChange())">
+                                    <input type="checkbox" :checked="filters.project.includes(p.id)">
+                                    <span class="gis-check-label" x-text="p.name"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <p class="gis-filter-label">Road</p>
+                <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }" @click.away="open = false" style="margin-bottom: 10px;">
+                    <div class="gis-check-trigger" @click="open = !open">
+                        <span x-text="filters.project.length === 0 ? 'Select Road' : (filters.road.length === 0 ? 'Select Road' : (filters.road.length === 1 ? (allRoads.find(r => r.id === filters.road[0])?.name || '1 Selected') : filters.road.length + ' Selected'))"></span>
+                    </div>
+                    <div class="gis-check-dropdown" x-show="open" style="display: none; left: -10px; width: 200px;">
+                        <div class="gis-check-options">
+                            <template x-if="filters.project.length === 0">
+                                <div class="px-3 py-2 text-[11px] text-slate-400 italic">Please select a project first</div>
+                            </template>
                             <template x-for="r in getAvailableRoadChoices()" :key="r.id">
                                 <div class="gis-check-option" @click="toggleSelection(filters.road, r.id, () => onRoadChange())">
                                     <input type="checkbox" :checked="filters.road.includes(r.id)">
@@ -942,7 +964,7 @@
                         <label>Road</label>
                         <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }" @click.away="open = false">
                             <div class="gis-check-trigger" @click="open = !open">
-                                <span x-text="filters.road.length === 0 ? 'All Roads' : (filters.road.length === 1 ? (getAvailableRoadChoices().find(r => r.id === filters.road[0])?.name || '1 Selected') : filters.road.length + ' Selected')"></span>
+                                <span x-text="filters.project.length === 0 ? 'Select Road' : (filters.road.length === 0 ? 'All Roads' : (filters.road.length === 1 ? (getAvailableRoadChoices().find(r => r.id === filters.road[0])?.name || '1 Selected') : filters.road.length + ' Selected'))"></span>
                             </div>
                             <div class="gis-check-dropdown" x-show="open" style="display: none;" 
                                 x-transition:enter="transition ease-out duration-100" 
@@ -952,6 +974,9 @@
                                 x-transition:leave-start="opacity-100 scale-100" 
                                 x-transition:leave-end="opacity-0 scale-95">
                                 <div class="gis-check-options">
+                                    <template x-if="filters.project.length === 0">
+                                        <div class="px-3 py-2 text-[11px] text-slate-400 italic text-center">Please select a project first</div>
+                                    </template>
                                     <template x-for="r in getAvailableRoadChoices()" :key="r.id">
                                         <div class="gis-check-option" @click="toggleSelection(filters.road, r.id, () => onRoadChange())">
                                             <input type="checkbox" :checked="filters.road.includes(r.id)">
@@ -1043,12 +1068,16 @@
                     <!-- Road count badge (floating) -->
                     <div style="position: absolute; bottom: 16px; right: 16px; z-index: 1000;">
                         <div
-                            style="background: rgba(255,255,255,.95); border-radius: 10px; padding: 8px 14px; box-shadow: 0 2px 12px rgba(0,0,0,.12); font-size: 12px; display: flex; align-items: center; gap: 4px;">
-                            <span style="font-weight: 700; color: #2563eb;" x-text="stats.roads"></span>
-                            <span style="color: #6b7280; margin-right: 4px;"> roads</span>
-                            <span style="color: #cbd5e1; margin-right: 4px;">|</span>
-                            <span style="font-weight: 700; color: #374151;" x-text="stats.length"></span>
-                            <span style="color: #6b7280;"> km</span>
+                            style="background: rgba(255,255,255,.98); border-radius: 14px; padding: 12px 24px; box-shadow: 0 4px 20px rgba(0,0,0,.15); font-size: 15px; display: flex; align-items: center; gap: 8px; border: 1px solid rgba(255,255,255,0.4); backdrop-filter: blur(8px);">
+                            <div style="display: flex; align-items: baseline; gap: 4px;">
+                                <span style="font-size: 18px; font-weight: 800; color: #2563eb;" x-text="stats.roads"></span>
+                                <span style="color: #64748b; font-weight: 500;">roads</span>
+                            </div>
+                            <span style="color: #e2e8f0; font-size: 18px; font-weight: 300; margin: 0 4px;">|</span>
+                            <div style="display: flex; align-items: baseline; gap: 4px;">
+                                <span style="font-size: 18px; font-weight: 800; color: #1e293b;" x-text="stats.length"></span>
+                                <span style="color: #64748b; font-weight: 500;">km</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1361,7 +1390,7 @@
 
             async loadOrgUnits() {
                 try {
-                    const r = await fetch('/api/v1/users/?page_size=500', { credentials: 'include' });
+                    const r = await fetch('/api/v1/users/?page_size=500&exclude_unassigned=true', { credentials: 'include' });
                     const d = await r.json();
                     this.allOrgUnits = d.results || [];
 
@@ -1388,7 +1417,7 @@
 
             async loadProjects() {
                 try {
-                    const r = await fetch('/api/v1/projects/?page_size=1000', { credentials: 'include' });
+                    const r = await fetch('/api/v1/projects/?page_size=1000&exclude_unassigned=true', { credentials: 'include' });
                     const d = await r.json();
                     this.allProjects = d.results || [];
                 } catch (e) { console.error('loadProjects', e); }
@@ -1432,11 +1461,10 @@
             },
 
             getAvailableRoadChoices() {
-                let roads = this.allRoads;
-                if (this.filters.project.length > 0) {
-                    roads = roads.filter(r => this.filters.project.includes(r.project));
-                }
-                return roads;
+                // Enforce "Project-first": No roads shown in dropdown unless a project is selected
+                if (this.filters.project.length === 0) return [];
+                
+                return this.allRoads.filter(r => this.filters.project.includes(r.project));
             },
 
             async loadRoads() {
@@ -1446,6 +1474,8 @@
                     if (this.filters.ro.length > 0) params.append('ro_user', this.filters.ro.join(','));
                     if (this.filters.piu.length > 0) params.append('piu_user', this.filters.piu.join(','));
                     if (this.filters.projectUser.length > 0) params.append('project_user', this.filters.projectUser.join(','));
+                    if (this.filters.project.length > 0) params.append('project', this.filters.project.join(','));
+                    params.append('exclude_unassigned', 'true');
 
                     const r = await fetch(`/api/v1/roads/?${params.toString()}`, { credentials: 'include' });
                     const d = await r.json();
@@ -1478,20 +1508,26 @@
             },
             onProjectChange() {
                 this.filters.road = [];
-                this.applyFilters();
+                this.loadRoads();
             },
             onRoadChange() {
                 this.applyFilters();
             },
 
             applyFilters() {
-                let roads = [...this.allRoads];
-                if (this.filters.project.length > 0) {
-                    roads = roads.filter(r => this.filters.project.includes(r.project));
+                // Enforce "Project-first": No roads shown on map unless a project is selected
+                if (this.filters.project.length === 0) {
+                    this.filteredRoads = [];
+                    this.computeStats([]);
+                    this.renderMapRoads([]);
+                    return;
                 }
+
+                let roads = this.allRoads.filter(r => this.filters.project.includes(r.project));
                 if (this.filters.road.length > 0) {
                     roads = roads.filter(r => this.filters.road.includes(r.id));
                 }
+                
                 this.filteredRoads = roads;
                 this.computeStats(roads);
                 this.renderMapRoads(roads);

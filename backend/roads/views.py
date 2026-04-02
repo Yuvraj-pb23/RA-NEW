@@ -152,27 +152,47 @@ class RoadViewSet(ModelViewSet):
         role = getattr(user, 'role', None)
         
         if role == SystemRole.SUPER_ADMIN:
-            return qs
+            final_qs = qs
+        else:
+            custom_role = getattr(user, 'custom_role', None)
+            is_supervisor = custom_role and (getattr(custom_role, 'is_supervisor_role', False) or getattr(custom_role, 'has_supervisor_visibility', False))
             
-        custom_role = getattr(user, 'custom_role', None)
-        is_supervisor = custom_role and (custom_role.is_supervisor_role or custom_role.has_supervisor_visibility)
-            
-        if role in [SystemRole.ORG_ADMIN, SystemRole.HO_USER] or is_supervisor:
-            if user.organization:
-                return qs.filter(project__organization=user.organization)
-            return qs.none()
-            
-        accessible_units = get_user_accessible_units(user)
-        visibility_q = Q(project__org_unit__in=accessible_units)
-        
-        if role == SystemRole.RO_USER:
-            visibility_q |= Q(project__ro_user=user)
-        elif role == SystemRole.PIU_USER:
-            visibility_q |= Q(project__piu_user=user)
-        elif role == SystemRole.PROJECT_USER:
-            visibility_q |= Q(project__project_user=user)
-            
-        return qs.filter(visibility_q).distinct()
+            if role in [SystemRole.ORG_ADMIN, SystemRole.HO_USER] or is_supervisor:
+                if user.organization:
+                    final_qs = qs.filter(project__organization=user.organization)
+                else:
+                    final_qs = qs.none()
+            else:
+                accessible_units = get_user_accessible_units(user)
+                visibility_q = Q(project__org_unit__in=accessible_units)
+                
+                if role == SystemRole.RO_USER:
+                    visibility_q |= Q(project__ro_user=user)
+                elif role == SystemRole.PIU_USER:
+                    visibility_q |= Q(project__piu_user=user)
+                elif role == SystemRole.PROJECT_USER:
+                    visibility_q |= Q(project__project_user=user)
+                    
+                final_qs = qs.filter(visibility_q).distinct()
+
+        if self.request.query_params.get('exclude_unassigned') == 'true':
+            final_qs = final_qs.exclude(
+                Q(project__ho_user__role=SystemRole.UNASSIGNED) |
+                Q(project__ro_user__role=SystemRole.UNASSIGNED) |
+                Q(project__piu_user__role=SystemRole.UNASSIGNED) |
+                Q(project__project_user__role=SystemRole.UNASSIGNED) |
+                Q(project__ho_user__isnull=True, project__ro_user__isnull=True, project__piu_user__isnull=True, project__project_user__isnull=True)
+            )
+        elif self.request.query_params.get('only_unassigned') == 'true':
+            final_qs = final_qs.filter(
+                Q(project__ho_user__role=SystemRole.UNASSIGNED) |
+                Q(project__ro_user__role=SystemRole.UNASSIGNED) |
+                Q(project__piu_user__role=SystemRole.UNASSIGNED) |
+                Q(project__project_user__role=SystemRole.UNASSIGNED) |
+                Q(project__ho_user__isnull=True, project__ro_user__isnull=True, project__piu_user__isnull=True, project__project_user__isnull=True)
+            )
+
+        return final_qs
 
     def perform_create(self, serializer):
         road = serializer.save()
