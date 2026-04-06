@@ -1477,6 +1477,94 @@
         </div>
     </div>
 
+    <!-- ── ROADMAP DETAILS VIEW (Roads for Selected Project) ── -->
+    <div x-show="view === 'roadmap'" x-cloak
+        style="height: calc(100vh - 64px); flex: 1; padding: 32px; background: #f8fafc; overflow-y: auto; display: flex; flex-direction: column; gap: 24px;"
+        class="custom-scrollbar">
+
+        <!-- Navigation & Actions -->
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <button @click="backToSurveys()"
+                    style="padding: 10px 20px; background: #1e293b; color: #fff; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s ease;"
+                    onmouseover="this.style.transform='translateX(-4px)'" onmouseleave="this.style.transform='none'">
+                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    <span>Back</span>
+                </button>
+            </div>
+
+            <button @click="downloadExcel()"
+                style="padding: 10px 20px; background: #16a34a; color: #fff; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.2);"
+                onmouseover="this.style.background='#15803d'" onmouseleave="this.style.background='#16a34a'">
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                <span>Download Excel Report</span>
+            </button>
+        </div>
+
+        <!-- Title Section -->
+        <div>
+            <h2 style="font-size: 28px; font-weight: 800; color: #0f172a; margin: 0; letter-spacing: -0.03em;">Roads Details</h2>
+            <p style="color: #64748b; font-size: 14px; font-weight: 500; margin-top: 4px;" x-text="`Survey Registry for ${selectedProject?.name}`"></p>
+        </div>
+
+        <!-- Professional Roads Table -->
+        <div style="background: #ffffff; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                <thead style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                    <tr>
+                        <th style="padding: 16px 24px; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; width: 60px;">Sr.</th>
+                        <th style="padding: 16px 24px; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Road Name</th>
+                        <th style="padding: 16px 24px; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; width: 100px;">Code</th>
+                        <th style="padding: 16px 24px; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; width: 120px;">Length(km)</th>
+                        <th style="padding: 16px 24px; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; width: 140px;">GPX Length(km)</th>
+                        <th style="padding: 16px 24px; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; width: 100px;">Width(m)</th>
+                        <th style="padding: 16px 24px; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; width: 120px;">Type</th>
+                        <th style="padding: 16px 24px; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; width: 120px;">Status</th>
+                        <th style="padding: 16px 24px; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; text-align: center; width: 100px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template x-for="(r, idx) in allRoads.filter(x => x.project === selectedProject?.id)" :key="r.id">
+                        <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s ease;" onmouseover="this.style.background='#f8fafc'" onmouseleave="this.style.background='transparent'">
+                            <td style="padding: 16px 24px; font-size: 13px; font-weight: 600; color: #94a3b8;" x-text="idx + 1"></td>
+                            <td style="padding: 16px 24px;">
+                                <div style="font-size: 14px; font-weight: 700; color: #1e293b;" x-text="r.name"></div>
+                            </td>
+                            <td style="padding: 16px 24px; font-size: 13px; color: #64748b; font-family: monospace;" x-text="r.id.substring(0, 6).toUpperCase()"></td>
+                            <td style="padding: 16px 24px; font-size: 14px; font-weight: 600; color: #1e293b;" x-text="parseFloat(r.length || 0).toFixed(2)"></td>
+                            <td style="padding: 16px 24px; font-size: 14px; font-weight: 600; color: #1e293b;" x-text="r.gpx_file ? parseFloat(r.length || 0).toFixed(2) : '—'"></td>
+                            <td style="padding: 16px 24px; font-size: 14px; font-weight: 500; color: #64748b;">3.05</td>
+                            <td style="padding: 16px 24px;">
+                                <span style="font-size: 12px; font-weight: 600; color: #475569;" x-text="r.road_type"></span>
+                            </td>
+                            <td style="padding: 16px 24px;">
+                                <span x-show="r.gpx_file" style="padding: 4px 10px; background: #dcfce7; color: #166534; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase;">Done</span>
+                                <span x-show="!r.gpx_file" style="padding: 4px 10px; background: #fef9c3; color: #854d0e; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase;">Pending</span>
+                            </td>
+                            <td style="padding: 16px 24px; text-align: center;">
+                                <button @click="viewRoadOnMap(r)"
+                                    style="padding: 6px 14px; background: #eff6ff; color: #2563eb; border: 1px solid #dbeafe; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s ease;"
+                                    onmouseover="this.style.background='#2563eb'; this.style.color='#fff'"
+                                    onmouseleave="this.style.background='#eff6ff'; this.style.color='#2563eb'">
+                                    View
+                                </button>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+            <template x-if="allRoads.filter(x => x.project === selectedProject?.id).length === 0">
+                <div style="padding: 60px; text-align: center; color: #94a3b8;">
+                    <p style="font-size: 15px; font-weight: 600;">No roads found for this project</p>
+                </div>
+            </template>
+        </div>
+    </div>
+
     <!-- ── RSA / DIGITAL TWIN VIEW ── -->
     <template x-if="view === 'rsa' || view === 'digital'">
         <div
@@ -1527,6 +1615,7 @@
             allProjects: [], // Real projects from API
             allRoads: [],
             filteredRoads: [],
+            selectedProject: null, // For roadmap view
 
             // Stats
             stats: {
@@ -1899,24 +1988,32 @@
                 a.download = 'roads_export.csv'; a.click();
             },
             async goToProjectRoads(project) {
-                // Clear existing filters
+                this.selectedProject = project;
+                this.view = 'roadmap';
+                
+                // Pre-filter map and data for this project
                 this.filters.ho = []; this.filters.ro = []; this.filters.piu = []; this.filters.projectUser = [];
-                this.filters.project = []; this.filters.road = [];
-
-                // Set project filter
                 this.filters.project = [project.id];
-
-                // Switch to map view
-                this.view = 'map';
-                this.filtersExpanded = true;
-
-                // Load roads for this project
+                this.filters.road = [];
+                
                 await this.loadRoads();
-
-                // Compute title update
+                
                 window.dispatchEvent(new CustomEvent('update-title', {
-                    detail: `${project.name} — Survey Details`
+                    detail: `${project.name} — Roadmap Details`
                 }));
+            },
+
+            backToSurveys() {
+                this.view = 'surveys';
+                this.selectedProject = null;
+                this.clearFilters();
+            },
+
+            viewRoadOnMap(road) {
+                this.view = 'map';
+                this.filters.project = [road.project];
+                this.filters.road = [road.id];
+                this.applyFilters();
             }
         };
     }
