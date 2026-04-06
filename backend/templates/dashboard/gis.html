@@ -355,7 +355,23 @@
         min-width: 0;
     }
 
-    /* ── Filter bar ── */
+    /* ── Custom Scrollbar for Surveys ── */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 8px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #e2e8f0;
+        border-radius: 10px;
+        border: 2px solid transparent;
+        background-clip: padding-box;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #cbd5e1;
+        border: 2px solid transparent;
+    }
     .gis-filter-bar {
         background: #fff;
         border-bottom: 1px solid #e8edf2;
@@ -1354,102 +1370,113 @@
 
     <!-- ── SURVEYS VIEW ── -->
     <div x-show="view === 'surveys'"
-        style="flex: 1; width: 100%; min-height: calc(100vh - 64px); background: #fff; overflow-y: auto; padding: 30px 40px; display: flex; flex-direction: column;"
+        style="flex: 1; width: 100%; height: calc(100vh - 64px); background: radial-gradient(circle at top right, #f8fafc, #f1f5f9); overflow-y: auto; padding: 40px; display: flex; flex-direction: column; position: relative;"
+        class="custom-scrollbar"
         x-cloak>
 
-        <!-- Pagination & Controls Row -->
-        <div style="display: flex; align-items: center; justify-content: flex-start; gap: 15px; margin-bottom: 30px;">
-            <button @click="if(surveyPagination.page > 1) surveyPagination.page--"
-                :disabled="surveyPagination.page === 1"
-                style="padding: 6px 16px; background: #2b4585; color: #fff; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; transition: opacity 0.2s;"
-                :style="surveyPagination.page === 1 ? 'opacity: 0.5; cursor: not-allowed;' : ''">
-                ← Back
-            </button>
-            <button @click="if(surveyPagination.page < getSurveyTotalPages()) surveyPagination.page++"
-                :disabled="surveyPagination.page === getSurveyTotalPages()"
-                style="padding: 6px 16px; background: #2b4585; color: #fff; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; transition: opacity 0.2s;"
-                :style="surveyPagination.page === getSurveyTotalPages() ? 'opacity: 0.5; cursor: not-allowed;' : ''">
-                Forward →
-            </button>
+        <!-- Decorative background element -->
+        <div style="position: absolute; top: -100px; right: -100px; width: 300px; height: 300px; background: rgba(37, 99, 235, 0.03); filter: blur(80px); border-radius: 50%; pointer-events: none;"></div>
+        <div style="position: absolute; bottom: 100px; left: -50px; width: 250px; height: 250px; background: rgba(37, 99, 235, 0.02); filter: blur(60px); border-radius: 50%; pointer-events: none;"></div>
+
+
+
+
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 35px; position: relative; z-index: 10;">
+            <div>
+                <h2 style="color: #1e293b; font-size: 26px; font-weight: 800; margin-bottom: 6px; letter-spacing: -0.02em;">
+                    Surveyed Projects
+                </h2>
+                <p style="color: #64748b; font-size: 14px; font-weight: 500;">Manage and review your organization's infrastructure surveys.</p>
+            </div>
+            
+            <!-- Glassmorphism Search Card -->
+            <div style="background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(12px); padding: 6px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.8); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); width: 400px; display: flex; align-items: center; gap: 10px;">
+                <div style="padding-left: 12px; color: #94a3b8;">
+                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <input type="text" x-model="surveyFilters.search" placeholder="Search surveys..."
+                    style="flex: 1; padding: 10px 4px; border: none; background: transparent; font-size: 14px; color: #1e293b; outline: none; font-weight: 500;"
+                    @input="surveyPagination.page = 1">
+            </div>
         </div>
 
-        <h2
-            style="text-align: center; color: #4a7c82; font-size: 24px; font-weight: 800; margin-bottom: 30px; letter-spacing: 0.5px;">
-            Surveyed Projects
-        </h2>
+        <!-- Modern Card List (Replacement for table) -->
+        <div style="display: flex; flex-direction: column; gap: 14px; position: relative; z-index: 10;">
+            <!-- Header for Card List -->
+            <div style="display: grid; grid-template-columns: 80px 1fr 220px 160px; padding: 0 24px 10px; color: #94a3b8; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">
+                <span>No.</span>
+                <span>Survey Identity</span>
+                <span>Date Published</span>
+                <span style="text-align: right;">Action</span>
+            </div>
 
-        <!-- Search & Filters Row -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">
-            <input type="text" x-model="surveyFilters.search" placeholder="Search by Survey Name"
-                style="padding: 10px 15px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; color: #374151; width: 100%; outline: none;"
-                @input="surveyPagination.page = 1">
+            <template x-for="(p, index) in getPaginatedSurveys()" :key="p.id">
+                <div x-show="true" 
+                     x-transition:enter="transition ease-out duration-300"
+                     x-transition:enter-start="opacity-0 translate-y-4"
+                     x-transition:enter-end="opacity-100 translate-y-0"
+                     style="background: #fff; border-radius: 16px; border: 1px solid #f1f5f9; padding: 18px 24px; display: grid; grid-template-columns: 80px 1fr 220px 160px; align-items: center; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: default; box-shadow: 0 1px 3px rgba(0,0,0,0.02);"
+                     onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 12px 20px -5px rgba(0,0,0,0.08)'; this.style.borderColor='#e2e8f0';"
+                     onmouseleave="this.style.transform='none'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.02)'; this.style.borderColor='#f1f5f9';">
+                    
+                    <span style="font-weight: 800; color: #94a3b8; font-size: 14px;" x-text="((surveyPagination.page - 1) * surveyPagination.pageSize + index + 1).toString().padStart(2, '0')"></span>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 2px;">
+                        <span style="font-weight: 700; color: #1e293b; font-size: 15px;" x-text="p.name"></span>
+                        <div style="display: flex; align-items: center; gap: 6px; color: #64748b; font-size: 12px;">
+                            <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <span x-text="p.org_unit_name || 'Regional Office'"></span>
+                        </div>
+                    </div>
 
-            <select x-model="surveyFilters.district"
-                style="padding: 10px 15px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; color: #374151; width: 100%; outline: none; background: #fff; cursor: pointer;"
-                @change="surveyPagination.page = 1">
-                <option value="">Filter by District</option>
-                <template x-for="d in getSurveyDistricts()" :key="d">
-                    <option :value="d" x-text="d"></option>
-                </template>
-            </select>
+                    <div style="display: flex; align-items: center; gap: 8px; color: #475569; font-size: 13px; font-weight: 500;">
+                        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: #94a3b8;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span x-text="new Date(p.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })"></span>
+                    </div>
+
+                    <div style="text-align: right;">
+                        <button @click="goToProjectRoads(p)"
+                            style="padding: 10px 20px; background: #2563eb; color: #fff; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);"
+                            onmouseover="this.style.background='#1d4ed8'; this.style.transform='scale(1.05)';"
+                            onmouseleave="this.style.background='#2563eb'; this.style.transform='scale(1)';"
+                            onmousedown="this.style.transform='scale(0.95)';">
+                            <span>Open Details</span>
+                            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </template>
+
+            <template x-if="getFilteredSurveys().length === 0">
+                <div style="background: #fff; border-radius: 16px; border: 1px dashed #e2e8f0; padding: 60px; text-align: center; color: #94a3b8;">
+                    <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin: 0 auto 16px; opacity: 0.5;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <p style="font-size: 16px; font-weight: 500;">No projects found matching your search</p>
+                    <button @click="surveyFilters.search = ''" style="margin-top: 12px; color: #2563eb; font-weight: 600; background: none; border: none; cursor: pointer; text-decoration: underline;">Clear all filters</button>
+                </div>
+            </template>
         </div>
 
-        <!-- Projects Table -->
-        <div style="border: 1px solid #e5e7eb; border-radius: 2px; overflow: hidden;">
-            <table style="width: 100%; border-collapse: collapse; text-align: center;">
-                <thead>
-                    <tr style="background: #4a7c82; color: #fff;">
-                        <th
-                            style="padding: 12px 15px; font-size: 13px; font-weight: 700; border-right: 1px solid rgba(255,255,255,0.1);">
-                            Sr no.</th>
-                        <th
-                            style="padding: 12px 15px; font-size: 13px; font-weight: 700; border-right: 1px solid rgba(255,255,255,0.1);">
-                            Survey Name</th>
-                        <th
-                            style="padding: 12px 15px; font-size: 13px; font-weight: 700; border-right: 1px solid rgba(255,255,255,0.1);">
-                            District</th>
-                        <th
-                            style="padding: 12px 15px; font-size: 13px; font-weight: 700; border-right: 1px solid rgba(255,255,255,0.1);">
-                            Date Of Survey</th>
-                        <th style="padding: 12px 15px; font-size: 13px; font-weight: 700;">Roads</th>
-                    </tr>
-                </thead>
-                <tbody style="font-size: 13px; color: #374151;">
-                    <template x-for="(p, index) in getPaginatedSurveys()" :key="p.id">
-                        <tr style="border-bottom: 1px solid #e5e7eb;"
-                            :style="index % 2 === 0 ? 'background: #f9fafb;' : 'background: #fff;'">
-                            <td style="padding: 12px 15px; font-weight: 700; border-right: 1px solid #e5e7eb;"
-                                x-text="(surveyPagination.page - 1) * surveyPagination.pageSize + index + 1"></td>
-                            <td style="padding: 12px 15px; border-right: 1px solid #e5e7eb;" x-text="p.name"></td>
-                            <td style="padding: 12px 15px; border-right: 1px solid #e5e7eb;"
-                                x-text="p.org_unit_name || '—'"></td>
-                            <td style="padding: 12px 15px; border-right: 1px solid #e5e7eb;"
-                                x-text="new Date(p.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })">
-                            </td>
-                            <td style="padding: 12px 15px;">
-                                <button @click="goToProjectRoads(p)"
-                                    style="padding: 6px 14px; background: #22c55e; color: #fff; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; transition: background 0.2s;"
-                                    onmouseover="this.style.background='#16a34a'"
-                                    onmouseleave="this.style.background='#22c55e'">
-                                    Roads details
-                                </button>
-                            </td>
-                        </tr>
-                    </template>
-                    <template x-if="getFilteredSurveys().length === 0">
-                        <tr>
-                            <td colspan="5" style="padding: 40px; color: #9ca3af; font-style: italic;">No projects found
-                                matching your filters.</td>
-                        </tr>
-                    </template>
-                </tbody>
-            </table>
-        </div>
-
-        <div
-            style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center; color: #6b7280; font-size: 12px;">
-            <span x-text="`Showing ${getPaginatedSurveys().length} of ${getFilteredSurveys().length} projects`"></span>
-            <span x-text="`Page ${surveyPagination.page} of ${getSurveyTotalPages() || 1}`"></span>
+        <!-- Dynamic Footer with Glass Pagination Style -->
+        <div style="margin-top: 30px; padding: 16px 24px; background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(8px); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.6); display: flex; justify-content: space-between; align-items: center; color: #64748b; font-size: 13px; font-weight: 600;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="width: 8px; height: 8px; background: #2563eb; border-radius: 50%;"></span>
+                <span x-text="`Currently indexed: ${getFilteredSurveys().length} projects active`"></span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <span x-text="`Page ${surveyPagination.page} of ${getSurveyTotalPages() || 1}`" style="background: #fff; padding: 4px 12px; border-radius: 8px; border: 1px solid #f1f5f9; color: #1e293b;"></span>
+                <span x-text="`Registry entry count: ${getPaginatedSurveys().length}`" style="opacity: 0.7;"></span>
+            </div>
         </div>
     </div>
 
