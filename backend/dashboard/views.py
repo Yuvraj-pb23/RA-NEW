@@ -329,6 +329,12 @@ class GISMapView(DashboardMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
+        # Expose a generic Maps API key to the template (backend name-agnostic)
+        try:
+            from django.conf import settings
+            ctx["maps_api_key"] = getattr(settings, "MAPS_API_KEY", "")
+        except Exception:
+            ctx["maps_api_key"] = ""
         from accounts.models import User, SystemRole
         from access.models import UserOrgAccess
 

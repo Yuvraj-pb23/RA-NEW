@@ -964,7 +964,7 @@
                         <label>Road</label>
                         <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }" @click.away="open = false">
                             <div class="gis-check-trigger" @click="open = !open">
-                                <span x-text="filters.project.length === 0 ? 'Select Road' : (filters.road.length === 0 ? 'All Roads' : (filters.road.length === 1 ? (getAvailableRoadChoices().find(r => r.id === filters.road[0])?.name || '1 Selected') : filters.road.length + ' Selected'))"></span>
+                                <span x-text="filters.road.length === 0 ? 'All Roads' : (filters.road.length === 1 ? (getAvailableRoadChoices().find(r => r.id === filters.road[0])?.name || '1 Selected') : filters.road.length + ' Selected')"></span>
                             </div>
                             <div class="gis-check-dropdown" x-show="open" style="display: none;" 
                                 x-transition:enter="transition ease-out duration-100" 
@@ -974,9 +974,6 @@
                                 x-transition:leave-start="opacity-100 scale-100" 
                                 x-transition:leave-end="opacity-0 scale-95">
                                 <div class="gis-check-options">
-                                    <template x-if="filters.project.length === 0">
-                                        <div class="px-3 py-2 text-[11px] text-slate-400 italic text-center">Please select a project first</div>
-                                    </template>
                                     <template x-for="r in getAvailableRoadChoices()" :key="r.id">
                                         <div class="gis-check-option" @click="toggleSelection(filters.road, r.id, () => onRoadChange())">
                                             <input type="checkbox" :checked="filters.road.includes(r.id)">
@@ -1374,6 +1371,8 @@
                 const mapEl = document.getElementById('gis-map');
                 if (!mapEl || this.map) return;
 
+                const MAPS_API_KEY = "{{ maps_api_key|default:'' }}";
+
                 this.map = L.map('gis-map', {
                     center: [28.6, 77.2],
                     zoom: 6,
@@ -1384,17 +1383,33 @@
 
                 L.control.zoom({ position: 'bottomleft' }).addTo(this.map);
 
-                this.streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-                    attribution: '&copy; OpenStreetMap contributors',
-                    maxZoom: 19,
-                    maxNativeZoom: 19
-                });
+                // Default (street) – maps tiles (Google when MAPS_API_KEY is provided)
+                this.streetLayer = L.tileLayer(
+                    MAPS_API_KEY
+                        ? `https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key=${MAPS_API_KEY}`
+                        : 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+                    {
+                        attribution: MAPS_API_KEY
+                            ? 'Map data © Google'
+                            : '&copy; OpenStreetMap contributors',
+                        maxZoom: 19,
+                        maxNativeZoom: 19
+                    }
+                );
 
-                this.satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                    attribution: 'Tiles &copy; Esri', 
-                    maxZoom: 19,
-                    maxNativeZoom: 18
-                });
+                // Satellite – maps imagery (Google when MAPS_API_KEY is provided)
+                this.satelliteLayer = L.tileLayer(
+                    MAPS_API_KEY
+                        ? `https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}&key=${MAPS_API_KEY}`
+                        : 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                    {
+                        attribution: MAPS_API_KEY
+                            ? 'Imagery © Google'
+                            : 'Tiles &copy; Esri',
+                        maxZoom: 19,
+                        maxNativeZoom: 18
+                    }
+                );
 
                 this.streetLayer.addTo(this.map);
                 this.tileLayer = this.streetLayer;
@@ -1474,10 +1489,13 @@
             },
 
             getAvailableRoadChoices() {
-                // Enforce "Project-first": No roads shown in dropdown unless a project is selected
-                if (this.filters.project.length === 0) return [];
-                
-                return this.allRoads.filter(r => this.filters.project.includes(r.project));
+                // Always start from the roads already loaded for this org + HO/RO/PIU/ProjectUser filters,
+                // then narrow further by selected projects if any.
+                let roads = this.allRoads.slice();
+                if (this.filters.project.length > 0) {
+                    roads = roads.filter(r => this.filters.project.includes(r.project));
+                }
+                return roads;
             },
 
             async loadRoads() {
@@ -1528,19 +1546,17 @@
             },
 
             applyFilters() {
-                // Enforce "Project-first": No roads shown on map unless a project is selected
-                if (this.filters.project.length === 0) {
-                    this.filteredRoads = [];
-                    this.computeStats([]);
-                    this.renderMapRoads([]);
-                    return;
+                // Start from allRoads (already filtered by HO/RO/PIU/Project User via loadRoads),
+                // then narrow further by project and road selections. If no filters are chosen,
+                // show every road visible to this user/org.
+                let roads = this.allRoads.slice();
+                if (this.filters.project.length > 0) {
+                    roads = roads.filter(r => this.filters.project.includes(r.project));
                 }
-
-                let roads = this.allRoads.filter(r => this.filters.project.includes(r.project));
                 if (this.filters.road.length > 0) {
                     roads = roads.filter(r => this.filters.road.includes(r.id));
                 }
-                
+
                 this.filteredRoads = roads;
                 this.computeStats(roads);
                 this.renderMapRoads(roads);

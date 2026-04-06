@@ -11,11 +11,18 @@ from decouple import config
 BASE_DIR = Path(__file__).resolve().parent.parent.parent  # points to backend/
 
 # ---------------------------------------------------------------------------
-# Security
+# Security / API keys
 # ---------------------------------------------------------------------------
 SECRET_KEY = config("SECRET_KEY", default="change-me-insecure-key")
 DEBUG = False
 ALLOWED_HOSTS = []
+
+# Generic maps API key used by GIS dashboard (provider-agnostic).
+# Can be overridden in env as MAPS_API_KEY="...".
+MAPS_API_KEY = config(
+    "MAPS_API_KEY",
+    default="AIzaSyAtVXosLTQjTMVm2K9BJf55HZAkNAGTr4U",
+)
 
 # ---------------------------------------------------------------------------
 # Application definition
