@@ -298,6 +298,12 @@ class UserListView(UpperTierRequiredMixin, DashboardMixin, TemplateView):
     template_name = "dashboard/users/list.html"
     active_page   = "users"
 
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        oid = getattr(self.request.user, "organization_id", None)
+        ctx["org_id"] = str(oid) if oid else ""
+        return ctx
+
 
 class AccessListView(OrgAdminRequiredMixin, DashboardMixin, TemplateView):
     template_name = "dashboard/access/list.html"

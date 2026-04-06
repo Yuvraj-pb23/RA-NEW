@@ -1446,28 +1446,22 @@
                 return this.hoUnits;
             },
             getAvailableRoUnits() {
-                let filtered = this.roUnits.filter(u => this.filters.ho.length === 0 || this.filters.ho.includes(u.ho_user));
-                if (filtered.length === 0 && this.roUnits.length > 0) return this.roUnits;
-                return filtered;
+                return this.roUnits.filter(u => this.filters.ho.length === 0 || this.filters.ho.includes(u.ho_user));
             },
             getAvailablePiuUnits() {
-                let filtered = this.piuUnits.filter(u => {
+                return this.piuUnits.filter(u => {
                     if (this.filters.ho.length > 0 && !this.filters.ho.includes(u.ho_user)) return false;
                     if (this.filters.ro.length > 0 && !this.filters.ro.includes(u.ro_user)) return false;
                     return true;
                 });
-                if (filtered.length === 0 && this.piuUnits.length > 0) return this.piuUnits;
-                return filtered;
             },
             getAvailableProjectUserUnits() {
-                let filtered = this.projectUserUnits.filter(u => {
+                return this.projectUserUnits.filter(u => {
                     if (this.filters.ho.length > 0 && !this.filters.ho.includes(u.ho_user)) return false;
                     if (this.filters.ro.length > 0 && !this.filters.ro.includes(u.ro_user)) return false;
                     if (this.filters.piu.length > 0 && !this.filters.piu.includes(u.piu_user)) return false;
                     return true;
                 });
-                if (filtered.length === 0 && this.projectUserUnits.length > 0) return this.projectUserUnits;
-                return filtered;
             },
             getAvailableProjectUnits() {
                 return this.allProjects.filter(p => {

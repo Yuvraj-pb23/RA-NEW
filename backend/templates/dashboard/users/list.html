@@ -19,7 +19,7 @@
         </p>
     </div>
     {% if request.user.role in 'SUPER_ADMIN,ORG_ADMIN' %}
-    <button @click="openCreate()" class="btn-primary group">
+    <button @click="openCreate()" type="button" class="btn-primary group">
       <svg class="w-4 h-4 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
       </svg>
@@ -307,7 +307,7 @@
 
           <!-- Roles loaded -->
           <div x-show="!rolesLoading">
-            <select x-model="form.custom_role" @change="saveError = null" class="input-base">
+            <select x-model="form.custom_role" @change="onCustomRoleFormChange()" class="input-base">
               <option value="">— Select a role —</option>
               
               <optgroup label="── System Roles ──">
@@ -336,7 +336,7 @@
 
             <!-- No roles created yet -->
             {% if request.user.role != 'SUPER_ADMIN' %}
-            <div x-show="!rolesLoading && availableRoles.length === 0 && form.organization"
+            <div x-show="!rolesLoading && availableRoles.length === 0 && getEffectiveOrgId()"
               class="mt-2 flex items-start gap-2 text-[12px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5">
               <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -355,12 +355,13 @@
 
 
 
-        <div x-show="form.organization && ['RO_USER', 'PIU_USER', 'PROJECT_USER'].includes(this._systemRoleFromCustomRole(form.custom_role))"
+        <div x-show="getEffectiveOrgId() && selectedRoleLevel() != null && selectedRoleLevel() >= 2"
           class="border-t border-slate-100 pt-4 mt-4">
           <h3 class="text-sm font-semibold text-slate-800 mb-4">Reporting Hierarchy</h3>
+          <p class="text-[11px] text-slate-500 mb-3">Choose who this person reports to at each level above them in your org (optional).</p>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
 
-            <div x-show="['RO_USER', 'PIU_USER', 'PROJECT_USER'].includes(this._systemRoleFromCustomRole(form.custom_role))">
+            <div x-show="selectedRoleLevel() >= 2">
               <label class="block text-xs font-semibold text-slate-600 mb-1.5">Reports to {{ org_role_labels.0 }} <span
                   class="text-slate-400 font-normal">(Optional)</span></label>
               <select x-model="form.ho_user" @change="onFormUserChange()" class="input-base">
@@ -371,7 +372,7 @@
               </select>
             </div>
 
-            <div x-show="['PIU_USER', 'PROJECT_USER'].includes(this._systemRoleFromCustomRole(form.custom_role))">
+            <div x-show="selectedRoleLevel() >= 3">
               <label class="block text-xs font-semibold text-slate-600 mb-1.5">Reports to {{ org_role_labels.1 }} <span
                   class="text-slate-400 font-normal">(Optional)</span></label>
               <select x-model="form.ro_user" @change="onFormUserChange()" class="input-base">
@@ -382,7 +383,7 @@
               </select>
             </div>
 
-            <div x-show="this._systemRoleFromCustomRole(form.custom_role) === 'PROJECT_USER'">
+            <div x-show="selectedRoleLevel() >= 4">
               <label class="block text-xs font-semibold text-slate-600 mb-1.5">Reports to {{ org_role_labels.2 }} <span
                   class="text-slate-400 font-normal">(Optional)</span></label>
               <select x-model="form.piu_user" @change="onFormUserChange()" class="input-base">
@@ -431,16 +432,42 @@
         hoUsers: [], roUsers: [], piuUsers: [], projectUsers: [],
         availableRoles: [],
         rolesLoading: false,
+        /** Server-rendered hierarchy roles (id + hierarchy_level) — fallback when API list is empty. */
+        _orgRolesFromPage: {{ org_roles_json|safe }},
+        /** Stable org id for org admins (avoids empty form.organization breaking the modal). */
+        orgIdForForm: '{{ org_id|default:"" }}',
+
+        getEffectiveOrgId() {
+          return this.form.organization || this.orgIdForForm || '';
+        },
+
+        /** Selected custom role's hierarchy_level (1 = top). Null for system roles / supervisors / level 1. */
+        selectedRoleLevel() {
+          const id = this.form.custom_role;
+          if (!id || String(id).startsWith('SYSTEM:')) return null;
+          let cr = this.availableRoles.find(r => r.id == id);
+          if (!cr) {
+            cr = (this._orgRolesFromPage || []).find(r => r.id == id);
+            if (!cr || cr.hierarchy_level == null) return null;
+            return cr.hierarchy_level;
+          }
+          if (cr.is_supervisor_role) return null;
+          if (cr.hierarchy_level == null) return null;
+          return cr.hierarchy_level;
+        },
 
         async init() {
           this._debouncedSearch = debounce(() => { this.page = 1; this.load(); }, 350);
           this.load();
           this.fetchOrgs();
 
-          // For Org Admin: pre-load their own org's roles immediately
-          {% if request.user.role == 'ORG_ADMIN' and request.user.organization_id %}
-          this.form.organization = '{{ request.user.organization_id }}';
-          await this.fetchRoles('{{ request.user.organization_id }}');
+          // Org Admin: bind org + roles (use org_id from context if request.user.organization_id was unset)
+          {% if request.user.role == 'ORG_ADMIN' %}
+          const oid = this.getEffectiveOrgId();
+          if (oid) {
+            this.form.organization = oid;
+            await this.fetchRoles(oid);
+          }
           {% endif %}
         },
 
@@ -508,6 +535,47 @@
           return 'PROJECT_USER';
         },
 
+        /** Effective hierarchy level (1 = top) from custom role metadata or legacy system role. */
+        _getUserHierarchyLevel(u) {
+          if (!u) return 99;
+          if (u.custom_role) {
+            const cr = this.availableRoles.find(r => r.id == u.custom_role);
+            if (cr) {
+              if (cr.is_supervisor_role) return 1;
+              if (cr.hierarchy_level != null && cr.hierarchy_level !== '') return cr.hierarchy_level;
+            }
+          }
+          if (u.custom_role_level != null && u.custom_role_level !== '') {
+            return u.custom_role_level;
+          }
+          const legacy = { HO_USER: 1, RO_USER: 2, PIU_USER: 3, PROJECT_USER: 4 };
+          return legacy[u.role] ?? 99;
+        },
+
+        _populateHierarchyUserLists(users) {
+          const excludeId = this.editId;
+          const list = (users || []).filter(u => !excludeId || u.id != excludeId);
+          this.hoUsers = list.filter(u => this._getUserHierarchyLevel(u) === 1);
+          this.roUsers = list.filter(u => this._getUserHierarchyLevel(u) === 2);
+          this.piuUsers = list.filter(u => this._getUserHierarchyLevel(u) === 3);
+          this.projectUsers = list.filter(u => this._getUserHierarchyLevel(u) === 4);
+        },
+
+        async loadReportingHierarchyUsers() {
+          const org = this.getEffectiveOrgId();
+          if (!org) return;
+          if (!this.form.organization) this.form.organization = org;
+          await this.fetchRoles(org);
+          try {
+            const r = await fetch(`/api/v1/users/?organization=${org}&page_size=500`, { credentials: 'include' });
+            const d = await r.json();
+            this._populateHierarchyUserLists(d.results || []);
+          } catch (e) {
+            console.error('loadReportingHierarchyUsers', e);
+            this.hoUsers = []; this.roUsers = []; this.piuUsers = []; this.projectUsers = [];
+          }
+        },
+
         async onOrgChange() {
           this.form.ho_user = '';
           this.form.ro_user = '';
@@ -518,26 +586,19 @@
           this.roUsers = [];
           this.piuUsers = [];
           this.projectUsers = [];
-          this.availableRoles = [];
-          if (!this.form.organization) return;
-
-          // Fetch org users for hierarchy selectors
-          const r = await fetch(`/api/v1/users/?organization=${this.form.organization}&page_size=500`, { credentials: 'include' });
-          const d = await r.json();
-          const users = d.results || [];
-          this.hoUsers = users.filter(u => u.role === 'HO_USER');
-          this.roUsers = users.filter(u => u.role === 'RO_USER');
-          this.piuUsers = users.filter(u => u.role === 'PIU_USER');
-          this.projectUsers = users.filter(u => u.role === 'PROJECT_USER');
-
-          // Fetch active custom roles for this org
-          await this.fetchRoles(this.form.organization);
+          if (!this.form.organization) {
+            this.availableRoles = [];
+            return;
+          }
+          await this.loadReportingHierarchyUsers();
         },
 
-        onRoleChange() {
-          if (!['RO_USER', 'PIU_USER', 'PROJECT_USER'].includes(this.form.role)) this.form.ho_user = '';
-          if (!['PIU_USER', 'PROJECT_USER'].includes(this.form.role)) this.form.ro_user = '';
-          if (this.form.role !== 'PROJECT_USER') this.form.piu_user = '';
+        onCustomRoleFormChange() {
+          this.saveError = null;
+          const sys = this._systemRoleFromCustomRole(this.form.custom_role);
+          if (!['RO_USER', 'PIU_USER', 'PROJECT_USER'].includes(sys)) this.form.ho_user = '';
+          if (!['PIU_USER', 'PROJECT_USER'].includes(sys)) this.form.ro_user = '';
+          if (sys !== 'PROJECT_USER') this.form.piu_user = '';
           this.onFormUserChange();
         },
 
@@ -545,30 +606,34 @@
           return this.hoUsers;
         },
         getAvailableFormRoUsers() {
-          return this.roUsers.filter(u => !this.form.ho_user || u.ho_user === this.form.ho_user);
+          return this.roUsers.filter(u => !this.form.ho_user || u.ho_user == this.form.ho_user);
         },
         getAvailableFormPiuUsers() {
           return this.piuUsers.filter(u => {
-            if (this.form.ho_user && u.ho_user !== this.form.ho_user) return false;
-            if (this.form.ro_user && u.ro_user !== this.form.ro_user) return false;
+            if (this.form.ho_user && u.ho_user != this.form.ho_user) return false;
+            if (this.form.ro_user && u.ro_user != this.form.ro_user) return false;
             return true;
           });
         },
         onFormUserChange() {
-          if (this.form.ro_user && !this.getAvailableFormRoUsers().some(u => u.id === this.form.ro_user)) this.form.ro_user = '';
-          if (this.form.piu_user && !this.getAvailableFormPiuUsers().some(u => u.id === this.form.piu_user)) this.form.piu_user = '';
+          if (this.form.ro_user && !this.getAvailableFormRoUsers().some(u => u.id == this.form.ro_user)) this.form.ro_user = '';
+          if (this.form.piu_user && !this.getAvailableFormPiuUsers().some(u => u.id == this.form.piu_user)) this.form.piu_user = '';
         },
 
-        openCreate() {
+        async openCreate() {
           this.editId = null;
           this.form = {
             email: '', password: '', password_confirm: '', full_name: '', phone: '',
-            role: '', custom_role: '', organization: '{% if request.user.role == "ORG_ADMIN" and request.user.organization_id %}{{ request.user.organization_id }}{% else %}{% endif %}',
+            role: '', custom_role: '',
+            organization: '{% if request.user.role == "ORG_ADMIN" %}{{ org_id|default:"" }}{% endif %}',
             ho_user: '', ro_user: '', piu_user: '', project_user: '', is_active: true
           };
           this.hoUsers = []; this.roUsers = []; this.piuUsers = []; this.projectUsers = [];
           this.saveError = null;
           this.formOpen = true;
+          if (this.form.organization) {
+            await this.loadReportingHierarchyUsers();
+          }
         },
 
         async openEdit(user) {
@@ -593,9 +658,8 @@
             project_user: user.project_user || '',
             is_active: user.is_active
           };
-          // Load specific org roles & users to populate dropdowns correctly
           if (this.form.organization) {
-            await this.onOrgChange();
+            await this.loadReportingHierarchyUsers();
           }
           this.formOpen = true;
         },
