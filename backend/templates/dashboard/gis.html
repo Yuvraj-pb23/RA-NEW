@@ -1402,56 +1402,53 @@
             </div>
         </div>
 
-        <!-- Modern Card List (Replacement for table) -->
-        <div style="display: flex; flex-direction: column; gap: 14px; position: relative; z-index: 10;">
-            <!-- Header for Card List -->
-            <div style="display: grid; grid-template-columns: 80px 1fr 220px 160px; padding: 0 24px 10px; color: #94a3b8; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">
-                <span>No.</span>
-                <span>Survey Identity</span>
-                <span>Date Published</span>
-                <span style="text-align: right;">Action</span>
-            </div>
-
-            <template x-for="(p, index) in getPaginatedSurveys()" :key="p.id">
-                <div x-show="true" 
+            <!-- Card List (No Headers for a cleaner look) -->
+            <div style="display: flex; flex-direction: column; gap: 20px; position: relative; z-index: 10;">
+                <template x-for="(p, index) in getPaginatedSurveys()" :key="p.id">
+                    <div x-show="true" 
                      x-transition:enter="transition ease-out duration-300"
                      x-transition:enter-start="opacity-0 translate-y-4"
                      x-transition:enter-end="opacity-100 translate-y-0"
-                     style="background: #fff; border-radius: 16px; border: 1px solid #f1f5f9; padding: 18px 24px; display: grid; grid-template-columns: 80px 1fr 220px 160px; align-items: center; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: default; box-shadow: 0 1px 3px rgba(0,0,0,0.02);"
-                     onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 12px 20px -5px rgba(0,0,0,0.08)'; this.style.borderColor='#e2e8f0';"
-                     onmouseleave="this.style.transform='none'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.02)'; this.style.borderColor='#f1f5f9';">
+                     style="background: #fff; border-radius: 20px; border: 1px solid rgba(226, 232, 240, 0.6); padding: 28px 32px; display: flex; flex-direction: column; gap: 16px; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); cursor: default; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02), 0 2px 4px -2px rgba(0,0,0,0.02); position: relative; overflow: hidden;"
+                     onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 20px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.05)'; this.style.borderColor='#2563eb';"
+                     onmouseleave="this.style.transform='none'; this.style.boxShadow='0 4px 6px -1px rgba(0,0,0,0.02), 0 2px 4px -2px rgba(0,0,0,0.02)'; this.style.borderColor='rgba(226, 232, 240, 0.6)';"
+                     @click="goToProjectRoads(p)">
                     
-                    <span style="font-weight: 800; color: #94a3b8; font-size: 14px;" x-text="((surveyPagination.page - 1) * surveyPagination.pageSize + index + 1).toString().padStart(2, '0')"></span>
-                    
-                    <div style="display: flex; flex-direction: column; gap: 2px;">
-                        <span style="font-weight: 700; color: #1e293b; font-size: 15px;" x-text="p.name"></span>
-                        <div style="display: flex; align-items: center; gap: 6px; color: #64748b; font-size: 12px;">
-                            <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                            <span x-text="p.org_unit_name || 'Regional Office'"></span>
+                    <!-- Top Right Badge -->
+                    <div style="position: absolute; top: 24px; right: 24px;">
+                        <span style="padding: 6px 14px; background: #2563eb; color: #fff; border-radius: 99px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);" 
+                              x-text="getProjectRoadCount(p.id) + ' Roads'"></span>
+                    </div>
+
+                    <!-- Left Icon & Title Area -->
+                    <div style="display: flex; align-items: flex-start; gap: 20px;">
+                        <div style="width: 48px; height: 48px; background: #f1f5f9; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #94a3b8; font-weight: 800; font-size: 16px;" 
+                             x-text="((surveyPagination.page - 1) * surveyPagination.pageSize + index + 1).toString().padStart(2, '0')">
+                        </div>
+                        
+                        <div style="display: flex; flex-direction: column; gap: 6px; padding-top: 2px;">
+                            <h3 style="font-weight: 800; color: #0f172a; font-size: 20px; margin: 0; letter-spacing: -0.02em;" x-text="p.name"></h3>
+                            
+                            <div style="display: flex; align-items: center; gap: 14px; color: #64748b; font-size: 13px; font-weight: 500;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    <span x-text="new Date(p.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })"></span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div style="display: flex; align-items: center; gap: 8px; color: #475569; font-size: 13px; font-weight: 500;">
-                        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: #94a3b8;">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        <span x-text="new Date(p.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })"></span>
-                    </div>
-
-                    <div style="text-align: right;">
-                        <button @click="goToProjectRoads(p)"
-                            style="padding: 10px 20px; background: #2563eb; color: #fff; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);"
-                            onmouseover="this.style.background='#1d4ed8'; this.style.transform='scale(1.05)';"
-                            onmouseleave="this.style.background='#2563eb'; this.style.transform='scale(1)';"
-                            onmousedown="this.style.transform='scale(0.95)';">
-                            <span>Open Details</span>
-                            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    <!-- Bottom Right Action (Subtle) -->
+                    <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 4px;">
+                        <span style="font-size: 13px; font-weight: 700; color: #2563eb; display: flex; align-items: center; gap: 6px; transition: gap 0.2s;"
+                              onmouseover="this.style.gap='10px'" onmouseleave="this.style.gap='6px'">
+                            View Roadmap Details
+                            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                             </svg>
-                        </button>
+                        </span>
                     </div>
                 </div>
             </template>
@@ -1558,6 +1555,10 @@
                     projects = projects.filter(p => p.org_unit_name === this.surveyFilters.district);
                 }
                 return projects;
+            },
+
+            getProjectRoadCount(projectId) {
+                return this.allRoads.filter(r => r.project === projectId).length;
             },
 
             getPaginatedSurveys() {
