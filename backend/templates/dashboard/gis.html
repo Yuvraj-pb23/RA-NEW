@@ -631,6 +631,115 @@
         will-change: transform, box-shadow;
     }
 
+    .survey-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(30, 41, 59, 0.08);
+        border-color: #cbd5e1;
+    }
+
+    /* ── Navigation Slider Styles ── */
+    .nav-range {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 6px;
+        border-radius: 5px;
+        background: #e2e8f0;
+        outline: none;
+        margin: 1rem 0;
+    }
+
+    .nav-range::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #4f46e5;
+        cursor: pointer;
+        border: 3px solid #fff;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        transition: transform 0.2s ease;
+    }
+
+    .nav-range::-webkit-slider-thumb:hover {
+        transform: scale(1.15);
+    }
+
+    .nav-btn:hover {
+        background: #f1f5f9 !important;
+        border-color: #cbd5e1 !important;
+        color: #1e293b !important;
+    }
+
+    .nav-btn:active {
+        background: #e2e8f0 !important;
+        transform: translateY(1px);
+    }
+
+    /* ── Custom Toggle Switch (Vanilla CSS) ── */
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 36px;
+        height: 20px;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider-toggle {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #e2e8f0;
+        transition: .4s;
+        border-radius: 20px;
+    }
+
+    .slider-toggle:before {
+        position: absolute;
+        content: "";
+        height: 14px;
+        width: 14px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked + .slider-toggle {
+        background-color: #ef4444; /* Match red theme for chainage measurement */
+    }
+
+    input:focus + .slider-toggle {
+        box-shadow: 0 0 1px #ef4444;
+    }
+
+    input:checked + .slider-toggle:before {
+        transform: translateX(16px);
+    }
+
+    /* ── Measurement Crosshair Cursor (Forced Persistence) ── */
+    .measuring-mode,
+    .measuring-mode .leaflet-grab,
+    .measuring-mode .leaflet-dragging,
+    .measuring-mode .leaflet-interactive {
+        cursor: url('data:image/svg+xml;utf8,<svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="6" stroke="black" stroke-width="2" fill="white" fill-opacity="0.2"/><path d="M16 2V7M16 25V30M2 16H7M25 16H30" stroke="black" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="16" r="1.5" fill="red"/></svg>') 12 12, crosshair !important;
+    }
+
+    /* ── Measurement Label Cleanup ── */
+    .measure-label-container {
+        background: none !important;
+        border: none !important;
+    }
+
     .metric-card:hover, .road-detail-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.1);
@@ -1772,6 +1881,78 @@
                 <div style="width: 100%; height: 100%; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; background: #fff; position: relative;">
                     <div id="road-detail-map" style="width: 100%; height: 100%; background: #f1f5f9; z-index: 1;"></div>
                     
+                    <!-- Animated Measurement Toolbox -->
+                    <div style="position: absolute; top: 16px; right: 16px; z-index: 1001; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: none;">
+                        <!-- Toolbox FAB (Trigger) -->
+                        <button @click.stop="if(toolsExpanded || measurementMode) { clearMeasurement(); toolsExpanded = false; } else { toolsExpanded = true; }" 
+                            style="width: 48px; height: 48px; border-radius: 12px; background: #fff; border: 1.5px solid #2563eb; color: #2563eb; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); pointer-events: auto;"
+                            :style="{ transform: toolsExpanded ? 'rotate(90deg)' : 'rotate(0deg)', background: toolsExpanded ? '#2563eb' : '#fff', color: toolsExpanded ? '#fff' : '#2563eb' }">
+                            <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" x-show="!toolsExpanded">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                            </svg>
+                            <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" x-show="toolsExpanded">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+
+                        <!-- Expanded Tools Drawer -->
+                        <div x-show="toolsExpanded || measurementMode" x-transition.scale.90.origin.top.right x-transition:enter.duration.300ms x-transition:leave.duration.200ms
+                            style="background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); padding: 4px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 10px 30px rgba(0,0,0,0.15); display: flex; flex-direction: column; gap: 2px; pointer-events: auto;">
+                            
+                            <button @click.stop="toggleMeasureMode('distance')" 
+                                :style="{ background: measurementMode === 'distance' ? '#4f46e5' : 'transparent', color: measurementMode === 'distance' ? '#fff' : '#64748b' }"
+                                style="width: 40px; height: 40px; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+                                title="Measure Distance">
+                                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                            <button @click.stop="toggleMeasureMode('area')" 
+                                :style="{ background: measurementMode === 'area' ? '#16a34a' : 'transparent', color: measurementMode === 'area' ? '#fff' : '#64748b' }"
+                                style="width: 40px; height: 40px; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+                                title="Measure Area">
+                                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 1.105.895 2 2 2h12c1.105 0 2-.895 2-2V7c0-1.105-.895-2-2-2H6c-1.105 0-2 .895-2 2zM9 5v14M15 5v14" />
+                                </svg>
+                            </button>
+                            <div style="width: 24px; height: 1px; background: #f1f5f9; margin: 4px auto;"></div>
+                            <button @click.stop="undoMeasurePoint()" 
+                                style="width: 40px; height: 40px; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #64748b; transition: all 0.2s;"
+                                title="Undo last point">
+                                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                                </svg>
+                            </button>
+                            <button @click.stop="clearMeasurement()" 
+                                style="width: 40px; height: 40px; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #ef4444; transition: all 0.2s;"
+                                title="Clear all">
+                                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Active Measurement HUD (Distance/Area) -->
+                        <div x-show="totalMeasureVal > 0" x-cloak
+                            style="background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(8px); padding: 8px 16px; border-radius: 12px; color: #fff; font-size: 14px; font-weight: 800; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 4px 15px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 8px; pointer-events: auto; width: fit-content; min-width: 140px; justify-content: flex-end;">
+                            <span style="opacity: 0.7; font-size: 10px; text-transform: uppercase;" x-text="activeMeasureType || measurementMode"></span>
+                            <span style="color: #60a5fa; font-variant-numeric: tabular-nums;" x-text="formatMeasure(totalMeasureVal)"></span>
+                        </div>
+                    </div>
+                    
+                    <!-- Floating Interval Controller (Bottom Right) -->
+                    <div x-show="showDynamicMarkers && totalChainage > 0" x-transition x-cloak
+                        style="position: absolute; bottom: 16px; right: 16px; z-index: 1000; pointer-events: auto;">
+                        <div style="background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(8px); padding: 4px 12px; border-radius: 12px; border: 1.5px solid #2563eb; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2); display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Interval</span>
+                            <div style="display: flex; align-items: center; gap: 4px;">
+                                <input type="number" step="0.1" min="0.1" x-model="chainageInterval" @input="refreshDynamicMarkers()"
+                                    style="width: 50px; background: transparent; border: none; font-size: 14px; font-weight: 800; color: #1e293b; outline: none; text-align: center;">
+                                <span style="font-size: 11px; font-weight: 700; color: #2563eb;">KM</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Gesture Overlay (Google Maps Style) -->
                     <div class="map-gesture-overlay" style="position: absolute; inset: 0; z-index: 2000; background: rgba(0,0,0,0.5); color: #fff; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; backdrop-filter: blur(2px);">
                         <div style="background: rgba(30, 41, 59, 0.9); padding: 12px 24px; border-radius: 12px; font-weight: 700; font-size: 14px; border: 1px solid rgba(255,255,255,0.2);">
@@ -1790,6 +1971,72 @@
                             :style="{ background: mapType === 'satellite' ? '#1e293b' : 'transparent', color: mapType === 'satellite' ? '#fff' : '#64748b' }"
                             style="padding: 6px 14px; border-radius: 8px; font-size: 11px; font-weight: 800; border: none; cursor: pointer; transition: all 0.2s;">
                             Satellite
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Chainage Navigation Slider UI (Relocated Below Map) -->
+                <div x-show="totalChainage > 0" x-cloak
+                    style="margin-top: 12px; background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 12px 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 30px; height: 30px; background: #f0fdf4; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #16a34a;">
+                                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </div>
+                            <h4 style="font-size: 12px; font-weight: 800; color: #1e293b; text-transform: uppercase; letter-spacing: 0.1em; margin: 0;">Chainage Navigation</h4>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 20px;">
+                            <!-- Compact Chainage Marker Toggle -->
+                            <div style="display: flex; align-items: center; gap: 8px; padding-right: 16px; border-right: 1px solid #f1f5f9;">
+                                <span style="font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase;">Markers</span>
+                                <label class="switch" style="transform: scale(0.85);">
+                                    <input type="checkbox" x-model="showDynamicMarkers" @change="refreshDynamicMarkers()">
+                                    <span class="slider-toggle" :style="{ backgroundColor: showDynamicMarkers ? '#2563eb' : '#cbd5e1' }"></span>
+                                </label>
+                            </div>
+
+                            <div style="text-align: right;">
+                                <span style="font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Current Marker</span>
+                                <div style="font-size: 16px; font-weight: 900; color: #4f46e5; line-height: 1;">
+                                    <span x-text="currentChainage.toFixed(2)"></span>
+                                    <span style="font-size: 11px; color: #94a3b8; font-weight: 700;">km</span>
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <span style="font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase;">Total</span>
+                                <div style="font-size: 12px; font-weight: 800; color: #1e293b;"><span x-text="totalChainage.toFixed(2)"></span> km</div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div style="position: relative;">
+                        <input type="range" min="0" :max="totalChainage" step="0.01" 
+                            x-model="currentChainage"
+                            @input="updateChainage(currentChainage, true)"
+                            class="nav-range" style="width: 100%; cursor: pointer;">
+                        
+                        <div style="display: flex; justify-content: space-between; margin-top: -8px;">
+                            <span style="font-size: 9px; font-weight: 700; color: #cbd5e1;">START: 0.00</span>
+                            <span style="font-size: 9px; font-weight: 700; color: #cbd5e1;">END: <span x-text="totalChainage.toFixed(2)"></span></span>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: center; gap: 8px; margin-top: 4px;">
+                        <button @click="updateChainage(0)" class="nav-btn" title="Jump to Start"
+                            style="padding: 8px 16px; border-radius: 10px; border: 1px solid #e2e8f0; background: #fff; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #475569;">
+                            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" /></svg>
+                            Start
+                        </button>
+
+                        <button @click="updateChainage(totalChainage)" class="nav-btn" title="Jump to End"
+                            style="padding: 8px 16px; border-radius: 10px; border: 1px solid #e2e8f0; background: #fff; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #475569;">
+                            End
+                            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>
                         </button>
                     </div>
                 </div>
@@ -1995,6 +2242,32 @@
             tileLayer: null,
             roadLayers: [],
             shownRoads: 0,
+            
+            // Chainage Navigation State
+            currentChainage: 0.00,
+            totalChainage: 0.00,
+            navPoints: [],
+            navDistances: [],
+            navMarker: null,
+
+            // Measurement State
+            measurementMode: null, // 'distance', 'area'
+            activeMeasureType: null, // persists after mode ends
+            measurePoints: [],
+            lastClickTime: 0,
+            measureLabels: [],
+            measureLayers: null, // L.layerGroup
+            tempDrawing: null,
+            guideLine: null,
+            totalMeasureVal: 0,
+
+            // Dynamic Chainage Markers
+            chainageInterval: 1.0, 
+            showDynamicMarkers: false,
+            dynamicMarkerGroup: null,
+
+            // Toolbar State
+            toolsExpanded: false,
 
             // Filter state (now using arrays for multi-selection)
             filters: { ho: [], ro: [], piu: [], projectUser: [], project: [], road: [], customRole: '' },
@@ -2549,6 +2822,299 @@
                     this.detailMap.remove();
                     this.detailMap = null;
                 }
+                this.navMarker = null;
+                this.navPoints = [];
+                this.navDistances = [];
+                this.currentChainage = 0;
+                this.totalChainage = 0;
+                this.clearMeasurement();
+            },
+
+            // --- Measurement Tools ---
+            toggleMeasureMode(mode) {
+                if (this.measurementMode === mode) {
+                    this.clearMeasurement();
+                    return;
+                }
+                this.clearMeasurement();
+                this.measurementMode = mode;
+                this.activeMeasureType = mode;
+                
+                // Disable map dblclick zoom and update cursor
+                if (this.detailMap) {
+                    this.detailMap.doubleClickZoom.disable();
+                    this.detailMap.getContainer().classList.add('measuring-mode');
+                }
+
+
+            },
+
+            clearMeasurement() {
+                if (this.detailMap) {
+                    this.detailMap.doubleClickZoom.enable();
+                    this.detailMap.getContainer().classList.remove('measuring-mode');
+                }
+                this.measurementMode = null;
+                this.measurePoints = [];
+                this.totalMeasureVal = 0;
+                if (this.measureLayers) {
+                    this.measureLayers.clearLayers();
+                }
+                if (this.tempDrawing) {
+                    this.tempDrawing.remove();
+                    this.tempDrawing = null;
+                }
+                if (this.guideLine) {
+                    this.guideLine.remove();
+                    this.guideLine = null;
+                }
+                this.measureLabels.forEach(l => l.remove());
+                this.measureLabels = [];
+            },
+
+            undoMeasurePoint() {
+                if (this.measurePoints.length <= 1) {
+                    this.clearMeasurement();
+                    return;
+                }
+                this.measurePoints.pop();
+                this.refreshMeasureLayers();
+            },
+
+            addMeasurePoint(latlng) {
+                const now = Date.now();
+                if (this.measurePoints.length > 0) {
+                    const lastPoint = L.latLng(this.measurePoints[this.measurePoints.length - 1]);
+                    const dist = lastPoint.distanceTo(latlng);
+                    
+                    // Only finish if clicks are BOTH fast (< 350ms) AND close together (< 2 meters)
+                    // This allows fast clicking for tracing curves without stopping.
+                    if (now - this.lastClickTime < 350 && dist < 2) {
+                        this.measurementMode = null;
+                        if (this.detailMap) {
+                            this.detailMap.getContainer().classList.remove('measuring-mode');
+                            // We do NOT enable doubleClickZoom here to prevent accidental zoom immediately after finish
+                        }
+                        this.refreshMeasureLayers();
+                        return;
+                    }
+                }
+                this.lastClickTime = now;
+                this.measurePoints.push(latlng);
+                this.refreshMeasureLayers();
+            },
+
+            // --- Dynamic Chainage Markers ---
+            refreshDynamicMarkers() {
+                if (!this.detailMap) return;
+                
+                if (!this.dynamicMarkerGroup) {
+                    this.dynamicMarkerGroup = L.layerGroup().addTo(this.detailMap);
+                }
+                this.dynamicMarkerGroup.clearLayers();
+
+                if (!this.showDynamicMarkers || !this.navPoints.length) return;
+
+                const step = parseFloat(this.chainageInterval) || 1.0;
+                if (step < 0.1) return; // Cap at 100m min to save performance
+
+                for (let km = step; km < this.totalChainage; km += step) {
+                    const pos = this.getPosAtKM(km);
+                    if (!pos) continue;
+
+                    const icon = L.divIcon({
+                        className: 'measure-label-container', // reusing the clean class we made earlier
+                        html: `<div style="background:rgba(255,255,255,0.95); border:1.5px solid #2563eb; border-radius:6px; padding:3px 7px; font-size:10px; font-weight:800; color:#2563eb; white-space:nowrap; box-shadow:0 2px 8px rgba(0,0,0,0.15); transform: translate(-50%, -50%); display: block; line-height:1.2; width: fit-content; text-align: center;">${km.toFixed(1)}km</div>`,
+                        iconSize: [0, 0]
+                    });
+
+                    L.marker(pos, { icon, interactive: false }).addTo(this.dynamicMarkerGroup);
+                }
+            },
+
+            getPosAtKM(km) {
+                if (!this.navPoints.length || !this.navDistances.length) return null;
+                
+                let i = 0;
+                while (i < this.navDistances.length - 1 && this.navDistances[i+1] < km) {
+                    i++;
+                }
+                if (i >= this.navDistances.length - 1) return null;
+
+                const p1 = this.navPoints[i];
+                const p2 = this.navPoints[i+1];
+                const d1 = this.navDistances[i];
+                const d2 = this.navDistances[i+1];
+
+                const ratio = (km - d1) / (d2 - d1);
+                return [
+                    p1[0] + (p2[0] - p1[0]) * ratio,
+                    p1[1] + (p2[1] - p1[1]) * ratio
+                ];
+            },
+
+            refreshMeasureLayers() {
+                if (!this.detailMap) return;
+                if (this.tempDrawing) this.tempDrawing.remove();
+                
+                // Clear old segment labels
+                this.measureLabels.forEach(l => l.remove());
+                this.measureLabels = [];
+
+                const drawType = this.measurementMode || this.activeMeasureType;
+                
+                if (drawType === 'distance') {
+                    this.tempDrawing = L.polyline(this.measurePoints, {
+                        color: '#4f46e5',
+                        weight: 4,
+                        dashArray: this.measurementMode ? '5, 10' : ''
+                    }).addTo(this.detailMap);
+                    this.calculateTotalDistance();
+
+                    // Add segment labels
+                    for (let i = 0; i < this.measurePoints.length - 1; i++) {
+                        const p1 = L.latLng(this.measurePoints[i]);
+                        const p2 = L.latLng(this.measurePoints[i+1]);
+                        const dist = p1.distanceTo(p2);
+                        const mid = [(p1.lat + p2.lat)/2, (p1.lng + p2.lng)/2];
+                        
+                        const label = L.marker(mid, {
+                            icon: L.divIcon({
+                                className: 'measure-label-container',
+                                html: `<div style="background: rgba(255,255,255,0.95); padding: 3px 7px; border-radius: 6px; border: 1.5px solid #4f46e5; color: #4f46e5; font-size: 10px; font-weight: 800; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.15); transform: translate(-50%, -50%); display: block; line-height: 1.2; width: fit-content; text-align: center;">${this.formatMeasure(dist)}</div>`,
+                                iconSize: [0, 0]
+                            }),
+                            interactive: false
+                        }).addTo(this.detailMap);
+                        this.measureLabels.push(label);
+                    }
+                } else if (drawType === 'area') {
+                    this.tempDrawing = L.polygon(this.measurePoints, {
+                        color: '#16a34a',
+                        fillColor: '#16a34a',
+                        fillOpacity: 0.2,
+                        weight: 3
+                    }).addTo(this.detailMap);
+                    this.calculateTotalArea();
+                }
+            },
+
+            calculateTotalDistance() {
+                let dist = 0;
+                for (let i = 0; i < this.measurePoints.length - 1; i++) {
+                    dist += L.latLng(this.measurePoints[i]).distanceTo(this.measurePoints[i+1]);
+                }
+                this.totalMeasureVal = dist;
+            },
+
+            calculateTotalArea(customPoints = null) {
+                const points = customPoints || this.measurePoints;
+                if (points.length < 3) {
+                    this.totalMeasureVal = 0;
+                    return 0;
+                }
+                // Shoelace formula with conversion to sqm
+                let area = 0;
+                const radius = 6378137; // Earth radius in meters
+                const toRad = Math.PI / 180;
+
+                for (let i = 0; i < points.length; i++) {
+                    let p1 = L.latLng(points[i]);
+                    let p2 = L.latLng(points[(i + 1) % points.length]);
+                    area += (p2.lng * toRad - p1.lng * toRad) * (2 + Math.sin(p1.lat * toRad) + Math.sin(p2.lat * toRad));
+                }
+                area = Math.abs(area * radius * radius / 2.0);
+                
+                // If this was a real-time update (customPoints provided), return it.
+                // Otherwise update the state.
+                if (customPoints) return area;
+                this.totalMeasureVal = area;
+            },
+
+            formatMeasure(val) {
+                const type = this.measurementMode || this.activeMeasureType;
+                if (type === 'distance') {
+                    if (val < 1000) return `${Math.round(val)}m`;
+                    return `${(val / 1000).toFixed(2)}km`;
+                } else if (type === 'area') {
+                    if (val < 10000) return `${Math.round(val)} sqm`;
+                    return `${(val / 10000).toFixed(2)} ha`;
+                }
+                return '';
+            },
+
+            async loadChainageData(roadId) {
+                try {
+                    const r = await fetch(`/api/road/${roadId}/gpx/`);
+                    if (!r.ok) return;
+                    const data = await r.json();
+                    if (!data.points || data.points.length === 0) return;
+
+                    const pts = data.points.map(p => [p.lat, p.lng]);
+                    this.navPoints = pts;
+
+                    let dists = [0];
+                    let total = 0;
+                    for (let i = 0; i < pts.length - 1; i++) {
+                        const d = L.latLng(pts[i]).distanceTo(pts[i+1]) / 1000;
+                        total += d;
+                        dists.push(total);
+                    }
+                    this.navDistances = dists;
+                    this.totalChainage = total;
+
+                    // Init marker
+                    if (this.detailMap) {
+                        if (this.navMarker) this.navMarker.remove();
+                        this.navMarker = L.circleMarker(pts[0], {
+                            radius: 7,
+                            fillColor: "#4f46e5",
+                            color: "#fff",
+                            weight: 2.5,
+                            opacity: 1,
+                            fillOpacity: 0.9,
+                            pane: 'markerPane'
+                        }).addTo(this.detailMap);
+                        this.navMarker.getElement().style.filter = "drop-shadow(0 0 8px rgba(79, 70, 229, 0.4))";
+                    }
+                } catch (e) { console.error('loadChainageData', e); }
+            },
+
+            updateChainage(km, moveMap = true) {
+                km = parseFloat(km);
+                if (isNaN(km)) return;
+                km = Math.max(0, Math.min(this.totalChainage, km));
+                this.currentChainage = km;
+
+                if (!this.navPoints.length || !this.navMarker) return;
+
+                // Interpolate
+                let i = 0;
+                while (i < this.navDistances.length - 1 && this.navDistances[i+1] < km) {
+                    i++;
+                }
+
+                const p1 = this.navPoints[i];
+                const p2 = this.navPoints[i+1];
+                const d1 = this.navDistances[i];
+                const d2 = this.navDistances[i+1];
+
+                const ratio = (km - d1) / (d2 - d1);
+                const pos = [
+                    p1[0] + (p2[0] - p1[0]) * ratio,
+                    p1[1] + (p2[1] - p1[1]) * ratio
+                ];
+
+                this.navMarker.setLatLng(pos);
+                if (moveMap && this.detailMap) {
+                    this.detailMap.panTo(pos, { animate: true, duration: 0.5 });
+                }
+
+                // Update measurement if anchored to chainage
+                if (this.measureFromChainage && this.measurePoints.length > 0) {
+                    this.measurePoints[0] = pos;
+                    this.refreshMeasureLayers();
+                }
             },
 
             initDetailMap(road) {
@@ -2564,9 +3130,10 @@
 
                 this.detailMap = L.map('road-detail-map', {
                     zoomControl: false,
-                    attributionControl: false,
-                    scrollWheelZoom: false, // Gesture handling added below
-                }).setView([28.6, 77.2], 13);
+                    attributionControl: false
+                }).setView([20.5937, 78.9629], 5);
+
+                this.loadChainageData(road.id);
 
                 // Enable zoom only when Ctrl is pressed
                 this.detailMap.on('focus', () => {
@@ -2606,6 +3173,74 @@
                 this.detailTileLayer = (this.mapType === 'satellite') ? this.detailSatelliteLayer : this.detailStreetLayer;
                 this.detailTileLayer.addTo(this.detailMap);
 
+                // --- Measurement Events ---
+                this.detailMap.on('click', (e) => {
+                    if (this.measurementMode) {
+                        this.addMeasurePoint(e.latlng);
+                    }
+                });
+
+                this.detailMap.on('mousemove', (e) => {
+                    if (this.measurementMode && this.measurePoints.length > 0) {
+                        if (this.guideLine) this.guideLine.remove();
+                        const last = this.measurePoints[this.measurePoints.length - 1];
+                        this.guideLine = L.polyline([last, e.latlng], {
+                            color: this.measurementMode === 'distance' ? '#4f46e5' : '#16a34a',
+                            weight: 2,
+                            dashArray: '5, 5',
+                            opacity: 0.5
+                        }).addTo(this.detailMap);
+
+                        // Real-time distance/area update
+                        if (this.measurementMode === 'distance') {
+                            let tempDist = 0;
+                            for (let i = 0; i < this.measurePoints.length - 1; i++) {
+                                tempDist += L.latLng(this.measurePoints[i]).distanceTo(this.measurePoints[i+1]);
+                            }
+                            tempDist += L.latLng(last).distanceTo(e.latlng);
+                            this.totalMeasureVal = tempDist;
+                        } else if (this.measurementMode === 'area' && this.measurePoints.length >= 2) {
+                            const tempPoints = [...this.measurePoints, e.latlng];
+                            this.totalMeasureVal = this.calculateTotalArea(tempPoints);
+                        }
+                    }
+                });
+
+                this.detailMap.on('dblclick', (e) => {
+                    if (this.measurementMode) {
+                        // Stop double click from zooming the map
+                        if (e.originalEvent) e.originalEvent.stopPropagation();
+                        
+                        // Exit mode and clear ephemeral guide
+                        this.measurementMode = null; 
+                        if (this.detailMap) this.detailMap.doubleClickZoom.enable();
+                        
+                        if (this.guideLine) this.guideLine.remove();
+                        // Optional: pop the last point if it's a duplicate of the previous one
+                        if (this.measurePoints.length > 1) {
+                            const p1 = this.measurePoints[this.measurePoints.length-1];
+                            const p2 = this.measurePoints[this.measurePoints.length-2];
+                            if (L.latLng(p1).distanceTo(p2) < 0.1) {
+                                this.undoMeasurePoint();
+                            }
+                        }
+                        this.refreshMeasureLayers();
+                    }
+                });
+
+                window.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && this.measurementMode) {
+                        this.clearMeasurement();
+                    }
+                    if (e.key === 'Enter' && this.measurementMode) {
+                        this.measurementMode = null;
+                        if (this.detailMap) {
+                            this.detailMap.getContainer().classList.remove('measuring-mode');
+                        }
+                        this.refreshMeasureLayers();
+                    }
+                });
+
                 if (road.geometry && road.geometry.coordinates) {
                     const coords = road.geometry.type === 'LineString'
                         ? road.geometry.coordinates.map(c => [c[1], c[0]])
@@ -2632,19 +3267,7 @@
                         L.marker(coords[0], { icon: startIcon }).addTo(this.detailMap).bindPopup('Start Point');
                         L.marker(coords[coords.length-1], { icon: endIcon }).addTo(this.detailMap).bindPopup('End Point');
 
-                        // Distance markers every 500m for cleaner look
-                        coords.forEach((c, i) => {
-                            if (i > 0 && i % 25 === 0) { // Approx 500m assuming 20m increments
-                                L.marker(c, {
-                                    icon: L.divIcon({
-                                        className: 'custom-div-icon',
-                                        html: `<div style="background:rgba(255,255,255,0.9); border:1px solid #2563eb; border-radius:4px; padding:1px 4px; font-size:9px; font-weight:700; color:#2563eb; white-space:nowrap; box-shadow:0 2px 4px rgba(0,0,0,0.1);">${(i * 0.1).toFixed(1)}km</div>`,
-                                        iconSize: [40, 16],
-                                        iconAnchor: [20, 8]
-                                    })
-                                }).addTo(this.detailMap);
-                            }
-                        });
+
                     }
                 }
             }
