@@ -1877,7 +1877,7 @@
             </div>
 
             <!-- Center: Map Focused Visualization (Hard-stretching to Bottom) -->
-            <div style="display: flex; flex-direction: column; flex: 1; min-height: 800px; position: relative;" @wheel="if(!$event.ctrlKey) { $el.querySelector('.map-gesture-overlay').style.opacity=1; setTimeout(() => { $el.querySelector('.map-gesture-overlay').style.opacity=0 }, 2000) }">
+            <div style="display: flex; flex-direction: column; flex: 1; min-height: 800px; position: relative;">
                 <div style="width: 100%; height: 100%; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; background: #fff; position: relative;">
                     <div id="road-detail-map" style="width: 100%; height: 100%; background: #f1f5f9; z-index: 1;"></div>
                     
@@ -1953,12 +1953,7 @@
                         </div>
                     </div>
 
-                    <!-- Gesture Overlay (Google Maps Style) -->
-                    <div class="map-gesture-overlay" style="position: absolute; inset: 0; z-index: 2000; background: rgba(0,0,0,0.5); color: #fff; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; backdrop-filter: blur(2px);">
-                        <div style="background: rgba(30, 41, 59, 0.9); padding: 12px 24px; border-radius: 12px; font-weight: 700; font-size: 14px; border: 1px solid rgba(255,255,255,0.2);">
-                            Use <span style="color: #60a5fa;">Ctrl + scroll</span> to zoom the map
-                        </div>
-                    </div>
+
                     
                     <!-- Floating Mode Switcher (Anchored inside Map Container) -->
                     <div style="position: absolute; top: 16px; left: 16px; z-index: 1000; background: #fff; padding: 4px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; display: flex; gap: 2px;">
@@ -3135,21 +3130,7 @@
 
                 this.loadChainageData(road.id);
 
-                // Enable zoom only when Ctrl is pressed
-                this.detailMap.on('focus', () => {
-                    window.addEventListener('keydown', (e) => { if (e.ctrlKey) this.detailMap.scrollWheelZoom.enable(); });
-                    window.addEventListener('keyup', (e) => { if (!e.ctrlKey) this.detailMap.scrollWheelZoom.disable(); });
-                });
-                
-                const mapContainer = document.getElementById('road-detail-map');
-                mapContainer.addEventListener('wheel', (e) => {
-                    if (e.ctrlKey) {
-                        e.preventDefault();
-                        this.detailMap.scrollWheelZoom.enable();
-                    } else {
-                        this.detailMap.scrollWheelZoom.disable();
-                    }
-                }, { passive: false });
+
 
                 // Add zoom control at bottom-left corner
                 L.control.zoom({ position: 'bottomleft' }).addTo(this.detailMap);
