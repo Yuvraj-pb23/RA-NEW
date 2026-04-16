@@ -695,6 +695,7 @@
             };
             if (!this.editId) {
               body.password = this.form.password;
+              body.password_confirm = this.form.password_confirm;
             }
 
             const r = await fetch(url, {
