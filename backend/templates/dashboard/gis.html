@@ -626,6 +626,7 @@
     }
 
     .metric-card, .road-detail-card {
+        border-radius: 20px;
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         will-change: transform, box-shadow;
     }
@@ -638,7 +639,7 @@
     .spec-row {
         background: #f8fafc;
         padding: 12px;
-        border-radius: 12px;
+        border-radius: 14px;
         border: 1px solid #f1f5f9;
         transition: all 0.3s ease;
     }
@@ -721,9 +722,9 @@
                 <p class="gis-filter-label">{{ org_role_labels.0 }} Unit</p>
                 <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }"
                     @click.away="open = false" style="margin-bottom: 10px;">
-                    <div class="gis-check-trigger" :class="{'locked': locks.ho}" @click="if(!locks.ho) open = !open">
+                    <div class="gis-check-trigger" :class="{'locked': isFilterDisabled(getAvailableHoUnits(), 'ho')}" @click="if(!isFilterDisabled(getAvailableHoUnits(), 'ho')) open = !open">
                         <span
-                            x-text="filters.ho.length === 0 ? 'Select {{ org_role_labels.0 }}' : (filters.ho.length === 1 ? (getAvailableHoUnits().find(u => u.id === filters.ho[0])?.display_name || '1 Selected') : filters.ho.length + ' Selected')"></span>
+                            x-text="isFilterDisabled(getAvailableHoUnits(), 'ho') ? 'No {{ org_role_labels.0 }} Available' : (filters.ho.length === 0 ? 'Select {{ org_role_labels.0 }}' : (filters.ho.length === 1 ? (getAvailableHoUnits().find(u => u.id === filters.ho[0])?.display_name || '1 Selected') : filters.ho.length + ' Selected'))"></span>
                     </div>
                     <div class="gis-check-dropdown" x-show="open" style="display: none; left: -10px; width: 200px;">
                         <div class="gis-check-options">
@@ -743,9 +744,9 @@
                 <p class="gis-filter-label">{{ org_role_labels.1 }} Unit</p>
                 <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }"
                     @click.away="open = false" style="margin-bottom: 10px;">
-                    <div class="gis-check-trigger" :class="{'locked': locks.ro}" @click="if(!locks.ro) open = !open">
+                    <div class="gis-check-trigger" :class="{'locked': isFilterDisabled(getAvailableRoUnits(), 'ro')}" @click="if(!isFilterDisabled(getAvailableRoUnits(), 'ro')) open = !open">
                         <span
-                            x-text="filters.ro.length === 0 ? 'Select {{ org_role_labels.1 }}' : (filters.ro.length === 1 ? (getAvailableRoUnits().find(u => u.id === filters.ro[0])?.display_name || '1 Selected') : filters.ro.length + ' Selected')"></span>
+                            x-text="isFilterDisabled(getAvailableRoUnits(), 'ro') ? 'No {{ org_role_labels.1 }} Available' : (filters.ro.length === 0 ? 'Select {{ org_role_labels.1 }}' : (filters.ro.length === 1 ? (getAvailableRoUnits().find(u => u.id === filters.ro[0])?.display_name || '1 Selected') : filters.ro.length + ' Selected'))"></span>
                     </div>
                     <div class="gis-check-dropdown" x-show="open" style="display: none; left: -10px; width: 200px;">
                         <div class="gis-check-options">
@@ -765,9 +766,9 @@
                 <p class="gis-filter-label">{{ org_role_labels.2 }}</p>
                 <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }"
                     @click.away="open = false" style="margin-bottom: 10px;">
-                    <div class="gis-check-trigger" :class="{'locked': locks.piu}" @click="if(!locks.piu) open = !open">
+                    <div class="gis-check-trigger" :class="{'locked': isFilterDisabled(getAvailablePiuUnits(), 'piu')}" @click="if(!isFilterDisabled(getAvailablePiuUnits(), 'piu')) open = !open">
                         <span
-                            x-text="filters.piu.length === 0 ? 'Select {{ org_role_labels.2 }}' : (filters.piu.length === 1 ? (getAvailablePiuUnits().find(u => u.id === filters.piu[0])?.display_name || '1 Selected') : filters.piu.length + ' Selected')"></span>
+                            x-text="isFilterDisabled(getAvailablePiuUnits(), 'piu') ? 'No {{ org_role_labels.2 }} Available' : (filters.piu.length === 0 ? 'Select {{ org_role_labels.2 }}' : (filters.piu.length === 1 ? (getAvailablePiuUnits().find(u => u.id === filters.piu[0])?.display_name || '1 Selected') : filters.piu.length + ' Selected'))"></span>
                     </div>
                     <div class="gis-check-dropdown" x-show="open" style="display: none; left: -10px; width: 200px;">
                         <div class="gis-check-options">
@@ -787,10 +788,10 @@
                 <p class="gis-filter-label">{{ org_role_labels.3 }}</p>
                 <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }"
                     @click.away="open = false" style="margin-bottom: 10px;">
-                    <div class="gis-check-trigger" :class="{'locked': locks.projectUser}"
-                        @click="if(!locks.projectUser) open = !open">
+                    <div class="gis-check-trigger" :class="{'locked': isFilterDisabled(getAvailableProjectUserUnits(), 'projectUser')}"
+                        @click="if(!isFilterDisabled(getAvailableProjectUserUnits(), 'projectUser')) open = !open">
                         <span
-                            x-text="filters.projectUser.length === 0 ? 'Select {{ org_role_labels.3 }}' : (filters.projectUser.length === 1 ? (getAvailableProjectUserUnits().find(u => u.id === filters.projectUser[0])?.display_name || '1 Selected') : filters.projectUser.length + ' Selected')"></span>
+                            x-text="isFilterDisabled(getAvailableProjectUserUnits(), 'projectUser') ? 'No {{ org_role_labels.3 }} Available' : (filters.projectUser.length === 0 ? 'Select {{ org_role_labels.3 }}' : (filters.projectUser.length === 1 ? (getAvailableProjectUserUnits().find(u => u.id === filters.projectUser[0])?.display_name || '1 Selected') : filters.projectUser.length + ' Selected'))"></span>
                     </div>
                     <div class="gis-check-dropdown" x-show="open" style="display: none; left: -10px; width: 200px;">
                         <div class="gis-check-options">
@@ -810,9 +811,9 @@
                 <p class="gis-filter-label">Project</p>
                 <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }"
                     @click.away="open = false" style="margin-bottom: 10px;">
-                    <div class="gis-check-trigger" @click="open = !open">
+                    <div class="gis-check-trigger" :class="{'locked': isFilterDisabled(getAvailableProjectUnits(), 'project')}" @click="if(!isFilterDisabled(getAvailableProjectUnits(), 'project')) open = !open">
                         <span
-                            x-text="filters.project.length === 0 ? 'Select Project' : (filters.project.length === 1 ? (getAvailableProjectUnits().find(p => p.id === filters.project[0])?.name || '1 Selected') : filters.project.length + ' Selected')"></span>
+                            x-text="isFilterDisabled(getAvailableProjectUnits(), 'project') ? 'No Projects Available' : (filters.project.length === 0 ? 'Select Project' : (filters.project.length === 1 ? (getAvailableProjectUnits().find(p => p.id === filters.project[0])?.name || '1 Selected') : filters.project.length + ' Selected'))"></span>
                     </div>
                     <div class="gis-check-dropdown" x-show="open" style="display: none; left: -10px; width: 200px;">
                         <div class="gis-check-options">
@@ -831,9 +832,9 @@
                 <p class="gis-filter-label">Road</p>
                 <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }"
                     @click.away="open = false" style="margin-bottom: 10px;">
-                    <div class="gis-check-trigger" @click="open = !open">
+                    <div class="gis-check-trigger" :class="{'locked': isFilterDisabled(getAvailableRoadChoices(), 'road')}" @click="if(!isFilterDisabled(getAvailableRoadChoices(), 'road')) open = !open">
                         <span
-                            x-text="filters.project.length === 0 ? 'Select Road' : (filters.road.length === 0 ? 'Select Road' : (filters.road.length === 1 ? (allRoads.find(r => r.id === filters.road[0])?.name || '1 Selected') : filters.road.length + ' Selected'))"></span>
+                            x-text="isFilterDisabled(getAvailableRoadChoices(), 'road') ? 'No Roads Available' : (filters.project.length === 0 ? 'Select Road' : (filters.road.length === 0 ? 'Select Road' : (filters.road.length === 1 ? (allRoads.find(r => r.id === filters.road[0])?.name || '1 Selected') : filters.road.length + ' Selected')))"></span>
                     </div>
                     <div class="gis-check-dropdown" x-show="open" style="display: none; left: -10px; width: 200px;">
                         <div class="gis-check-options">
@@ -989,10 +990,10 @@
                         <label>{{ org_role_labels.0 }}</label>
                         <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }"
                             @click.away="open = false">
-                            <div class="gis-check-trigger" :class="{'locked': locks.ho}"
-                                @click="if(!locks.ho) open = !open">
+                            <div class="gis-check-trigger" :class="{'locked': isFilterDisabled(getAvailableHoUnits(), 'ho')}"
+                                @click="if(!isFilterDisabled(getAvailableHoUnits(), 'ho')) open = !open">
                                 <span
-                                    x-text="filters.ho.length === 0 ? 'Select {{ org_role_labels.0 }}' : (filters.ho.length === 1 ? (getAvailableHoUnits().find(u => u.id === filters.ho[0])?.display_name || '1 Selected') : filters.ho.length + ' Selected')"></span>
+                                    x-text="isFilterDisabled(getAvailableHoUnits(), 'ho') ? 'No {{ org_role_labels.0 }} Available' : (filters.ho.length === 0 ? 'Select {{ org_role_labels.0 }}' : (filters.ho.length === 1 ? (getAvailableHoUnits().find(u => u.id === filters.ho[0])?.display_name || '1 Selected') : filters.ho.length + ' Selected'))"></span>
                             </div>
                             <div class="gis-check-dropdown" x-show="open" style="display: none;"
                                 x-transition:enter="transition ease-out duration-100"
@@ -1019,10 +1020,10 @@
                         <label>{{ org_role_labels.1 }}</label>
                         <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }"
                             @click.away="open = false">
-                            <div class="gis-check-trigger" :class="{'locked': locks.ro}"
-                                @click="if(!locks.ro) open = !open">
+                            <div class="gis-check-trigger" :class="{'locked': isFilterDisabled(getAvailableRoUnits(), 'ro')}"
+                                @click="if(!isFilterDisabled(getAvailableRoUnits(), 'ro')) open = !open">
                                 <span
-                                    x-text="filters.ro.length === 0 ? 'Select {{ org_role_labels.1 }}' : (filters.ro.length === 1 ? (getAvailableRoUnits().find(u => u.id === filters.ro[0])?.display_name || '1 Selected') : filters.ro.length + ' Selected')"></span>
+                                    x-text="isFilterDisabled(getAvailableRoUnits(), 'ro') ? 'No {{ org_role_labels.1 }} Available' : (filters.ro.length === 0 ? 'Select {{ org_role_labels.1 }}' : (filters.ro.length === 1 ? (getAvailableRoUnits().find(u => u.id === filters.ro[0])?.display_name || '1 Selected') : filters.ro.length + ' Selected'))"></span>
                             </div>
                             <div class="gis-check-dropdown" x-show="open" style="display: none;"
                                 x-transition:enter="transition ease-out duration-100"
@@ -1049,10 +1050,10 @@
                         <label>{{ org_role_labels.2 }}</label>
                         <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }"
                             @click.away="open = false">
-                            <div class="gis-check-trigger" :class="{'locked': locks.piu}"
-                                @click="if(!locks.piu) open = !open">
+                            <div class="gis-check-trigger" :class="{'locked': isFilterDisabled(getAvailablePiuUnits(), 'piu')}"
+                                @click="if(!isFilterDisabled(getAvailablePiuUnits(), 'piu')) open = !open">
                                 <span
-                                    x-text="filters.piu.length === 0 ? 'Select {{ org_role_labels.2 }}' : (filters.piu.length === 1 ? (getAvailablePiuUnits().find(u => u.id === filters.piu[0])?.display_name || '1 Selected') : filters.piu.length + ' Selected')"></span>
+                                    x-text="isFilterDisabled(getAvailablePiuUnits(), 'piu') ? 'No {{ org_role_labels.2 }} Available' : (filters.piu.length === 0 ? 'Select {{ org_role_labels.2 }}' : (filters.piu.length === 1 ? (getAvailablePiuUnits().find(u => u.id === filters.piu[0])?.display_name || '1 Selected') : filters.piu.length + ' Selected'))"></span>
                             </div>
                             <div class="gis-check-dropdown" x-show="open" style="display: none;"
                                 x-transition:enter="transition ease-out duration-100"
@@ -1079,10 +1080,10 @@
                         <label>{{ org_role_labels.3 }}</label>
                         <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }"
                             @click.away="open = false">
-                            <div class="gis-check-trigger" :class="{'locked': locks.projectUser}"
-                                @click="if(!locks.projectUser) open = !open">
+                            <div class="gis-check-trigger" :class="{'locked': isFilterDisabled(getAvailableProjectUserUnits(), 'projectUser')}"
+                                @click="if(!isFilterDisabled(getAvailableProjectUserUnits(), 'projectUser')) open = !open">
                                 <span
-                                    x-text="filters.projectUser.length === 0 ? 'Select {{ org_role_labels.3 }}' : (filters.projectUser.length === 1 ? (getAvailableProjectUserUnits().find(u => u.id === filters.projectUser[0])?.display_name || '1 Selected') : filters.projectUser.length + ' Selected')"></span>
+                                    x-text="isFilterDisabled(getAvailableProjectUserUnits(), 'projectUser') ? 'No {{ org_role_labels.3 }} Available' : (filters.projectUser.length === 0 ? 'Select {{ org_role_labels.3 }}' : (filters.projectUser.length === 1 ? (getAvailableProjectUserUnits().find(u => u.id === filters.projectUser[0])?.display_name || '1 Selected') : filters.projectUser.length + ' Selected'))"></span>
                             </div>
                             <div class="gis-check-dropdown" x-show="open" style="display: none;"
                                 x-transition:enter="transition ease-out duration-100"
@@ -1109,9 +1110,9 @@
                         <label>Project</label>
                         <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }"
                             @click.away="open = false">
-                            <div class="gis-check-trigger" @click="open = !open">
+                            <div class="gis-check-trigger" :class="{'locked': isFilterDisabled(getAvailableProjectUnits(), 'project')}" @click="if(!isFilterDisabled(getAvailableProjectUnits(), 'project')) open = !open">
                                 <span
-                                    x-text="filters.project.length === 0 ? 'All Projects' : (filters.project.length === 1 ? (getAvailableProjectUnits().find(p => p.id === filters.project[0])?.name || '1 Selected') : filters.project.length + ' Selected')"></span>
+                                    x-text="isFilterDisabled(getAvailableProjectUnits(), 'project') ? 'No Projects Available' : (filters.project.length === 0 ? 'All Projects' : (filters.project.length === 1 ? (getAvailableProjectUnits().find(p => p.id === filters.project[0])?.name || '1 Selected') : filters.project.length + ' Selected'))"></span>
                             </div>
                             <div class="gis-check-dropdown" x-show="open" style="display: none;"
                                 x-transition:enter="transition ease-out duration-100"
@@ -1136,9 +1137,9 @@
                         <label>Road</label>
                         <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }"
                             @click.away="open = false">
-                            <div class="gis-check-trigger" @click="open = !open">
+                            <div class="gis-check-trigger" :class="{'locked': isFilterDisabled(getAvailableRoadChoices(), 'road')}" @click="if(!isFilterDisabled(getAvailableRoadChoices(), 'road')) open = !open">
                                 <span
-                                    x-text="filters.road.length === 0 ? 'All Roads' : (filters.road.length === 1 ? (getAvailableRoadChoices().find(r => r.id === filters.road[0])?.name || '1 Selected') : filters.road.length + ' Selected')"></span>
+                                    x-text="isFilterDisabled(getAvailableRoadChoices(), 'road') ? 'No Roads Available' : (filters.road.length === 0 ? 'All Roads' : (filters.road.length === 1 ? (getAvailableRoadChoices().find(r => r.id === filters.road[0])?.name || '1 Selected') : filters.road.length + ' Selected'))"></span>
                             </div>
                             <div class="gis-check-dropdown" x-show="open" style="display: none;"
                                 x-transition:enter="transition ease-out duration-100"
@@ -1483,16 +1484,28 @@
                 <p style="color: #64748b; font-size: 14px; font-weight: 500;">Manage and review your organization's infrastructure surveys.</p>
             </div>
             
-            <!-- Glassmorphism Search Card -->
-            <div style="background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(12px); padding: 6px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.8); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); width: 400px; display: flex; align-items: center; gap: 10px;">
-                <div style="padding-left: 12px; color: #94a3b8;">
-                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            <!-- Refresh Button & Glassmorphism Search Card -->
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <button @click="await Promise.all([loadProjects(), loadRoads()])" 
+                    style="background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(12px); width: 42px; height: 42px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.8); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; color: #64748b; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); outline: none;"
+                    onmouseover="this.style.background='rgba(255, 255, 255, 0.9)'; this.style.color='#2563eb'; this.style.transform='rotate(180deg)';"
+                    onmouseleave="this.style.background='rgba(255, 255, 255, 0.6)'; this.style.color='#64748b'; this.style.transform='none';"
+                    title="Refresh Surveys Data">
+                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                     </svg>
+                </button>
+
+                <div style="background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(12px); padding: 6px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.8); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); width: 400px; display: flex; align-items: center; gap: 10px;">
+                    <div style="padding-left: 12px; color: #94a3b8;">
+                        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    <input type="text" x-model="surveyFilters.search" placeholder="Search surveys..."
+                        style="flex: 1; padding: 10px 4px; border: none; background: transparent; font-size: 14px; color: #1e293b; outline: none; font-weight: 500;"
+                        @input="surveyPagination.page = 1">
                 </div>
-                <input type="text" x-model="surveyFilters.search" placeholder="Search surveys..."
-                    style="flex: 1; padding: 10px 4px; border: none; background: transparent; font-size: 14px; color: #1e293b; outline: none; font-weight: 500;"
-                    @input="surveyPagination.page = 1">
             </div>
         </div>
 
@@ -1511,7 +1524,7 @@
                     <!-- Top Right Badge -->
                     <div style="position: absolute; top: 24px; right: 24px;">
                         <span style="padding: 6px 14px; background: #2563eb; color: #fff; border-radius: 99px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);" 
-                              x-text="getProjectRoadCount(p.id) + ' Roads'"></span>
+                              x-text="(p.road_count || 0) + ' Roads'"></span>
                     </div>
 
                     <!-- Left Icon & Title Area -->
@@ -1701,7 +1714,7 @@
                     <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h14a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    <span>Survey Visuals</span>
+                    <span x-text="roadDetailTab === 'PMS' ? 'Pavement Layers' : (roadDetailTab === 'INVENTORY' ? 'Inventory Layers' : 'Survey Visuals')"></span>
                 </button>
             </div>
         </div>
@@ -1797,8 +1810,9 @@
 
             <!-- Right Visuals: Independent Floating Photos (Zero Panel Footprint) -->
             
-            <!-- Start Point Photo -->
+            <!-- Start Point Photo (RIS Tab) -->
             <div 
+                x-show="roadDetailTab === 'RIS'"
                 @click.stop
                 :style="{ 
                     position: 'absolute',
@@ -1820,8 +1834,9 @@
                 </div>
             </div>
 
-            <!-- End Point Photo -->
+            <!-- End Point Photo (RIS Tab) -->
             <div 
+                x-show="roadDetailTab === 'RIS'"
                 @click.stop
                 :style="{ 
                     position: 'absolute',
@@ -1839,6 +1854,114 @@
                     <img src="/static/images/dummy/survey_end.png" style="width: 100%; height: 100%; object-fit: cover;">
                     <div style="position: absolute; top: 16px; left: 16px;">
                         <span style="background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(8px); color: #fff; padding: 6px 14px; border-radius: 8px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">End Point Visual</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pavement Layers Panel (PMS Tab) -->
+            <div 
+                x-show="roadDetailTab === 'PMS'"
+                @click.stop
+                :style="{ 
+                    position: 'absolute',
+                    top: '100px',
+                    right: '30px',
+                    width: '320px',
+                    zIndex: '150',
+                    transform: visualsOpen ? 'translateX(0)' : 'translateX(calc(100% + 50px))', 
+                    opacity: visualsOpen ? '1' : '0',
+                    pointerEvents: visualsOpen ? 'auto' : 'none'
+                }"
+                style="background: #fff; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 15px 35px rgba(0,0,0,0.1); transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden;">
+                
+                <div style="padding: 24px; display: flex; flex-direction: column; gap: 20px;">
+                    <!-- Dropdown Select -->
+                    <div style="position: relative;">
+                        <div style="background: #f8faff; border: 1.5px solid #e0e7ff; border-radius: 14px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 8px; height: 8px; border-radius: 50%; background: #4f46e5; box-shadow: 0 0 8px rgba(79, 70, 229, 0.4);"></div>
+                                <span style="font-size: 13px; font-weight: 700; color: #4f46e5; text-transform: uppercase; letter-spacing: 0.05em;">Anomalies</span>
+                            </div>
+                            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#4f46e5">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div style="height: 1px; background: #f1f5f9;"></div>
+
+                    <!-- Download Buttons -->
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <button class="btn-primary" style="background: #ecfdf5; color: #059669; border: 1.5px solid #d1fae5; box-shadow: none; justify-content: center; width: 100%; height: 48px; font-size: 13px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;">
+                            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Download Excel
+                        </button>
+
+                        <button class="btn-primary" style="background: #1e293b; color: #fff; border: none; box-shadow: 0 4px 12px rgba(30, 41, 59, 0.2); justify-content: center; width: 100%; height: 48px; font-size: 13px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;">
+                            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z" />
+                            </svg>
+                            AI Processed Video
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventory Layers Panel (Inventory Tab) -->
+            <div 
+                x-show="roadDetailTab === 'INVENTORY'"
+                @click.stop
+                :style="{ 
+                    position: 'absolute',
+                    top: '100px',
+                    right: '30px',
+                    width: '320px',
+                    zIndex: '150',
+                    transform: visualsOpen ? 'translateX(0)' : 'translateX(calc(100% + 50px))', 
+                    opacity: visualsOpen ? '1' : '0',
+                    pointerEvents: visualsOpen ? 'auto' : 'none'
+                }"
+                style="background: #fff; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 15px 35px rgba(0,0,0,0.1); transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden;">
+                
+                <div style="padding: 24px; display: flex; flex-direction: column; gap: 20px;">
+                    <!-- Assets Dropdown -->
+                    <div style="position: relative;">
+                        <div style="background: #f8faff; border: 1.5px solid #e0e7ff; border-radius: 14px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);"></div>
+                                <span style="font-size: 13px; font-weight: 700; color: #065f46; text-transform: uppercase; letter-spacing: 0.05em;">Assets</span>
+                            </div>
+                            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#059669">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Anomalies Dropdown -->
+                    <div style="position: relative;">
+                        <div style="background: #f8faff; border: 1.5px solid #e0e7ff; border-radius: 14px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);"></div>
+                                <span style="font-size: 13px; font-weight: 700; color: #065f46; text-transform: uppercase; letter-spacing: 0.05em;">Anomalies</span>
+                            </div>
+                            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#059669">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div style="height: 1px; background: #f1f5f9;"></div>
+
+                    <!-- AI Video Button -->
+                    <div style="display: flex; flex-direction: column;">
+                        <button class="btn-primary" style="background: #1e293b; color: #fff; border: none; box-shadow: 0 4px 12px rgba(30, 41, 59, 0.2); justify-content: center; width: 100%; height: 48px; font-size: 13px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;">
+                            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z" />
+                            </svg>
+                            AI Processed Video
+                        </button>
                     </div>
                 </div>
             </div>
@@ -2245,6 +2368,14 @@
             },
             onRoadChange() {
                 this.applyFilters();
+            },
+
+            isFilterDisabled(choices, lockKey) {
+                // If there's a system-level lock on this filter, it's disabled
+                if (lockKey && this.locks[lockKey]) return true;
+                
+                // If no choices are available based on previous selections, it's disabled (greyed out)
+                return !choices || choices.length === 0;
             },
 
             applyFilters() {

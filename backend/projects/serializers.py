@@ -51,6 +51,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         source="project_user.display_name",
         read_only=True,
     )
+    road_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Project
@@ -70,10 +71,14 @@ class ProjectSerializer(serializers.ModelSerializer):
             "piu_user_name",
             "project_user",
             "project_user_name",
+            "road_count",
             "description",
             "created_at",
             "updated_at",
         ]
+
+    def get_road_count(self, obj) -> int:
+        return obj.roads.count()
         read_only_fields = ["id", "created_at", "updated_at"]
 
     # ── Cross-field validation ─────────────────────────────────────────────
