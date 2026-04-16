@@ -723,8 +723,7 @@
                 <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }"
                     @click.away="open = false" style="margin-bottom: 10px;">
                     <div class="gis-check-trigger" :class="{'locked': isFilterDisabled(getAvailableHoUnits(), 'ho')}" @click="if(!isFilterDisabled(getAvailableHoUnits(), 'ho')) open = !open">
-                        <span
-                            x-text="isFilterDisabled(getAvailableHoUnits(), 'ho') ? 'No {{ org_role_labels.0 }} Available' : (filters.ho.length === 0 ? 'Select {{ org_role_labels.0 }}' : (filters.ho.length === 1 ? (getAvailableHoUnits().find(u => u.id === filters.ho[0])?.display_name || '1 Selected') : filters.ho.length + ' Selected'))"></span>
+                        <span x-text="getFilterLabel('ho', getAvailableHoUnits(), '{{ org_role_labels.0 }}', filters.ho)"></span>
                     </div>
                     <div class="gis-check-dropdown" x-show="open" style="display: none; left: -10px; width: 200px;">
                         <div class="gis-check-options">
@@ -745,8 +744,7 @@
                 <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }"
                     @click.away="open = false" style="margin-bottom: 10px;">
                     <div class="gis-check-trigger" :class="{'locked': isFilterDisabled(getAvailableRoUnits(), 'ro')}" @click="if(!isFilterDisabled(getAvailableRoUnits(), 'ro')) open = !open">
-                        <span
-                            x-text="isFilterDisabled(getAvailableRoUnits(), 'ro') ? 'No {{ org_role_labels.1 }} Available' : (filters.ro.length === 0 ? 'Select {{ org_role_labels.1 }}' : (filters.ro.length === 1 ? (getAvailableRoUnits().find(u => u.id === filters.ro[0])?.display_name || '1 Selected') : filters.ro.length + ' Selected'))"></span>
+                        <span x-text="getFilterLabel('ro', getAvailableRoUnits(), '{{ org_role_labels.1 }}', filters.ro)"></span>
                     </div>
                     <div class="gis-check-dropdown" x-show="open" style="display: none; left: -10px; width: 200px;">
                         <div class="gis-check-options">
@@ -767,8 +765,7 @@
                 <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }"
                     @click.away="open = false" style="margin-bottom: 10px;">
                     <div class="gis-check-trigger" :class="{'locked': isFilterDisabled(getAvailablePiuUnits(), 'piu')}" @click="if(!isFilterDisabled(getAvailablePiuUnits(), 'piu')) open = !open">
-                        <span
-                            x-text="isFilterDisabled(getAvailablePiuUnits(), 'piu') ? 'No {{ org_role_labels.2 }} Available' : (filters.piu.length === 0 ? 'Select {{ org_role_labels.2 }}' : (filters.piu.length === 1 ? (getAvailablePiuUnits().find(u => u.id === filters.piu[0])?.display_name || '1 Selected') : filters.piu.length + ' Selected'))"></span>
+                        <span x-text="getFilterLabel('piu', getAvailablePiuUnits(), '{{ org_role_labels.2 }}', filters.piu)"></span>
                     </div>
                     <div class="gis-check-dropdown" x-show="open" style="display: none; left: -10px; width: 200px;">
                         <div class="gis-check-options">
@@ -790,8 +787,7 @@
                     @click.away="open = false" style="margin-bottom: 10px;">
                     <div class="gis-check-trigger" :class="{'locked': isFilterDisabled(getAvailableProjectUserUnits(), 'projectUser')}"
                         @click="if(!isFilterDisabled(getAvailableProjectUserUnits(), 'projectUser')) open = !open">
-                        <span
-                            x-text="isFilterDisabled(getAvailableProjectUserUnits(), 'projectUser') ? 'No {{ org_role_labels.3 }} Available' : (filters.projectUser.length === 0 ? 'Select {{ org_role_labels.3 }}' : (filters.projectUser.length === 1 ? (getAvailableProjectUserUnits().find(u => u.id === filters.projectUser[0])?.display_name || '1 Selected') : filters.projectUser.length + ' Selected'))"></span>
+                        <span x-text="getFilterLabel('projectUser', getAvailableProjectUserUnits(), '{{ org_role_labels.3 }}', filters.projectUser)"></span>
                     </div>
                     <div class="gis-check-dropdown" x-show="open" style="display: none; left: -10px; width: 200px;">
                         <div class="gis-check-options">
@@ -812,8 +808,7 @@
                 <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }"
                     @click.away="open = false" style="margin-bottom: 10px;">
                     <div class="gis-check-trigger" :class="{'locked': isFilterDisabled(getAvailableProjectUnits(), 'project')}" @click="if(!isFilterDisabled(getAvailableProjectUnits(), 'project')) open = !open">
-                        <span
-                            x-text="isFilterDisabled(getAvailableProjectUnits(), 'project') ? 'No Projects Available' : (filters.project.length === 0 ? 'Select Project' : (filters.project.length === 1 ? (getAvailableProjectUnits().find(p => p.id === filters.project[0])?.name || '1 Selected') : filters.project.length + ' Selected'))"></span>
+                        <span x-text="getFilterLabel('project', getAvailableProjectUnits(), 'Project', filters.project)"></span>
                     </div>
                     <div class="gis-check-dropdown" x-show="open" style="display: none; left: -10px; width: 200px;">
                         <div class="gis-check-options">
@@ -833,8 +828,7 @@
                 <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }"
                     @click.away="open = false" style="margin-bottom: 10px;">
                     <div class="gis-check-trigger" :class="{'locked': isFilterDisabled(getAvailableRoadChoices(), 'road')}" @click="if(!isFilterDisabled(getAvailableRoadChoices(), 'road')) open = !open">
-                        <span
-                            x-text="isFilterDisabled(getAvailableRoadChoices(), 'road') ? 'No Roads Available' : (filters.project.length === 0 ? 'Select Road' : (filters.road.length === 0 ? 'Select Road' : (filters.road.length === 1 ? (allRoads.find(r => r.id === filters.road[0])?.name || '1 Selected') : filters.road.length + ' Selected')))"></span>
+                        <span x-text="getFilterLabel('road', getAvailableRoadChoices(), 'Road', filters.road)"></span>
                     </div>
                     <div class="gis-check-dropdown" x-show="open" style="display: none; left: -10px; width: 200px;">
                         <div class="gis-check-options">
@@ -992,8 +986,7 @@
                             @click.away="open = false">
                             <div class="gis-check-trigger" :class="{'locked': isFilterDisabled(getAvailableHoUnits(), 'ho')}"
                                 @click="if(!isFilterDisabled(getAvailableHoUnits(), 'ho')) open = !open">
-                                <span
-                                    x-text="isFilterDisabled(getAvailableHoUnits(), 'ho') ? 'No {{ org_role_labels.0 }} Available' : (filters.ho.length === 0 ? 'Select {{ org_role_labels.0 }}' : (filters.ho.length === 1 ? (getAvailableHoUnits().find(u => u.id === filters.ho[0])?.display_name || '1 Selected') : filters.ho.length + ' Selected'))"></span>
+                                <span x-text="getFilterLabel('ho', getAvailableHoUnits(), '{{ org_role_labels.0 }}', filters.ho)"></span>
                             </div>
                             <div class="gis-check-dropdown" x-show="open" style="display: none;"
                                 x-transition:enter="transition ease-out duration-100"
@@ -1022,8 +1015,7 @@
                             @click.away="open = false">
                             <div class="gis-check-trigger" :class="{'locked': isFilterDisabled(getAvailableRoUnits(), 'ro')}"
                                 @click="if(!isFilterDisabled(getAvailableRoUnits(), 'ro')) open = !open">
-                                <span
-                                    x-text="isFilterDisabled(getAvailableRoUnits(), 'ro') ? 'No {{ org_role_labels.1 }} Available' : (filters.ro.length === 0 ? 'Select {{ org_role_labels.1 }}' : (filters.ro.length === 1 ? (getAvailableRoUnits().find(u => u.id === filters.ro[0])?.display_name || '1 Selected') : filters.ro.length + ' Selected'))"></span>
+                                <span x-text="getFilterLabel('ro', getAvailableRoUnits(), '{{ org_role_labels.1 }}', filters.ro)"></span>
                             </div>
                             <div class="gis-check-dropdown" x-show="open" style="display: none;"
                                 x-transition:enter="transition ease-out duration-100"
@@ -1052,8 +1044,7 @@
                             @click.away="open = false">
                             <div class="gis-check-trigger" :class="{'locked': isFilterDisabled(getAvailablePiuUnits(), 'piu')}"
                                 @click="if(!isFilterDisabled(getAvailablePiuUnits(), 'piu')) open = !open">
-                                <span
-                                    x-text="isFilterDisabled(getAvailablePiuUnits(), 'piu') ? 'No {{ org_role_labels.2 }} Available' : (filters.piu.length === 0 ? 'Select {{ org_role_labels.2 }}' : (filters.piu.length === 1 ? (getAvailablePiuUnits().find(u => u.id === filters.piu[0])?.display_name || '1 Selected') : filters.piu.length + ' Selected'))"></span>
+                                <span x-text="getFilterLabel('piu', getAvailablePiuUnits(), '{{ org_role_labels.2 }}', filters.piu)"></span>
                             </div>
                             <div class="gis-check-dropdown" x-show="open" style="display: none;"
                                 x-transition:enter="transition ease-out duration-100"
@@ -1082,8 +1073,7 @@
                             @click.away="open = false">
                             <div class="gis-check-trigger" :class="{'locked': isFilterDisabled(getAvailableProjectUserUnits(), 'projectUser')}"
                                 @click="if(!isFilterDisabled(getAvailableProjectUserUnits(), 'projectUser')) open = !open">
-                                <span
-                                    x-text="isFilterDisabled(getAvailableProjectUserUnits(), 'projectUser') ? 'No {{ org_role_labels.3 }} Available' : (filters.projectUser.length === 0 ? 'Select {{ org_role_labels.3 }}' : (filters.projectUser.length === 1 ? (getAvailableProjectUserUnits().find(u => u.id === filters.projectUser[0])?.display_name || '1 Selected') : filters.projectUser.length + ' Selected'))"></span>
+                                <span x-text="getFilterLabel('projectUser', getAvailableProjectUserUnits(), '{{ org_role_labels.3 }}', filters.projectUser)"></span>
                             </div>
                             <div class="gis-check-dropdown" x-show="open" style="display: none;"
                                 x-transition:enter="transition ease-out duration-100"
@@ -1111,8 +1101,7 @@
                         <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }"
                             @click.away="open = false">
                             <div class="gis-check-trigger" :class="{'locked': isFilterDisabled(getAvailableProjectUnits(), 'project')}" @click="if(!isFilterDisabled(getAvailableProjectUnits(), 'project')) open = !open">
-                                <span
-                                    x-text="isFilterDisabled(getAvailableProjectUnits(), 'project') ? 'No Projects Available' : (filters.project.length === 0 ? 'All Projects' : (filters.project.length === 1 ? (getAvailableProjectUnits().find(p => p.id === filters.project[0])?.name || '1 Selected') : filters.project.length + ' Selected'))"></span>
+                                <span x-text="getFilterLabel('project', getAvailableProjectUnits(), 'Project', filters.project)"></span>
                             </div>
                             <div class="gis-check-dropdown" x-show="open" style="display: none;"
                                 x-transition:enter="transition ease-out duration-100"
@@ -1138,8 +1127,7 @@
                         <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }"
                             @click.away="open = false">
                             <div class="gis-check-trigger" :class="{'locked': isFilterDisabled(getAvailableRoadChoices(), 'road')}" @click="if(!isFilterDisabled(getAvailableRoadChoices(), 'road')) open = !open">
-                                <span
-                                    x-text="isFilterDisabled(getAvailableRoadChoices(), 'road') ? 'No Roads Available' : (filters.road.length === 0 ? 'All Roads' : (filters.road.length === 1 ? (getAvailableRoadChoices().find(r => r.id === filters.road[0])?.name || '1 Selected') : filters.road.length + ' Selected'))"></span>
+                                <span x-text="getFilterLabel('road', getAvailableRoadChoices(), 'Road', filters.road)"></span>
                             </div>
                             <div class="gis-check-dropdown" x-show="open" style="display: none;"
                                 x-transition:enter="transition ease-out duration-100"
@@ -2016,6 +2004,12 @@
                 piu: '{{ lock_piu_filter|yesno:"true,false" }}' === 'true',
                 projectUser: '{{ lock_project_filter|yesno:"true,false" }}' === 'true'
             },
+            assignedNames: {
+                ho: '{{ assigned_ho_name|escapejs }}',
+                ro: '{{ assigned_ro_name|escapejs }}',
+                piu: '{{ assigned_piu_name|escapejs }}',
+                projectUser: '{{ assigned_project_name|escapejs }}'
+            },
 
             // Data
             allOrgUnits: [],
@@ -2246,7 +2240,7 @@
 
             async loadOrgUnits() {
                 try {
-                    const r = await fetch('/api/v1/users/?page_size=500&exclude_unassigned=true', { credentials: 'include' });
+                    const r = await fetch('/api/v1/users/?page_size=500', { credentials: 'include' });
                     const d = await r.json();
                     this.allOrgUnits = d.results || [];
 
@@ -2276,7 +2270,7 @@
 
             async loadProjects() {
                 try {
-                    const r = await fetch('/api/v1/projects/?page_size=1000&exclude_unassigned=true', { credentials: 'include' });
+                    const r = await fetch('/api/v1/projects/?page_size=1000', { credentials: 'include' });
                     const d = await r.json();
                     this.allProjects = d.results || [];
                 } catch (e) { console.error('loadProjects', e); }
@@ -2331,7 +2325,6 @@
                     if (this.filters.piu.length > 0) params.append('piu_user', this.filters.piu.join(','));
                     if (this.filters.projectUser.length > 0) params.append('project_user', this.filters.projectUser.join(','));
                     if (this.filters.project.length > 0) params.append('project', this.filters.project.join(','));
-                    params.append('exclude_unassigned', 'true');
 
                     const r = await fetch(`/api/v1/roads/?${params.toString()}`, { credentials: 'include' });
                     const d = await r.json();
@@ -2376,6 +2369,30 @@
                 
                 // If no choices are available based on previous selections, it's disabled (greyed out)
                 return !choices || choices.length === 0;
+            },
+
+            getFilterLabel(type, choices, defaultLabel, selectedIds) {
+                // 1. System level lock (e.g. RO User restricted to their RO)
+                if (this.locks[type]) {
+                    return this.assignedNames[type] || defaultLabel;
+                }
+                
+                // 2. Cascading disabled state (no options left)
+                if (!choices || choices.length === 0) {
+                    return 'No ' + defaultLabel + ' Available';
+                }
+                
+                // 3. Selection state
+                if (selectedIds.length === 0) {
+                    return 'Select ' + defaultLabel;
+                }
+                
+                if (selectedIds.length === 1) {
+                    const item = choices.find(c => c.id === selectedIds[0]);
+                    return item ? (item.display_name || item.name || '1 Selected') : '1 Selected';
+                }
+                
+                return selectedIds.length + ' Selected';
             },
 
             applyFilters() {
