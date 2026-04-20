@@ -1802,6 +1802,9 @@
                 <button @click="setTab('RIS')" x-ref="tabRIS" :class="roadDetailTab === 'RIS' ? 'tab-btn-active' : 'tab-btn-inactive'" class="tab-btn" style="padding: 8px 20px; border-radius: 10px; font-size: 13px;">RIS</button>
                 <button @click="setTab('PMS')" x-ref="tabPMS" :class="roadDetailTab === 'PMS' ? 'tab-btn-active' : 'tab-btn-inactive'" class="tab-btn" style="padding: 8px 20px; border-radius: 10px; font-size: 13px;">PMS</button>
                 <button @click="setTab('INVENTORY')" x-ref="tabINVENTORY" :class="roadDetailTab === 'INVENTORY' ? 'tab-btn-active' : 'tab-btn-inactive'" class="tab-btn" style="padding: 8px 20px; border-radius: 10px; font-size: 13px;">Inventory</button>
+                <button @click="setTab('LRMS')" x-ref="tabLRMS" :class="roadDetailTab === 'LRMS' ? 'tab-btn-active' : 'tab-btn-inactive'" class="tab-btn" style="padding: 8px 20px; border-radius: 10px; font-size: 13px;">LRMS</button>
+                <button @click="setTab('EIS_TOIS')" x-ref="tabEIS_TOIS" :class="roadDetailTab === 'EIS_TOIS' ? 'tab-btn-active' : 'tab-btn-inactive'" class="tab-btn" style="padding: 8px 20px; border-radius: 10px; font-size: 13px;">EIS/TOIS</button>
+                <button @click="setTab('AIS')" x-ref="tabAIS" :class="roadDetailTab === 'AIS' ? 'tab-btn-active' : 'tab-btn-inactive'" class="tab-btn" style="padding: 8px 20px; border-radius: 10px; font-size: 13px;">AIS</button>
             </div>
 
             <!-- Right: Survey Visuals Toggle -->
@@ -1811,7 +1814,7 @@
                     <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h14a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    <span x-text="roadDetailTab === 'PMS' ? 'Pavement Layers' : (roadDetailTab === 'INVENTORY' ? 'Inventory Layers' : 'Survey Visuals')"></span>
+                    <span x-text="roadDetailTab === 'PMS' ? 'Pavement Layers' : (roadDetailTab === 'INVENTORY' ? 'Inventory Layers' : (roadDetailTab === 'LRMS' ? 'LRMS Data' : (roadDetailTab === 'EIS_TOIS' ? 'EIS/TOIS Data' : (roadDetailTab === 'AIS' ? 'AIS Data' : 'Survey Visuals'))))"></span>
                 </button>
             </div>
         </div>
@@ -2192,6 +2195,72 @@
                             </svg>
                             AI Processed Video
                         </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LRMS Panel -->
+            <div 
+                x-show="roadDetailTab === 'LRMS'"
+                @click.stop
+                :style="{ 
+                    position: 'absolute',
+                    top: '100px',
+                    right: '30px',
+                    width: '320px',
+                    zIndex: '150',
+                    transform: visualsOpen ? 'translateX(0)' : 'translateX(calc(100% + 50px))', 
+                    opacity: visualsOpen ? '1' : '0',
+                    pointerEvents: visualsOpen ? 'auto' : 'none'
+                }"
+                style="background: #fff; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 15px 35px rgba(0,0,0,0.1); transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden;">
+                <div style="padding: 24px; display: flex; flex-direction: column; gap: 20px;">
+                    <div style="text-align: center; padding: 20px;">
+                        <span style="font-size: 14px; font-weight: 600; color: #64748b;">LRMS Data Coming Soon</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- EIS/TOIS Panel -->
+            <div 
+                x-show="roadDetailTab === 'EIS_TOIS'"
+                @click.stop
+                :style="{ 
+                    position: 'absolute',
+                    top: '100px',
+                    right: '30px',
+                    width: '320px',
+                    zIndex: '150',
+                    transform: visualsOpen ? 'translateX(0)' : 'translateX(calc(100% + 50px))', 
+                    opacity: visualsOpen ? '1' : '0',
+                    pointerEvents: visualsOpen ? 'auto' : 'none'
+                }"
+                style="background: #fff; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 15px 35px rgba(0,0,0,0.1); transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden;">
+                <div style="padding: 24px; display: flex; flex-direction: column; gap: 20px;">
+                    <div style="text-align: center; padding: 20px;">
+                        <span style="font-size: 14px; font-weight: 600; color: #64748b;">EIS/TOIS Data Coming Soon</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AIS Panel -->
+            <div 
+                x-show="roadDetailTab === 'AIS'"
+                @click.stop
+                :style="{ 
+                    position: 'absolute',
+                    top: '100px',
+                    right: '30px',
+                    width: '320px',
+                    zIndex: '150',
+                    transform: visualsOpen ? 'translateX(0)' : 'translateX(calc(100% + 50px))', 
+                    opacity: visualsOpen ? '1' : '0',
+                    pointerEvents: visualsOpen ? 'auto' : 'none'
+                }"
+                style="background: #fff; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 15px 35px rgba(0,0,0,0.1); transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden;">
+                <div style="padding: 24px; display: flex; flex-direction: column; gap: 20px;">
+                    <div style="text-align: center; padding: 20px;">
+                        <span style="font-size: 14px; font-weight: 600; color: #64748b;">AIS Data Coming Soon</span>
                     </div>
                 </div>
             </div>
