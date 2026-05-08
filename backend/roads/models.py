@@ -54,6 +54,45 @@ class Road(BaseModel):
         blank=True,
         help_text=_("Upload a GPX file for this road segment."),
     )
+
+    # ── Furniture JSON ────────────────────────────────────────────────────────
+    furniture_json_file = models.FileField(
+        _("Furniture JSON File"),
+        upload_to="road_json/furniture/",
+        null=True,
+        blank=True,
+        help_text=_("Upload a JSON file containing road furniture / signage data."),
+    )
+    furniture_json_data = models.JSONField(
+        _("Furniture JSON Data"),
+        null=True,
+        blank=True,
+        default=None,
+        help_text=_(
+            "Parsed content of the Furniture JSON file. "
+            "Automatically populated when a furniture JSON file is uploaded."
+        ),
+    )
+
+    # ── Pavement JSON ─────────────────────────────────────────────────────────
+    pavement_json_file = models.FileField(
+        _("Pavement JSON File"),
+        upload_to="road_json/pavement/",
+        null=True,
+        blank=True,
+        help_text=_("Upload a JSON file containing pavement condition / analysis data."),
+    )
+    pavement_json_data = models.JSONField(
+        _("Pavement JSON Data"),
+        null=True,
+        blank=True,
+        default=None,
+        help_text=_(
+            "Parsed content of the Pavement JSON file. "
+            "Automatically populated when a pavement JSON file is uploaded."
+        ),
+    )
+
     length = models.DecimalField(
         _("length (km)"),
         max_digits=10,

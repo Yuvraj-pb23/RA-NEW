@@ -42,6 +42,10 @@ class RoadSerializer(serializers.ModelSerializer):
             "organization_name",
             "length",
             "gpx_file",
+            "furniture_json_file",
+            "furniture_json_data",
+            "pavement_json_file",
+            "pavement_json_data",
             "geometry",
             "road_type",
             "road_type_display",
@@ -49,7 +53,7 @@ class RoadSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["id", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at", "furniture_json_data", "pavement_json_data"]
 
     # ── Field-level validation ─────────────────────────────────────────────
 

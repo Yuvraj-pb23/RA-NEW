@@ -1,0 +1,1958 @@
+{
+    "assets": [
+        {
+            "Assets number": "0.53",
+            "Side": "Avenue",
+            "Timestamp on processed video": "2026-02-12 11:28:32",
+            "Asset type": "15_49_SPEED_BREAKER",
+            "Frame no.": "0-1926",
+            "Latitude": 17.64380833,
+            "Longitude": 75.722115,
+            "Distance": 464.51150326500516,
+            "category": "CAUTIONARY_WARNING_SIGNS",
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-1926-53_furniture_asset.jpg"
+        },
+        {
+            "Assets number": "0.59",
+            "Side": "Avenue",
+            "Timestamp on processed video": "2026-02-12 11:28:36",
+            "Asset type": "15_18_T_INTERSECTION_MAJOR_ROAD_AHEAD",
+            "Frame no.": "0-2054",
+            "Latitude": 17.64386667,
+            "Longitude": 75.722485,
+            "Distance": 504.3189961928202,
+            "category": "CAUTIONARY_WARNING_SIGNS",
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2054-59_furniture_asset.jpg"
+        },
+        {
+            "Assets number": "0.67",
+            "Side": "Avenue",
+            "Timestamp on processed video": "2026-02-12 11:28:41",
+            "Asset type": "14_01_STOP",
+            "Frame no.": "0-2201",
+            "Latitude": 17.64390667,
+            "Longitude": 75.7229,
+            "Distance": 548.5831081282157,
+            "category": "PROHIBITORY_MANDATORY_SIGNS",
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2201-67_furniture_asset.jpg"
+        },
+        {
+            "Assets number": "0.106",
+            "Side": "Avenue",
+            "Timestamp on processed video": "2026-02-12 11:29:09",
+            "Asset type": "15_33_PEDESTRIAN_CROSSING",
+            "Frame no.": "0-3017",
+            "Latitude": 17.644545,
+            "Longitude": 75.72434,
+            "Distance": 722.6292281337114,
+            "category": "CAUTIONARY_WARNING_SIGNS",
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3017-106_furniture_asset.jpg"
+        },
+        {
+            "Assets number": "0.121",
+            "Side": "Avenue",
+            "Timestamp on processed video": "2026-02-12 11:29:16",
+            "Asset type": "15_49_SPEED_BREAKER",
+            "Frame no.": "0-3238",
+            "Latitude": 17.64492333,
+            "Longitude": 75.724835,
+            "Distance": 789.816398408809,
+            "category": "CAUTIONARY_WARNING_SIGNS",
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3238-121_furniture_asset.jpg"
+        },
+        {
+            "Assets number": "0.125",
+            "Side": "Avenue",
+            "Timestamp on processed video": "2026-02-12 11:29:16",
+            "Asset type": "16_01_STACK_TYPE_ADVANCE_DIRECTION_SIGN",
+            "Frame no.": "0-3247",
+            "Latitude": 17.64492333,
+            "Longitude": 75.724835,
+            "Distance": 789.816398408809,
+            "category": "INFORMATORY_SIGNS",
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3247-125_furniture_asset.jpg"
+        },
+        {
+            "Assets number": "0.148",
+            "Side": "Avenue",
+            "Timestamp on processed video": "2026-02-12 11:29:24",
+            "Asset type": "ARROW_MARKING",
+            "Frame no.": "0-3491",
+            "Latitude": 17.645385,
+            "Longitude": 75.725385,
+            "Distance": 867.3960315068838,
+            "category": "ARROW_MARKING",
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3491-148_furniture_asset.jpg"
+        },
+        {
+            "Assets number": "0.150",
+            "Side": "Avenue",
+            "Timestamp on processed video": "2026-02-12 11:29:25",
+            "Asset type": "ARROW_MARKING",
+            "Frame no.": "0-3499",
+            "Latitude": 17.64544,
+            "Longitude": 75.72545,
+            "Distance": 876.5954250801827,
+            "category": "ARROW_MARKING",
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3499-150_furniture_asset.jpg"
+        },
+        {
+            "Assets number": "0.167",
+            "Side": "Avenue",
+            "Timestamp on processed video": "2026-02-12 11:29:35",
+            "Asset type": "15_78_OBJECT_HAZARD_LEFT",
+            "Frame no.": "0-3807",
+            "Latitude": 17.645795,
+            "Longitude": 75.72586167,
+            "Distance": 935.432854360002,
+            "category": "CAUTIONARY_WARNING_SIGNS",
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3807-167_furniture_asset.jpg"
+        },
+        {
+            "Assets number": "0.282",
+            "Side": "Median",
+            "Timestamp on processed video": "2026-02-12 11:30:32",
+            "Asset type": "ARROW_MARKING",
+            "Frame no.": "0-5517",
+            "Latitude": 17.64754833,
+            "Longitude": 75.72963,
+            "Distance": 1392.46497715769,
+            "category": "ARROW_MARKING",
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-5517-282_furniture_asset.jpg"
+        },
+        {
+            "Assets number": "0.288",
+            "Side": "Avenue",
+            "Timestamp on processed video": "2026-02-12 11:30:35",
+            "Asset type": "17_35_BUS_STOP",
+            "Frame no.": "0-5607",
+            "Latitude": 17.64755,
+            "Longitude": 75.72990833,
+            "Distance": 1422.0047206955276,
+            "category": "INFORMATORY_SIGNS",
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-5607-288_furniture_asset.jpg"
+        }
+    ],
+    "anomalies": [
+        {
+            "Anomaly number": "0.3",
+            "Timestamp on processed video": "2026-02-12 11:27:32",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-122",
+            "Latitude": 17.64259,
+            "Longitude": 75.71794667,
+            "Distance": 0,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-122-3_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.5",
+            "Timestamp on processed video": "2026-02-12 11:27:34",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-167",
+            "Latitude": 17.64260333,
+            "Longitude": 75.71795333,
+            "Distance": 1.759385308773229,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-167-5_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.6",
+            "Timestamp on processed video": "2026-02-12 11:27:34",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-186",
+            "Latitude": 17.64260333,
+            "Longitude": 75.71795333,
+            "Distance": 1.759385308773229,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-186-6_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.10",
+            "Timestamp on processed video": "2026-02-12 11:27:37",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-257",
+            "Latitude": 17.64265333,
+            "Longitude": 75.718045,
+            "Distance": 12.960537110961265,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-257-10_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.11",
+            "Timestamp on processed video": "2026-02-12 11:27:37",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-262",
+            "Latitude": 17.64265333,
+            "Longitude": 75.718045,
+            "Distance": 12.960537110961265,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-262-11_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.12",
+            "Timestamp on processed video": "2026-02-12 11:27:39",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-335",
+            "Latitude": 17.64269833,
+            "Longitude": 75.71813,
+            "Distance": 23.264523732591602,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-335-12_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.13",
+            "Timestamp on processed video": "2026-02-12 11:27:40",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-351",
+            "Latitude": 17.64272333,
+            "Longitude": 75.71817667,
+            "Distance": 28.93748424198055,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-351-13_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.14",
+            "Timestamp on processed video": "2026-02-12 11:27:42",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-427",
+            "Latitude": 17.64274833,
+            "Longitude": 75.71822333,
+            "Distance": 34.610463984381134,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-427-14_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.15",
+            "Timestamp on processed video": "2026-02-12 11:27:43",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-458",
+            "Latitude": 17.64275333,
+            "Longitude": 75.71823833,
+            "Distance": 36.29565730592531,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-458-15_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.17",
+            "Timestamp on processed video": "2026-02-12 11:27:45",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-502",
+            "Latitude": 17.64278,
+            "Longitude": 75.718305,
+            "Distance": 43.964323708397,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-502-17_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.18",
+            "Timestamp on processed video": "2026-02-12 11:27:46",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-542",
+            "Latitude": 17.64280167,
+            "Longitude": 75.71835333,
+            "Distance": 49.626001226620815,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-542-18_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.21",
+            "Timestamp on processed video": "2026-02-12 11:27:48",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-600",
+            "Latitude": 17.64284333,
+            "Longitude": 75.71846667,
+            "Distance": 62.50841481575082,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-600-21_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.24",
+            "Timestamp on processed video": "2026-02-12 11:27:53",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-756",
+            "Latitude": 17.64296833,
+            "Longitude": 75.71882667,
+            "Distance": 103.14557539722531,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-756-24_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.25",
+            "Timestamp on processed video": "2026-02-12 11:27:53",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-756",
+            "Latitude": 17.64296833,
+            "Longitude": 75.71882667,
+            "Distance": 103.14557539722531,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-756-25_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.26",
+            "Timestamp on processed video": "2026-02-12 11:27:55",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-799",
+            "Latitude": 17.64301833,
+            "Longitude": 75.71898667,
+            "Distance": 121.00662078239372,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-799-26_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.27",
+            "Timestamp on processed video": "2026-02-12 11:27:55",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-818",
+            "Latitude": 17.64301833,
+            "Longitude": 75.71898667,
+            "Distance": 121.00662078239372,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-818-27_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.28",
+            "Timestamp on processed video": "2026-02-12 11:27:58",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-886",
+            "Latitude": 17.64308667,
+            "Longitude": 75.71923833,
+            "Distance": 148.7696252552621,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-886-28_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.29",
+            "Timestamp on processed video": "2026-02-12 11:27:59",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-941",
+            "Latitude": 17.64311167,
+            "Longitude": 75.71932167,
+            "Distance": 158.03606585388096,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-941-29_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.30",
+            "Timestamp on processed video": "2026-02-12 11:28:04",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-1082",
+            "Latitude": 17.64322167,
+            "Longitude": 75.71975,
+            "Distance": 205.1049666541135,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-1082-30_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.31",
+            "Timestamp on processed video": "2026-02-12 11:28:04",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-1085",
+            "Latitude": 17.64322167,
+            "Longitude": 75.71975,
+            "Distance": 205.1049666541135,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-1085-31_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.32",
+            "Timestamp on processed video": "2026-02-12 11:28:08",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-1206",
+            "Latitude": 17.643315,
+            "Longitude": 75.72008333,
+            "Distance": 241.96379927071544,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-1206-32_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.33",
+            "Timestamp on processed video": "2026-02-12 11:28:11",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-1283",
+            "Latitude": 17.64335333,
+            "Longitude": 75.72025,
+            "Distance": 260.1729043984607,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-1283-33_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.34",
+            "Timestamp on processed video": "2026-02-12 11:28:14",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-1381",
+            "Latitude": 17.64340667,
+            "Longitude": 75.72047167,
+            "Distance": 284.4293721524021,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-1381-34_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.35",
+            "Timestamp on processed video": "2026-02-12 11:28:15",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-1414",
+            "Latitude": 17.64342667,
+            "Longitude": 75.72055333,
+            "Distance": 293.3730368042161,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-1414-35_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.36",
+            "Timestamp on processed video": "2026-02-12 11:28:16",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-1441",
+            "Latitude": 17.64344833,
+            "Longitude": 75.72064,
+            "Distance": 302.87738475355627,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-1441-36_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.37",
+            "Timestamp on processed video": "2026-02-12 11:28:17",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-1471",
+            "Latitude": 17.64347333,
+            "Longitude": 75.72073333,
+            "Distance": 313.1604164983756,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-1471-37_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.39",
+            "Timestamp on processed video": "2026-02-12 11:28:17",
+            "Anomaly type": "MISSING_STUDS",
+            "Frame no.": "0-1475",
+            "Latitude": 17.64347333,
+            "Longitude": 75.72073333,
+            "Distance": 313.1604164983756,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-1475-39_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.41",
+            "Timestamp on processed video": "2026-02-12 11:28:18",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-1501",
+            "Latitude": 17.64349833,
+            "Longitude": 75.72082667,
+            "Distance": 323.4444689551043,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-1501-41_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.42",
+            "Timestamp on processed video": "2026-02-12 11:28:19",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-1543",
+            "Latitude": 17.643525,
+            "Longitude": 75.72092,
+            "Distance": 333.77876437410526,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-1543-42_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.43",
+            "Timestamp on processed video": "2026-02-12 11:28:20",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-1553",
+            "Latitude": 17.64355333,
+            "Longitude": 75.72101167,
+            "Distance": 343.9992279150376,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-1553-43_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.44",
+            "Timestamp on processed video": "2026-02-12 11:28:21",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-1581",
+            "Latitude": 17.64358,
+            "Longitude": 75.72110167,
+            "Distance": 353.9953854412187,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-1581-44_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.45",
+            "Timestamp on processed video": "2026-02-12 11:28:22",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-1635",
+            "Latitude": 17.64360667,
+            "Longitude": 75.72119167,
+            "Distance": 363.99154162625666,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-1635-45_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.46",
+            "Timestamp on processed video": "2026-02-12 11:28:24",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-1679",
+            "Latitude": 17.643655,
+            "Longitude": 75.72137667,
+            "Distance": 384.3398641640862,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-1679-46_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.47",
+            "Timestamp on processed video": "2026-02-12 11:28:25",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-1710",
+            "Latitude": 17.64367667,
+            "Longitude": 75.72147,
+            "Distance": 394.52990096181264,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-1710-47_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.48",
+            "Timestamp on processed video": "2026-02-12 11:28:25",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-1714",
+            "Latitude": 17.64367667,
+            "Longitude": 75.72147,
+            "Distance": 394.52990096181264,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-1714-48_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.49",
+            "Timestamp on processed video": "2026-02-12 11:28:26",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-1747",
+            "Latitude": 17.64369667,
+            "Longitude": 75.72156333,
+            "Distance": 404.6780246869174,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-1747-49_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.50",
+            "Timestamp on processed video": "2026-02-12 11:28:28",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-1794",
+            "Latitude": 17.64373333,
+            "Longitude": 75.72175,
+            "Distance": 424.8978966821149,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-1794-50_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.51",
+            "Timestamp on processed video": "2026-02-12 11:28:29",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-1824",
+            "Latitude": 17.64375167,
+            "Longitude": 75.72184167,
+            "Distance": 434.8350316761603,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-1824-51_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.52",
+            "Timestamp on processed video": "2026-02-12 11:28:30",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-1852",
+            "Latitude": 17.64377,
+            "Longitude": 75.721935,
+            "Distance": 444.944445433918,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-1852-52_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.54",
+            "Timestamp on processed video": "2026-02-12 11:28:32",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-1926",
+            "Latitude": 17.64380833,
+            "Longitude": 75.722115,
+            "Distance": 464.51150326500516,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-1926-54_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.55",
+            "Timestamp on processed video": "2026-02-12 11:28:33",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-1938",
+            "Latitude": 17.643825,
+            "Longitude": 75.72220667,
+            "Distance": 474.41253355855275,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-1938-55_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.56",
+            "Timestamp on processed video": "2026-02-12 11:28:35",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-1996",
+            "Latitude": 17.64385667,
+            "Longitude": 75.72239333,
+            "Distance": 494.52862607148495,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-1996-56_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.57",
+            "Timestamp on processed video": "2026-02-12 11:28:36",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-2032",
+            "Latitude": 17.64386667,
+            "Longitude": 75.722485,
+            "Distance": 504.3189961928202,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2032-57_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.58",
+            "Timestamp on processed video": "2026-02-12 11:28:36",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-2034",
+            "Latitude": 17.64386667,
+            "Longitude": 75.722485,
+            "Distance": 504.3189961928202,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2034-58_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.60",
+            "Timestamp on processed video": "2026-02-12 11:28:37",
+            "Anomaly type": "VEGETATION_GROWTH_ON_SHOULDERS",
+            "Frame no.": "0-2063",
+            "Latitude": 17.64387333,
+            "Longitude": 75.72257333,
+            "Distance": 513.7211193323575,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2063-60_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.61",
+            "Timestamp on processed video": "2026-02-12 11:28:38",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-2109",
+            "Latitude": 17.64388333,
+            "Longitude": 75.72266167,
+            "Distance": 523.1604735430323,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2109-61_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.62",
+            "Timestamp on processed video": "2026-02-12 11:28:38",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-2109",
+            "Latitude": 17.64388333,
+            "Longitude": 75.72266167,
+            "Distance": 523.1604735430323,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2109-62_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.63",
+            "Timestamp on processed video": "2026-02-12 11:28:40",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-2145",
+            "Latitude": 17.6439,
+            "Longitude": 75.722825,
+            "Distance": 540.590281344023,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2145-63_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.64",
+            "Timestamp on processed video": "2026-02-12 11:28:40",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-2157",
+            "Latitude": 17.6439,
+            "Longitude": 75.722825,
+            "Distance": 540.590281344023,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2157-64_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.66",
+            "Timestamp on processed video": "2026-02-12 11:28:41",
+            "Anomaly type": "DAMAGED_KERB",
+            "Frame no.": "0-2196",
+            "Latitude": 17.64390667,
+            "Longitude": 75.7229,
+            "Distance": 548.5831081282157,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2196-66_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.68",
+            "Timestamp on processed video": "2026-02-12 11:28:43",
+            "Anomaly type": "VEGETATION_GROWTH_ON_SHOULDERS",
+            "Frame no.": "0-2257",
+            "Latitude": 17.643915,
+            "Longitude": 75.72302667,
+            "Distance": 562.056806468549,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2257-68_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.73",
+            "Timestamp on processed video": "2026-02-12 11:28:51",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-2480",
+            "Latitude": 17.64393,
+            "Longitude": 75.72327167,
+            "Distance": 588.159870096964,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2480-73_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.75",
+            "Timestamp on processed video": "2026-02-12 11:28:52",
+            "Anomaly type": "BLOCKED_KERB_DRAINAGE",
+            "Frame no.": "0-2522",
+            "Latitude": 17.64393333,
+            "Longitude": 75.72332333,
+            "Distance": 593.6541716252513,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2522-75_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.76",
+            "Timestamp on processed video": "2026-02-12 11:28:53",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-2539",
+            "Latitude": 17.64394,
+            "Longitude": 75.723375,
+            "Distance": 599.1866311414674,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2539-76_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.77",
+            "Timestamp on processed video": "2026-02-12 11:28:53",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-2539",
+            "Latitude": 17.64394,
+            "Longitude": 75.723375,
+            "Distance": 599.1866311414674,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2539-77_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.78",
+            "Timestamp on processed video": "2026-02-12 11:28:53",
+            "Anomaly type": "FADED_KERB",
+            "Frame no.": "0-2560",
+            "Latitude": 17.64394,
+            "Longitude": 75.723375,
+            "Distance": 599.1866311414674,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2560-78_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.79",
+            "Timestamp on processed video": "2026-02-12 11:28:55",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-2600",
+            "Latitude": 17.64396667,
+            "Longitude": 75.72348,
+            "Distance": 610.7173117610809,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2600-79_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.80",
+            "Timestamp on processed video": "2026-02-12 11:28:55",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-2617",
+            "Latitude": 17.64396667,
+            "Longitude": 75.72348,
+            "Distance": 610.7173117610809,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2617-80_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.83",
+            "Timestamp on processed video": "2026-02-12 11:28:56",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-2637",
+            "Latitude": 17.64398833,
+            "Longitude": 75.723535,
+            "Distance": 617.0268124028462,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2637-83_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.84",
+            "Timestamp on processed video": "2026-02-12 11:28:56",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-2649",
+            "Latitude": 17.64398833,
+            "Longitude": 75.723535,
+            "Distance": 617.0268124028462,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2649-84_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.85",
+            "Timestamp on processed video": "2026-02-12 11:28:57",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-2675",
+            "Latitude": 17.64401333,
+            "Longitude": 75.72358667,
+            "Distance": 623.1683852244921,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2675-85_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.86",
+            "Timestamp on processed video": "2026-02-12 11:28:57",
+            "Anomaly type": "BLOCKED_KERB_DRAINAGE",
+            "Frame no.": "0-2675",
+            "Latitude": 17.64401333,
+            "Longitude": 75.72358667,
+            "Distance": 623.1683852244921,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2675-86_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.87",
+            "Timestamp on processed video": "2026-02-12 11:28:57",
+            "Anomaly type": "FADED_KERB",
+            "Frame no.": "0-2675",
+            "Latitude": 17.64401333,
+            "Longitude": 75.72358667,
+            "Distance": 623.1683852244921,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2675-87_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.88",
+            "Timestamp on processed video": "2026-02-12 11:28:59",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-2741",
+            "Latitude": 17.64407667,
+            "Longitude": 75.723695,
+            "Distance": 636.6346227693243,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2741-88_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.89",
+            "Timestamp on processed video": "2026-02-12 11:29:00",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-2751",
+            "Latitude": 17.64411167,
+            "Longitude": 75.72375333,
+            "Distance": 643.9365311977037,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2751-89_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.90",
+            "Timestamp on processed video": "2026-02-12 11:29:00",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-2751",
+            "Latitude": 17.64411167,
+            "Longitude": 75.72375333,
+            "Distance": 643.9365311977037,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2751-90_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.93",
+            "Timestamp on processed video": "2026-02-12 11:29:03",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-2842",
+            "Latitude": 17.64423833,
+            "Longitude": 75.72394833,
+            "Distance": 668.9363089073689,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2842-93_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.94",
+            "Timestamp on processed video": "2026-02-12 11:29:03",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-2842",
+            "Latitude": 17.64423833,
+            "Longitude": 75.72394833,
+            "Distance": 668.9363089073689,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2842-94_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.95",
+            "Timestamp on processed video": "2026-02-12 11:29:03",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-2856",
+            "Latitude": 17.64423833,
+            "Longitude": 75.72394833,
+            "Distance": 668.9363089073689,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2856-95_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.96",
+            "Timestamp on processed video": "2026-02-12 11:29:03",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-2856",
+            "Latitude": 17.64423833,
+            "Longitude": 75.72394833,
+            "Distance": 668.9363089073689,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2856-96_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.97",
+            "Timestamp on processed video": "2026-02-12 11:29:05",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-2902",
+            "Latitude": 17.644335,
+            "Longitude": 75.72408333,
+            "Distance": 686.8172556403995,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2902-97_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.98",
+            "Timestamp on processed video": "2026-02-12 11:29:06",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-2927",
+            "Latitude": 17.64438833,
+            "Longitude": 75.72414833,
+            "Distance": 695.8954360325266,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2927-98_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.99",
+            "Timestamp on processed video": "2026-02-12 11:29:06",
+            "Anomaly type": "FADED_KERB",
+            "Frame no.": "0-2932",
+            "Latitude": 17.64438833,
+            "Longitude": 75.72414833,
+            "Distance": 695.8954360325266,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2932-99_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.100",
+            "Timestamp on processed video": "2026-02-12 11:29:07",
+            "Anomaly type": "FADED_KERB",
+            "Frame no.": "0-2959",
+            "Latitude": 17.64444167,
+            "Longitude": 75.72421,
+            "Distance": 704.7088700928894,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2959-100_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.101",
+            "Timestamp on processed video": "2026-02-12 11:29:07",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-2959",
+            "Latitude": 17.64444167,
+            "Longitude": 75.72421,
+            "Distance": 704.7088700928894,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2959-101_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.102",
+            "Timestamp on processed video": "2026-02-12 11:29:07",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-2960",
+            "Latitude": 17.64444167,
+            "Longitude": 75.72421,
+            "Distance": 704.7088700928894,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2960-102_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.104",
+            "Timestamp on processed video": "2026-02-12 11:29:08",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-2989",
+            "Latitude": 17.64449333,
+            "Longitude": 75.72427667,
+            "Distance": 713.8051135759963,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2989-104_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.107",
+            "Timestamp on processed video": "2026-02-12 11:29:09",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-3043",
+            "Latitude": 17.644545,
+            "Longitude": 75.72434,
+            "Distance": 722.6292281337114,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3043-107_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.108",
+            "Timestamp on processed video": "2026-02-12 11:29:10",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-3054",
+            "Latitude": 17.64459833,
+            "Longitude": 75.72441,
+            "Distance": 732.1168007053963,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3054-108_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.109",
+            "Timestamp on processed video": "2026-02-12 11:29:10",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-3056",
+            "Latitude": 17.64459833,
+            "Longitude": 75.72441,
+            "Distance": 732.1168007053963,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3056-109_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.111",
+            "Timestamp on processed video": "2026-02-12 11:29:10",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-3068",
+            "Latitude": 17.64459833,
+            "Longitude": 75.72441,
+            "Distance": 732.1168007053963,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3068-111_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.112",
+            "Timestamp on processed video": "2026-02-12 11:29:10",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-3068",
+            "Latitude": 17.64459833,
+            "Longitude": 75.72441,
+            "Distance": 732.1168007053963,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3068-112_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.113",
+            "Timestamp on processed video": "2026-02-12 11:29:11",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-3093",
+            "Latitude": 17.64465167,
+            "Longitude": 75.72448167,
+            "Distance": 741.7444253364481,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3093-113_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.114",
+            "Timestamp on processed video": "2026-02-12 11:29:12",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-3115",
+            "Latitude": 17.64470167,
+            "Longitude": 75.72455167,
+            "Distance": 751.0072076449504,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3115-114_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.115",
+            "Timestamp on processed video": "2026-02-12 11:29:12",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-3125",
+            "Latitude": 17.64470167,
+            "Longitude": 75.72455167,
+            "Distance": 751.0072076449504,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3125-115_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.117",
+            "Timestamp on processed video": "2026-02-12 11:29:13",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-3140",
+            "Latitude": 17.644755,
+            "Longitude": 75.72462333,
+            "Distance": 760.6333119967326,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3140-117_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.118",
+            "Timestamp on processed video": "2026-02-12 11:29:14",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-3166",
+            "Latitude": 17.64481,
+            "Longitude": 75.72469333,
+            "Distance": 770.236953665107,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3166-118_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.119",
+            "Timestamp on processed video": "2026-02-12 11:29:14",
+            "Anomaly type": "FADED_KERB",
+            "Frame no.": "0-3166",
+            "Latitude": 17.64481,
+            "Longitude": 75.72469333,
+            "Distance": 770.236953665107,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3166-119_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.120",
+            "Timestamp on processed video": "2026-02-12 11:29:14",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-3166",
+            "Latitude": 17.64481,
+            "Longitude": 75.72469333,
+            "Distance": 770.236953665107,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3166-120_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.122",
+            "Timestamp on processed video": "2026-02-12 11:29:16",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-3239",
+            "Latitude": 17.64492333,
+            "Longitude": 75.724835,
+            "Distance": 789.816398408809,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3239-122_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.123",
+            "Timestamp on processed video": "2026-02-12 11:29:16",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-3239",
+            "Latitude": 17.64492333,
+            "Longitude": 75.724835,
+            "Distance": 789.816398408809,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3239-123_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.126",
+            "Timestamp on processed video": "2026-02-12 11:29:16",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-3247",
+            "Latitude": 17.64492333,
+            "Longitude": 75.724835,
+            "Distance": 789.816398408809,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3247-126_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.133",
+            "Timestamp on processed video": "2026-02-12 11:29:18",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-3307",
+            "Latitude": 17.64504167,
+            "Longitude": 75.72497833,
+            "Distance": 809.8882339450666,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3307-133_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.135",
+            "Timestamp on processed video": "2026-02-12 11:29:19",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-3325",
+            "Latitude": 17.6451,
+            "Longitude": 75.72505,
+            "Distance": 819.864033162713,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3325-135_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.139",
+            "Timestamp on processed video": "2026-02-12 11:29:21",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-3379",
+            "Latitude": 17.64521667,
+            "Longitude": 75.72519167,
+            "Distance": 839.6822578957702,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3379-139_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.140",
+            "Timestamp on processed video": "2026-02-12 11:29:21",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-3379",
+            "Latitude": 17.64521667,
+            "Longitude": 75.72519167,
+            "Distance": 839.6822578957702,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3379-140_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.141",
+            "Timestamp on processed video": "2026-02-12 11:29:21",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-3402",
+            "Latitude": 17.64521667,
+            "Longitude": 75.72519167,
+            "Distance": 839.6822578957702,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3402-141_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.142",
+            "Timestamp on processed video": "2026-02-12 11:29:22",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-3415",
+            "Latitude": 17.645275,
+            "Longitude": 75.72525667,
+            "Distance": 849.1295677351683,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3415-142_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.144",
+            "Timestamp on processed video": "2026-02-12 11:29:22",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-3421",
+            "Latitude": 17.645275,
+            "Longitude": 75.72525667,
+            "Distance": 849.1295677351683,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3421-144_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.147",
+            "Timestamp on processed video": "2026-02-12 11:29:23",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-3464",
+            "Latitude": 17.64533167,
+            "Longitude": 75.72532333,
+            "Distance": 858.5833636647096,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3464-147_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.149",
+            "Timestamp on processed video": "2026-02-12 11:29:24",
+            "Anomaly type": "VEGETATION_KERB",
+            "Frame no.": "0-3491",
+            "Latitude": 17.645385,
+            "Longitude": 75.725385,
+            "Distance": 867.3960315068838,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3491-149_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.151",
+            "Timestamp on processed video": "2026-02-12 11:29:25",
+            "Anomaly type": "FADED_ARROW_MARKING",
+            "Frame no.": "0-3499",
+            "Latitude": 17.64544,
+            "Longitude": 75.72545,
+            "Distance": 876.5954250801827,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3499-151_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.162",
+            "Timestamp on processed video": "2026-02-12 11:29:32",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-3726",
+            "Latitude": 17.645755,
+            "Longitude": 75.72582333,
+            "Distance": 929.403955517274,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3726-162_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.171",
+            "Timestamp on processed video": "2026-02-12 11:29:37",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-3875",
+            "Latitude": 17.64584,
+            "Longitude": 75.72591,
+            "Distance": 942.5817753562059,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3875-171_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.172",
+            "Timestamp on processed video": "2026-02-12 11:29:39",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-3936",
+            "Latitude": 17.64589833,
+            "Longitude": 75.72597333,
+            "Distance": 951.9017436557384,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3936-172_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.173",
+            "Timestamp on processed video": "2026-02-12 11:29:39",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-3943",
+            "Latitude": 17.64589833,
+            "Longitude": 75.72597333,
+            "Distance": 951.9017436557384,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3943-173_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.174",
+            "Timestamp on processed video": "2026-02-12 11:29:41",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-3978",
+            "Latitude": 17.64594167,
+            "Longitude": 75.72602333,
+            "Distance": 959.0610534953036,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3978-174_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.176",
+            "Timestamp on processed video": "2026-02-12 11:29:42",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4007",
+            "Latitude": 17.64595667,
+            "Longitude": 75.72603833,
+            "Distance": 961.3609751665282,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4007-176_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.177",
+            "Timestamp on processed video": "2026-02-12 11:29:42",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-4009",
+            "Latitude": 17.64595667,
+            "Longitude": 75.72603833,
+            "Distance": 961.3609751665282,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4009-177_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.178",
+            "Timestamp on processed video": "2026-02-12 11:29:43",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4037",
+            "Latitude": 17.64597167,
+            "Longitude": 75.72605167,
+            "Distance": 963.5426964527077,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4037-178_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.179",
+            "Timestamp on processed video": "2026-02-12 11:29:43",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4060",
+            "Latitude": 17.64597167,
+            "Longitude": 75.72605167,
+            "Distance": 963.5426964527077,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4060-179_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.180",
+            "Timestamp on processed video": "2026-02-12 11:29:44",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4082",
+            "Latitude": 17.64599333,
+            "Longitude": 75.72606833,
+            "Distance": 966.5213125000527,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4082-180_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.181",
+            "Timestamp on processed video": "2026-02-12 11:29:45",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4106",
+            "Latitude": 17.64601667,
+            "Longitude": 75.72609333,
+            "Distance": 970.224082362921,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4106-181_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.182",
+            "Timestamp on processed video": "2026-02-12 11:29:48",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4188",
+            "Latitude": 17.64611167,
+            "Longitude": 75.7262,
+            "Distance": 985.6847418704424,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4188-182_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.183",
+            "Timestamp on processed video": "2026-02-12 11:29:48",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4207",
+            "Latitude": 17.64611167,
+            "Longitude": 75.7262,
+            "Distance": 985.6847418704424,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4207-183_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.184",
+            "Timestamp on processed video": "2026-02-12 11:29:48",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4207",
+            "Latitude": 17.64611167,
+            "Longitude": 75.7262,
+            "Distance": 985.6847418704424,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4207-184_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.185",
+            "Timestamp on processed video": "2026-02-12 11:29:49",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4228",
+            "Latitude": 17.64614333,
+            "Longitude": 75.72624667,
+            "Distance": 991.7513627789823,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4228-185_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.186",
+            "Timestamp on processed video": "2026-02-12 11:29:49",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4241",
+            "Latitude": 17.64614333,
+            "Longitude": 75.72624667,
+            "Distance": 991.7513627789823,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4241-186_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.187",
+            "Timestamp on processed video": "2026-02-12 11:29:49",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4242",
+            "Latitude": 17.64614333,
+            "Longitude": 75.72624667,
+            "Distance": 991.7513627789823,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4242-187_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.188",
+            "Timestamp on processed video": "2026-02-12 11:29:49",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4242",
+            "Latitude": 17.64614333,
+            "Longitude": 75.72624667,
+            "Distance": 991.7513627789823,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4242-188_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.192",
+            "Timestamp on processed video": "2026-02-12 11:29:51",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4284",
+            "Latitude": 17.64621667,
+            "Longitude": 75.726355,
+            "Distance": 1005.8267481822062,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4284-192_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.196",
+            "Timestamp on processed video": "2026-02-12 11:29:52",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4331",
+            "Latitude": 17.64626,
+            "Longitude": 75.726415,
+            "Distance": 1013.7976087039972,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4331-196_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.197",
+            "Timestamp on processed video": "2026-02-12 11:29:53",
+            "Anomaly type": "FADED_KERB",
+            "Frame no.": "0-4340",
+            "Latitude": 17.64631,
+            "Longitude": 75.72647667,
+            "Distance": 1022.3677806809707,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4340-197_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.198",
+            "Timestamp on processed video": "2026-02-12 11:29:53",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4340",
+            "Latitude": 17.64631,
+            "Longitude": 75.72647667,
+            "Distance": 1022.3677806809707,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4340-198_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.199",
+            "Timestamp on processed video": "2026-02-12 11:29:54",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4371",
+            "Latitude": 17.646365,
+            "Longitude": 75.72654167,
+            "Distance": 1031.5671482362263,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4371-199_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.200",
+            "Timestamp on processed video": "2026-02-12 11:29:54",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4386",
+            "Latitude": 17.646365,
+            "Longitude": 75.72654167,
+            "Distance": 1031.5671482362263,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4386-200_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.201",
+            "Timestamp on processed video": "2026-02-12 11:29:55",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4407",
+            "Latitude": 17.64641833,
+            "Longitude": 75.72660833,
+            "Distance": 1040.779818095975,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4407-201_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.202",
+            "Timestamp on processed video": "2026-02-12 11:29:55",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4407",
+            "Latitude": 17.64641833,
+            "Longitude": 75.72660833,
+            "Distance": 1040.779818095975,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4407-202_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.203",
+            "Timestamp on processed video": "2026-02-12 11:29:56",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-4426",
+            "Latitude": 17.64647167,
+            "Longitude": 75.72667667,
+            "Distance": 1050.130761010008,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4426-203_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.204",
+            "Timestamp on processed video": "2026-02-12 11:29:56",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4442",
+            "Latitude": 17.64647167,
+            "Longitude": 75.72667667,
+            "Distance": 1050.130761010008,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4442-204_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.205",
+            "Timestamp on processed video": "2026-02-12 11:29:56",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4442",
+            "Latitude": 17.64647167,
+            "Longitude": 75.72667667,
+            "Distance": 1050.130761010008,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4442-205_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.206",
+            "Timestamp on processed video": "2026-02-12 11:29:58",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-4496",
+            "Latitude": 17.64657667,
+            "Longitude": 75.72681833,
+            "Distance": 1069.136895966014,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4496-206_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.207",
+            "Timestamp on processed video": "2026-02-12 11:29:58",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4511",
+            "Latitude": 17.64657667,
+            "Longitude": 75.72681833,
+            "Distance": 1069.136895966014,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4511-207_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.208",
+            "Timestamp on processed video": "2026-02-12 11:29:58",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-4511",
+            "Latitude": 17.64657667,
+            "Longitude": 75.72681833,
+            "Distance": 1069.136895966014,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4511-208_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.209",
+            "Timestamp on processed video": "2026-02-12 11:29:59",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4527",
+            "Latitude": 17.646635,
+            "Longitude": 75.72689167,
+            "Distance": 1079.2483963716872,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4527-209_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.210",
+            "Timestamp on processed video": "2026-02-12 11:29:59",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4539",
+            "Latitude": 17.646635,
+            "Longitude": 75.72689167,
+            "Distance": 1079.2483963716872,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4539-210_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.211",
+            "Timestamp on processed video": "2026-02-12 11:29:59",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4541",
+            "Latitude": 17.646635,
+            "Longitude": 75.72689167,
+            "Distance": 1079.2483963716872,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4541-211_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.212",
+            "Timestamp on processed video": "2026-02-12 11:30:00",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4555",
+            "Latitude": 17.64669,
+            "Longitude": 75.726965,
+            "Distance": 1089.1278271067144,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4555-212_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.213",
+            "Timestamp on processed video": "2026-02-12 11:30:01",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-4603",
+            "Latitude": 17.64674167,
+            "Longitude": 75.72704,
+            "Distance": 1098.9278937738643,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4603-213_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.214",
+            "Timestamp on processed video": "2026-02-12 11:30:02",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-4629",
+            "Latitude": 17.64679167,
+            "Longitude": 75.72711667,
+            "Distance": 1108.7672815840667,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4629-214_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.215",
+            "Timestamp on processed video": "2026-02-12 11:30:02",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-4631",
+            "Latitude": 17.64679167,
+            "Longitude": 75.72711667,
+            "Distance": 1108.7672815840667,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4631-215_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.216",
+            "Timestamp on processed video": "2026-02-12 11:30:03",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-4650",
+            "Latitude": 17.64684333,
+            "Longitude": 75.727195,
+            "Distance": 1118.8557840290403,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4650-216_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.220",
+            "Timestamp on processed video": "2026-02-12 11:30:04",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4674",
+            "Latitude": 17.64688833,
+            "Longitude": 75.72727667,
+            "Distance": 1128.8512694185993,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4674-220_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.221",
+            "Timestamp on processed video": "2026-02-12 11:30:04",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4689",
+            "Latitude": 17.64688833,
+            "Longitude": 75.72727667,
+            "Distance": 1128.8512694185993,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4689-221_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.222",
+            "Timestamp on processed video": "2026-02-12 11:30:05",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4712",
+            "Latitude": 17.64693167,
+            "Longitude": 75.72736167,
+            "Distance": 1139.0670856872102,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4712-222_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.225",
+            "Timestamp on processed video": "2026-02-12 11:30:07",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4764",
+            "Latitude": 17.64701833,
+            "Longitude": 75.727525,
+            "Distance": 1158.8781711778122,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4764-225_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.226",
+            "Timestamp on processed video": "2026-02-12 11:30:07",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-4764",
+            "Latitude": 17.64701833,
+            "Longitude": 75.727525,
+            "Distance": 1158.8781711778122,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4764-226_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.227",
+            "Timestamp on processed video": "2026-02-12 11:30:08",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-4794",
+            "Latitude": 17.64706167,
+            "Longitude": 75.727605,
+            "Distance": 1168.6287195365028,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4794-227_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.230",
+            "Timestamp on processed video": "2026-02-12 11:30:08",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4807",
+            "Latitude": 17.64706167,
+            "Longitude": 75.727605,
+            "Distance": 1168.6287195365028,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4807-230_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.231",
+            "Timestamp on processed video": "2026-02-12 11:30:09",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4827",
+            "Latitude": 17.64709833,
+            "Longitude": 75.72768667,
+            "Distance": 1178.1977977876104,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4827-231_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.233",
+            "Timestamp on processed video": "2026-02-12 11:30:09",
+            "Anomaly type": "MISSING_COVER_SLABS_OVER_DRAIN",
+            "Frame no.": "0-4835",
+            "Latitude": 17.64709833,
+            "Longitude": 75.72768667,
+            "Distance": 1178.1977977876104,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4835-233_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.234",
+            "Timestamp on processed video": "2026-02-12 11:30:09",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4835",
+            "Latitude": 17.64709833,
+            "Longitude": 75.72768667,
+            "Distance": 1178.1977977876104,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4835-234_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.235",
+            "Timestamp on processed video": "2026-02-12 11:30:10",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4851",
+            "Latitude": 17.64713833,
+            "Longitude": 75.727765,
+            "Distance": 1187.615132007383,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4851-235_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.236",
+            "Timestamp on processed video": "2026-02-12 11:30:10",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-4851",
+            "Latitude": 17.64713833,
+            "Longitude": 75.727765,
+            "Distance": 1187.615132007383,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4851-236_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.239",
+            "Timestamp on processed video": "2026-02-12 11:30:11",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4879",
+            "Latitude": 17.64717667,
+            "Longitude": 75.72784667,
+            "Distance": 1197.2645155090527,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4879-239_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.240",
+            "Timestamp on processed video": "2026-02-12 11:30:12",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4907",
+            "Latitude": 17.64721333,
+            "Longitude": 75.72792833,
+            "Distance": 1206.8326277835154,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4907-240_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.241",
+            "Timestamp on processed video": "2026-02-12 11:30:12",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4913",
+            "Latitude": 17.64721333,
+            "Longitude": 75.72792833,
+            "Distance": 1206.8326277835154,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4913-241_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.242",
+            "Timestamp on processed video": "2026-02-12 11:30:14",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-4972",
+            "Latitude": 17.64728167,
+            "Longitude": 75.728075,
+            "Distance": 1224.1368619995465,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4972-242_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.243",
+            "Timestamp on processed video": "2026-02-12 11:30:14",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-4995",
+            "Latitude": 17.64728167,
+            "Longitude": 75.728075,
+            "Distance": 1224.1368619995465,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-4995-243_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.244",
+            "Timestamp on processed video": "2026-02-12 11:30:17",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-5065",
+            "Latitude": 17.647345,
+            "Longitude": 75.7283,
+            "Distance": 1249.037157003253,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-5065-244_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.249",
+            "Timestamp on processed video": "2026-02-12 11:30:19",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-5117",
+            "Latitude": 17.647385,
+            "Longitude": 75.72846333,
+            "Distance": 1266.9476984174962,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-5117-249_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.251",
+            "Timestamp on processed video": "2026-02-12 11:30:19",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-5132",
+            "Latitude": 17.647385,
+            "Longitude": 75.72846333,
+            "Distance": 1266.9476984174962,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-5132-251_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.252",
+            "Timestamp on processed video": "2026-02-12 11:30:20",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-5149",
+            "Latitude": 17.64740667,
+            "Longitude": 75.72855333,
+            "Distance": 1276.7944577950914,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-5149-252_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.253",
+            "Timestamp on processed video": "2026-02-12 11:30:20",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-5172",
+            "Latitude": 17.64740667,
+            "Longitude": 75.72855333,
+            "Distance": 1276.7944577950914,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-5172-253_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.254",
+            "Timestamp on processed video": "2026-02-12 11:30:20",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-5172",
+            "Latitude": 17.64740667,
+            "Longitude": 75.72855333,
+            "Distance": 1276.7944577950914,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-5172-254_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.257",
+            "Timestamp on processed video": "2026-02-12 11:30:21",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-5191",
+            "Latitude": 17.64742667,
+            "Longitude": 75.72864333,
+            "Distance": 1286.5978366182974,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-5191-257_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.259",
+            "Timestamp on processed video": "2026-02-12 11:30:22",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-5206",
+            "Latitude": 17.64745,
+            "Longitude": 75.72873167,
+            "Distance": 1296.3210135235397,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-5206-259_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.260",
+            "Timestamp on processed video": "2026-02-12 11:30:22",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-5235",
+            "Latitude": 17.64745,
+            "Longitude": 75.72873167,
+            "Distance": 1296.3210135235397,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-5235-260_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.262",
+            "Timestamp on processed video": "2026-02-12 11:30:24",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-5266",
+            "Latitude": 17.64748833,
+            "Longitude": 75.72891,
+            "Distance": 1315.7151431217396,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-5266-262_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.263",
+            "Timestamp on processed video": "2026-02-12 11:30:24",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-5276",
+            "Latitude": 17.64748833,
+            "Longitude": 75.72891,
+            "Distance": 1315.7151431217396,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-5276-263_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.266",
+            "Timestamp on processed video": "2026-02-12 11:30:25",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-5323",
+            "Latitude": 17.6475,
+            "Longitude": 75.72899833,
+            "Distance": 1325.1767125756976,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-5323-266_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.268",
+            "Timestamp on processed video": "2026-02-12 11:30:26",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-5328",
+            "Latitude": 17.64751,
+            "Longitude": 75.729085,
+            "Distance": 1334.4399168139105,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-5328-268_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.269",
+            "Timestamp on processed video": "2026-02-12 11:30:26",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-5348",
+            "Latitude": 17.64751,
+            "Longitude": 75.729085,
+            "Distance": 1334.4399168139105,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-5348-269_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.271",
+            "Timestamp on processed video": "2026-02-12 11:30:27",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-5375",
+            "Latitude": 17.64752,
+            "Longitude": 75.72917167,
+            "Distance": 1343.7031205476676,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-5375-271_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.272",
+            "Timestamp on processed video": "2026-02-12 11:30:27",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-5381",
+            "Latitude": 17.64752,
+            "Longitude": 75.72917167,
+            "Distance": 1343.7031205476676,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-5381-272_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.274",
+            "Timestamp on processed video": "2026-02-12 11:30:28",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-5397",
+            "Latitude": 17.64752833,
+            "Longitude": 75.72926,
+            "Distance": 1353.1213484317052,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-5397-274_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.276",
+            "Timestamp on processed video": "2026-02-12 11:30:29",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-5417",
+            "Latitude": 17.64753667,
+            "Longitude": 75.72934833,
+            "Distance": 1362.5396842908615,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-5417-276_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.278",
+            "Timestamp on processed video": "2026-02-12 11:30:30",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-5452",
+            "Latitude": 17.64754333,
+            "Longitude": 75.72944,
+            "Distance": 1372.2949856050518,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-5452-278_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.279",
+            "Timestamp on processed video": "2026-02-12 11:30:30",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-5452",
+            "Latitude": 17.64754333,
+            "Longitude": 75.72944,
+            "Distance": 1372.2949856050518,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-5452-279_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.280",
+            "Timestamp on processed video": "2026-02-12 11:30:31",
+            "Anomaly type": "FADED_LANE_MARKING",
+            "Frame no.": "0-5497",
+            "Latitude": 17.64754667,
+            "Longitude": 75.729535,
+            "Distance": 1382.3825321171153,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-5497-280_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.289",
+            "Timestamp on processed video": "2026-02-12 11:30:36",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-5627",
+            "Latitude": 17.64755167,
+            "Longitude": 75.72999833,
+            "Distance": 1431.5567130027746,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-5627-289_anomaly.jpg"
+        },
+        {
+            "Anomaly number": "0.290",
+            "Timestamp on processed video": "2026-02-12 11:30:36",
+            "Anomaly type": "FADED_EDGE_MARKING",
+            "Frame no.": "0-5630",
+            "Latitude": 17.64755167,
+            "Longitude": 75.72999833,
+            "Distance": 1431.5567130027746,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-5630-290_anomaly.jpg"
+        }
+    ]
+}

@@ -199,11 +199,23 @@ class RoadViewSet(ModelViewSet):
         if road.gpx_file:
             self._process_gpx(road)
             road.refresh_from_db()
+        if road.furniture_json_file:
+            self._process_json(road, 'furniture')
+            road.refresh_from_db()
+        if road.pavement_json_file:
+            self._process_json(road, 'pavement')
+            road.refresh_from_db()
 
     def perform_update(self, serializer):
         road = serializer.save()
         if 'gpx_file' in serializer.validated_data and road.gpx_file:
             self._process_gpx(road)
+            road.refresh_from_db()
+        if 'furniture_json_file' in serializer.validated_data and road.furniture_json_file:
+            self._process_json(road, 'furniture')
+            road.refresh_from_db()
+        if 'pavement_json_file' in serializer.validated_data and road.pavement_json_file:
+            self._process_json(road, 'pavement')
             road.refresh_from_db()
 
     def _process_gpx(self, road):
@@ -221,6 +233,22 @@ class RoadViewSet(ModelViewSet):
                 road.save(update_fields=['geometry', 'length'])
         except Exception as e:
             print(f"Failed to process GPX for Road {road.id}: {e}")
+
+    def _process_json(self, road, json_type):
+        """Parse the uploaded JSON file and cache it in the corresponding json_data field.
+        json_type: 'furniture' or 'pavement'
+        """
+        import json
+        file_field = getattr(road, f'{json_type}_json_file', None)
+        if not file_field:
+            return
+        try:
+            with file_field.open('r') as f:
+                parsed = json.load(f)
+            setattr(road, f'{json_type}_json_data', parsed)
+            road.save(update_fields=[f'{json_type}_json_data'])
+        except Exception as e:
+            print(f"Failed to parse {json_type} JSON for Road {road.id}: {e}")
 
 from django.contrib.auth.decorators import login_required
 

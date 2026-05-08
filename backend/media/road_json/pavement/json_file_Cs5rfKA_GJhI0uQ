@@ -1,0 +1,74 @@
+{
+    "Anomalies": [
+        {
+            "Anomaly number": "0.40",
+            "Timestamp on processed video": "2026-02-12 11:28:18",
+            "Anomaly type": "Alligator Crack",
+            "Frame no.": "0-1494-40",
+            "Latitude": 17.64349833,
+            "Longitude": 75.72082667,
+            "Distance from start point in meters": 323.4444689551043,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-1494-40.jpg"
+        },
+        {
+            "Anomaly number": "0.91",
+            "Timestamp on processed video": "2026-02-12 11:29:02",
+            "Anomaly type": "Dust",
+            "Frame no.": "0-2817-91",
+            "Latitude": 17.644195,
+            "Longitude": 75.72388,
+            "Distance from start point in meters": 660.2430458523812,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2817-91.jpg"
+        },
+        {
+            "Anomaly number": "0.92",
+            "Timestamp on processed video": "2026-02-12 11:29:02",
+            "Anomaly type": "Minor Longitudinal Crack",
+            "Frame no.": "0-2817-92",
+            "Latitude": 17.644195,
+            "Longitude": 75.72388,
+            "Distance from start point in meters": 660.2430458523812,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-2817-92.jpg"
+        },
+        {
+            "Anomaly number": "0.105",
+            "Timestamp on processed video": "2026-02-12 11:29:09",
+            "Anomaly type": "Dust",
+            "Frame no.": "0-3017-105",
+            "Latitude": 17.644545,
+            "Longitude": 75.72434,
+            "Distance from start point in meters": 722.6292281337114,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-3017-105.jpg"
+        },
+        {
+            "Anomaly number": "0.283",
+            "Timestamp on processed video": "2026-02-12 11:30:33",
+            "Anomaly type": "Transverse Crack",
+            "Frame no.": "0-5543-283",
+            "Latitude": 17.64755,
+            "Longitude": 75.72972333,
+            "Distance from start point in meters": 1402.37026330485,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-5543-283.jpg"
+        },
+        {
+            "Anomaly number": "0.285",
+            "Timestamp on processed video": "2026-02-12 11:30:34",
+            "Anomaly type": "Transverse Crack",
+            "Frame no.": "0-5571-285",
+            "Latitude": 17.64755167,
+            "Longitude": 75.72981833,
+            "Distance from start point in meters": 1412.4527283882805,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-5571-285.jpg"
+        },
+        {
+            "Anomaly number": "0.287",
+            "Timestamp on processed video": "2026-02-12 11:30:34",
+            "Anomaly type": "Transverse Crack",
+            "Frame no.": "0-5587-287",
+            "Latitude": 17.64755167,
+            "Longitude": 75.72981833,
+            "Distance from start point in meters": 1412.4527283882805,
+            "image": "https://raiotransection.s3.ap-south-1.amazonaws.com/output/frames/roadathena/ndd/survey_561/road_18432/0-5587-287.jpg"
+        }
+    ]
+}
