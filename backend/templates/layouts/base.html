@@ -19,6 +19,10 @@
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
     }
 
+    body {
+      background-color: #f8fafc;
+    }
+
     h1, h2, h3, h4, .font-heading {
       font-family: 'Outfit', sans-serif;
     }
@@ -161,9 +165,11 @@
 
     /* ── Cards ── */
     .card {
-      background: #fff;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border-radius: 1.25rem;
-      border: 1px solid #f1f5f9;
+      border: 1px solid rgba(255, 255, 255, 0.8);
       box-shadow: 0 4px 20px rgba(0, 0, 0, .04);
       transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
     }
@@ -241,7 +247,9 @@
     }
 
     .welcome-banner {
-      background: linear-gradient(135deg, #0f172a 0%, #312e81 40%, #1e1b4b 100%);
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(49, 46, 129, 0.75) 40%, rgba(30, 27, 75, 0.85) 100%);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       background-size: 200% 200%;
       animation: shimmer 15s ease infinite;
     }
@@ -260,7 +268,7 @@
   {% block head %}{% endblock %}
 </head>
 
-<body class="h-full bg-slate-100 antialiased" x-data="layout()" x-cloak>
+<body class="h-full antialiased" x-data="layout()" x-cloak>
 
   <!-- ═══ MOBILE BACKDROP ═══ -->
   <div x-show="mob" @click="mob=false" x-cloak class="fixed inset-0 z-[1020] bg-black/50 lg:hidden"
