@@ -1442,51 +1442,92 @@
             </div>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;">
                 {% if show_ho_filter %}
-                <div class="gis-filter-col"><label>{{ org_role_labels.0 }}</label>
-                    <select class="gis-dropdown"
-                        @change="filters.ho = $event.target.value ? [$event.target.value] : []; onHoChange()"
-                        :disabled="locks.ho">
-                        {% if lock_ho_filter %}
-                        <option value="{{ assigned_ho }}">{{ assigned_ho_name|default:"Unassigned HO" }}</option>
-                        {% else %}
-                        <option value="">Select {{ org_role_labels.0 }}</option>
-                        <template x-for="u in hoUnits" :key="u.id">
-                            <option :value="u.id" x-text="u.display_name || u.email || 'Unnamed User'"></option>
+                <div class="gis-filter-col">
+                    <label>{{ org_role_labels.0 }}</label>
+                    <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }" @click.away="open = false">
+                        <div class="gis-check-trigger" :class="{'locked': locks.ho || isFilterDisabled(getAvailableHoUnits(), 'ho')}"
+                            @click="if(!locks.ho && !isFilterDisabled(getAvailableHoUnits(), 'ho')) open = !open">
+                            <span x-text="locks.ho ? '{{ assigned_ho_name|default:'Unassigned' }}' : getFilterLabel('ho', getAvailableHoUnits(), '{{ org_role_labels.0 }}', filters.ho)"></span>
+                        </div>
+                        <template x-if="!locks.ho">
+                            <div class="gis-check-dropdown" x-show="open" style="display: none;"
+                                x-transition:enter="transition ease-out duration-100"
+                                x-transition:enter-start="opacity-0 scale-95"
+                                x-transition:enter-end="opacity-100 scale-100"
+                                x-transition:leave="transition ease-in duration-75"
+                                x-transition:leave-start="opacity-100 scale-100"
+                                x-transition:leave-end="opacity-0 scale-95">
+                                <div class="gis-check-options">
+                                    <template x-for="u in getAvailableHoUnits()" :key="u.id">
+                                        <div class="gis-check-option" @click="toggleSelection(filters.ho, u.id, () => onHoChange())">
+                                            <input type="checkbox" :checked="filters.ho.includes(u.id)">
+                                            <span class="gis-check-label" x-text="u.display_name || u.email"></span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
                         </template>
-                        {% endif %}
-                    </select>
+                    </div>
                 </div>
                 {% endif %}
+
                 {% if show_ro_filter %}
-                <div class="gis-filter-col"><label>{{ org_role_labels.1 }}</label>
-                    <select class="gis-dropdown"
-                        @change="filters.ro = $event.target.value ? [$event.target.value] : []; onRoChange()"
-                        :disabled="locks.ro">
-                        {% if lock_ro_filter %}
-                        <option value="{{ assigned_ro }}">{{ assigned_ro_name }}</option>
-                        {% else %}
-                        <option value="">Select {{ org_role_labels.1 }}</option>
-                        <template x-for="u in getAvailableRoUnits()" :key="u.id">
-                            <option :value="u.id" x-text="u.display_name || u.email || 'Unnamed User'"></option>
+                <div class="gis-filter-col">
+                    <label>{{ org_role_labels.1 }}</label>
+                    <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }" @click.away="open = false">
+                        <div class="gis-check-trigger" :class="{'locked': locks.ro || isFilterDisabled(getAvailableRoUnits(), 'ro')}"
+                            @click="if(!locks.ro && !isFilterDisabled(getAvailableRoUnits(), 'ro')) open = !open">
+                            <span x-text="locks.ro ? '{{ assigned_ro_name|default:'Unassigned' }}' : getFilterLabel('ro', getAvailableRoUnits(), '{{ org_role_labels.1 }}', filters.ro)"></span>
+                        </div>
+                        <template x-if="!locks.ro">
+                            <div class="gis-check-dropdown" x-show="open" style="display: none;"
+                                x-transition:enter="transition ease-out duration-100"
+                                x-transition:enter-start="opacity-0 scale-95"
+                                x-transition:enter-end="opacity-100 scale-100"
+                                x-transition:leave="transition ease-in duration-75"
+                                x-transition:leave-start="opacity-100 scale-100"
+                                x-transition:leave-end="opacity-0 scale-95">
+                                <div class="gis-check-options">
+                                    <template x-for="u in getAvailableRoUnits()" :key="u.id">
+                                        <div class="gis-check-option" @click="toggleSelection(filters.ro, u.id, () => onRoChange())">
+                                            <input type="checkbox" :checked="filters.ro.includes(u.id)">
+                                            <span class="gis-check-label" x-text="u.display_name || u.email"></span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
                         </template>
-                        {% endif %}
-                    </select>
+                    </div>
                 </div>
                 {% endif %}
+
                 {% if show_piu_filter %}
-                <div class="gis-filter-col"><label>{{ org_role_labels.2 }}</label>
-                    <select class="gis-dropdown"
-                        @change="filters.piu = $event.target.value ? [$event.target.value] : []; onPiuChange()"
-                        :disabled="locks.piu">
-                        {% if lock_piu_filter %}
-                        <option value="{{ assigned_piu }}">{{ assigned_piu_name }}</option>
-                        {% else %}
-                        <option value="">Select {{ org_role_labels.2 }}</option>
-                        <template x-for="u in getAvailablePiuUnits()" :key="u.id">
-                            <option :value="u.id" x-text="u.name"></option>
+                <div class="gis-filter-col">
+                    <label>{{ org_role_labels.2 }}</label>
+                    <div class="gis-check-select" :class="{'open': open}" x-data="{ open: false }" @click.away="open = false">
+                        <div class="gis-check-trigger" :class="{'locked': locks.piu || isFilterDisabled(getAvailablePiuUnits(), 'piu')}"
+                            @click="if(!locks.piu && !isFilterDisabled(getAvailablePiuUnits(), 'piu')) open = !open">
+                            <span x-text="locks.piu ? '{{ assigned_piu_name|default:'Unassigned' }}' : getFilterLabel('piu', getAvailablePiuUnits(), '{{ org_role_labels.2 }}', filters.piu)"></span>
+                        </div>
+                        <template x-if="!locks.piu">
+                            <div class="gis-check-dropdown" x-show="open" style="display: none;"
+                                x-transition:enter="transition ease-out duration-100"
+                                x-transition:enter-start="opacity-0 scale-95"
+                                x-transition:enter-end="opacity-100 scale-100"
+                                x-transition:leave="transition ease-in duration-75"
+                                x-transition:leave-start="opacity-100 scale-100"
+                                x-transition:leave-end="opacity-0 scale-95">
+                                <div class="gis-check-options">
+                                    <template x-for="u in getAvailablePiuUnits()" :key="u.id">
+                                        <div class="gis-check-option" @click="toggleSelection(filters.piu, u.id, () => onPiuChange())">
+                                            <input type="checkbox" :checked="filters.piu.includes(u.id)">
+                                            <span class="gis-check-label" x-text="u.name"></span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
                         </template>
-                        {% endif %}
-                    </select>
+                    </div>
                 </div>
                 {% endif %}
                 <!-- Project Filter (multi-select checkbox, matches map view) -->
