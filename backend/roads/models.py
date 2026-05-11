@@ -54,6 +54,13 @@ class Road(BaseModel):
         blank=True,
         help_text=_("Upload a GPX file for this road segment."),
     )
+    survey_zip = models.FileField(
+        _("Survey Folder (Zip)"),
+        upload_to="road_surveys/zips/",
+        null=True,
+        blank=True,
+        help_text=_("Upload a ZIP archive containing the complete survey folder (JSONs, GPX, etc.)."),
+    )
 
     # ── Furniture JSON ────────────────────────────────────────────────────────
     furniture_json_file = models.FileField(

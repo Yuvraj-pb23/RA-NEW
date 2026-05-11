@@ -205,6 +205,9 @@ class RoadViewSet(ModelViewSet):
         if road.pavement_json_file:
             self._process_json(road, 'pavement')
             road.refresh_from_db()
+        if road.survey_zip:
+            self._process_survey_zip(road)
+            road.refresh_from_db()
 
     def perform_update(self, serializer):
         road = serializer.save()
@@ -216,6 +219,9 @@ class RoadViewSet(ModelViewSet):
             road.refresh_from_db()
         if 'pavement_json_file' in serializer.validated_data and road.pavement_json_file:
             self._process_json(road, 'pavement')
+            road.refresh_from_db()
+        if 'survey_zip' in serializer.validated_data and road.survey_zip:
+            self._process_survey_zip(road)
             road.refresh_from_db()
 
     def _process_gpx(self, road):
@@ -249,6 +255,72 @@ class RoadViewSet(ModelViewSet):
             road.save(update_fields=[f'{json_type}_json_data'])
         except Exception as e:
             print(f"Failed to parse {json_type} JSON for Road {road.id}: {e}")
+
+    def _process_survey_zip(self, road):
+        """Extract and process the uploaded survey ZIP folder."""
+        import zipfile
+        import json
+        import os
+        from django.core.files.base import ContentFile
+
+        if not road.survey_zip:
+            return
+
+        try:
+            with zipfile.ZipFile(road.survey_zip.path, 'r') as z:
+                # 1. Process main_survey_data.json
+                main_json_path = None
+                for name in z.namelist():
+                    if name.endswith('main_survey_data.json'):
+                        main_json_path = name
+                        break
+                
+                if main_json_path:
+                    with z.open(main_json_path) as f:
+                        main_data = json.load(f)
+                    road.pavement_json_data = main_data
+                    if 'road' in main_data and 'track_length' in main_data['road']:
+                        road.length = round(float(main_data['road']['track_length']) / 1000.0, 3)
+                    if 'road' in main_data and 'lat_lng' in main_data['road']:
+                        coords = [[pt[1], pt[0]] for pt in main_data['road']['lat_lng']]
+                        road.geometry = {"type": "LineString", "coordinates": coords}
+
+                # 2. Extract and Process GPX File
+                gpx_path = None
+                for name in z.namelist():
+                    if name.endswith('.gpx'):
+                        gpx_path = name
+                        break
+                
+                if gpx_path:
+                    gpx_content = z.read(gpx_path)
+                    gpx_filename = os.path.basename(gpx_path)
+                    road.gpx_file.save(gpx_filename, ContentFile(gpx_content), save=False)
+                    # After saving file, process it for geometry if we haven't already from JSON
+                    # (GPX is usually more precise than JSON summary)
+                    self._process_gpx(road)
+
+                # 3. Look for Furniture_JSON and merge
+                furniture_merged = {}
+                for name in z.namelist():
+                    if 'Furniture_JSON' in name and name.endswith('.json'):
+                        with z.open(name) as f:
+                            try:
+                                f_data = json.load(f)
+                                if isinstance(f_data, dict):
+                                    for k, v in f_data.items():
+                                        if k in furniture_merged and isinstance(v, list) and isinstance(furniture_merged[k], list):
+                                            furniture_merged[k].extend(v)
+                                        else:
+                                            furniture_merged[k] = v
+                            except: continue
+                
+                if furniture_merged:
+                    road.furniture_json_data = furniture_merged
+
+                road.save()
+        except Exception as e:
+            print(f"Failed to process survey ZIP for Road {road.id}: {e}")
 
 from django.contrib.auth.decorators import login_required
 

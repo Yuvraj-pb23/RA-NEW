@@ -42,6 +42,7 @@ class RoadSerializer(serializers.ModelSerializer):
             "organization_name",
             "length",
             "gpx_file",
+            "survey_zip",
             "furniture_json_file",
             "furniture_json_data",
             "pavement_json_file",
