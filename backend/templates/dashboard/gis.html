@@ -1667,20 +1667,30 @@
                         <div style="height: 1px; flex: 1; background: #e2e8f0; margin-left: 20px;"></div>
                     </div>
 
-                    <!-- Unified Inventory Grid -->
-                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;">
+                    <!-- Unified Adaptive Intelligence Panel -->
+                    <div style="background: #fff; border-radius: 28px; border: 1px solid #e2e8f0; padding: 8px; box-shadow: 0 4px 20px -5px rgba(0,0,0,0.03);">
                         <template x-for="([section, sdata]) in Object.entries(jsonStats.combined || {}).filter(([k,v]) => typeof v === 'object' && !Array.isArray(v))" :key="section">
-                            <template x-for="([k, v]) in Object.entries(sdata).filter(([k2, v2]) => typeof v2 === 'number' && !['lat', 'long', 'dist', 'alt', 'geom', 'point', 'time', 'accu', 'speed', 'head'].some(term => k2.toLowerCase().includes(term)))" :key="section + '-' + k">
-                                <div style="background: #fff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.02); display: flex; align-items: center; gap: 20px;">
-                                    <div style="background: #fffaf0; width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #d4af37; flex-shrink: 0;">
-                                        <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                    </div>
-                                    <div>
-                                        <div style="font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; line-height: 1.2;" x-text="k.replace(/_/g, ' ')"></div>
-                                        <div style="font-size: 24px; font-weight: 900; color: #1e293b; letter-spacing: -0.02em;" x-text="v.toLocaleString()"></div>
-                                    </div>
+                            <div style="margin: 8px; margin-bottom: 24px;">
+                                <!-- Section Divider & Title -->
+                                <div style="display: flex; align-items: center; gap: 12px; padding: 16px 16px 20px;">
+                                    <div style="width: 4px; height: 16px; background: #3b82f6; border-radius: 10px;"></div>
+                                    <h4 style="font-size: 13px; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.1em; margin: 0;" x-text="section"></h4>
+                                    <div style="height: 1px; flex: 1; background: #f1f5f9; margin-left: 8px;"></div>
                                 </div>
-                            </template>
+                                
+                                <!-- Fluid Metrics Grid -->
+                                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; padding: 0 8px;">
+                                    <template x-for="([k, v]) in Object.entries(sdata).filter(([k2, v2]) => typeof v2 === 'number' && !['lat', 'long', 'dist', 'alt', 'geom', 'point', 'time', 'accu', 'speed', 'head'].some(term => k2.toLowerCase().includes(term)))" :key="section + '-' + k">
+                                        <div style="background: #f8fafc; border-radius: 14px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #f1f5f9; transition: all 0.2s;" onmouseover="this.style.background='#fff'; this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.03)';" onmouseleave="this.style.background='#f8fafc'; this.style.borderColor='#f1f5f9'; this.style.boxShadow='none';">
+                                            <div style="display: flex; align-items: center; gap: 12px; overflow: hidden;">
+                                                <div style="width: 8px; height: 8px; background: #d4af37; border-radius: 50%; flex-shrink: 0; opacity: 0.5;"></div>
+                                                <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: capitalize; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" x-text="k.replace(/_/g, ' ')"></span>
+                                            </div>
+                                            <span style="font-size: 15px; font-weight: 800; color: #1e293b; margin-left: 12px;" x-text="typeof v === 'number' ? v.toLocaleString() : v"></span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
                         </template>
                     </div>
                 </div>
