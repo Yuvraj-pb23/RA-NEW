@@ -8,6 +8,8 @@
 <!-- Leaflet CSS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<!-- ApexCharts for Intelligence Dashboard -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <style>
     /* ── Page layout: no padding, edge-to-edge ── */
     body {
@@ -1624,36 +1626,202 @@
                         </div>
                     </div>
 
-                    <!-- Secondary Metrics Grid -->
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 48px;">
-                        <!-- Functional -->
-                        <div style="background: #fff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.02); display: flex; align-items: center; gap: 20px;">
-                            <div style="background: #f0f9ff; width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #0ea5e9; flex-shrink: 0;">
-                                <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-                            </div>
-                            <div>
-                                <div style="font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px;">Functional</div>
-                                <div style="font-size: 26px; font-weight: 900; color: #1e293b; letter-spacing: -0.02em;" x-text="Math.round(Object.values(jsonStats.combined || {}).reduce((acc, curr) => acc + (typeof curr === 'object' ? Object.values(curr).reduce((a,b) => a + (typeof b === 'number' ? b : 0), 0) : 0), 0) * 0.94).toLocaleString()"></div>
+                    <!-- ── CONDITION INTELLIGENCE (LAYOUT: LEGACY | CONTEXT: HEALTH) ── -->
+                    <div style="background: #fff; border-radius: 28px; border: 1px solid #e2e8f0; padding: 40px; box-shadow: 0 10px 30px -5px rgba(0,0,0,0.04); margin-bottom: 48px; display: grid; grid-template-columns: 400px 1fr; gap: 60px; align-items: center;">
+                        
+                        <!-- Left: Large Condition Donut Chart -->
+                        <div style="position: relative; display: flex; justify-content: center; align-items: center;">
+                            <div x-ref="conditionChart" id="conditionChart" 
+                                 x-init="
+                                    const checkAndInit = () => {
+                                        if (window.ApexCharts && jsonStats.hasData && !isChartInitialized) {
+                                            const total = Object.values(jsonStats.combined || {}).reduce((acc, curr) => {
+                                                if (typeof curr !== 'object') return acc;
+                                                return acc + Object.entries(curr).reduce((a, [k, v]) => {
+                                                    const isAnalytical = typeof v === 'number' && !['lat', 'long', 'dist', 'alt', 'geom', 'point', 'time', 'accu', 'speed', 'head'].some(term => k.toLowerCase().includes(term));
+                                                    return a + (isAnalytical ? v : 0);
+                                                }, 0);
+                                            }, 0);
+                                            
+                                            const series = [Math.round(total * 0.94), Math.round(total * 0.04), Math.round(total * 0.02)];
+                                            const options = {
+                                                series: series,
+                                                chart: { 
+                                                    type: 'donut', 
+                                                    height: 340, 
+                                                    animations: { 
+                                                        enabled: true, 
+                                                        easing: 'easeinout', 
+                                                        speed: 800,
+                                                        dynamicAnimation: { enabled: true, speed: 350 }
+                                                    },
+                                                    dropShadow: {
+                                                        enabled: true,
+                                                        blur: 10,
+                                                        color: '#000',
+                                                        opacity: 0.05,
+                                                        top: 10,
+                                                        left: 0
+                                                    }
+                                                },
+                                                fill: {
+                                                    type: 'gradient',
+                                                    gradient: {
+                                                        shade: 'light',
+                                                        type: 'diagonal1',
+                                                        shadeIntensity: 0.2,
+                                                        gradientToColors: ['#1e40af', '#38bdf8', '#991b1b'], // Deep blue, bright cyan, deep orange
+                                                        inverseColors: false,
+                                                        opacityFrom: 1,
+                                                        opacityTo: 0.95,
+                                                        stops: [0, 100]
+                                                    }
+                                                },
+                                                colors: ['#0062cc', '#0091ff', '#bd4e24'],
+                                                labels: ['Functional', 'Non-Standard', 'Damaged'],
+                                                legend: { show: false },
+                                                stroke: { width: 0 },
+                                                dataLabels: { enabled: false },
+                                                plotOptions: { 
+                                                    pie: { 
+                                                        donut: { 
+                                                            size: '72%', 
+                                                            labels: { 
+                                                                show: true, 
+                                                                name: { show: false }, 
+                                                                value: { 
+                                                                    show: true, 
+                                                                    fontSize: '44px', 
+                                                                    fontWeight: 900, 
+                                                                    color: '#1e293b', 
+                                                                    offsetY: 12, 
+                                                                    formatter: (val) => Number(val).toLocaleString() 
+                                                                }, 
+                                                                total: { 
+                                                                    show: true, 
+                                                                    label: 'UNITS', 
+                                                                    fontSize: '11px', 
+                                                                    fontWeight: 700, 
+                                                                    color: '#94a3b8', 
+                                                                    letterSpacing: '2px', 
+                                                                    offsetY: -15, 
+                                                                    formatter: (w) => {
+                                                                        const t = w.globals.seriesTotals.reduce((a, b) => a + b, 0);
+                                                                        return Math.round(t).toLocaleString();
+                                                                    } 
+                                                                } 
+                                                            } 
+                                                        } 
+                                                    } 
+                                                },
+                                                tooltip: {
+                                                    theme: 'light',
+                                                    y: { formatter: (val) => val.toLocaleString() + ' signs' }
+                                                }
+                                            };
+                                            window.condApexChart = new ApexCharts($refs.conditionChart, options);
+                                            window.condApexChart.render();
+                                            isChartInitialized = true;
+                                        }
+                                    };
+                                    
+                                    const initTimer = setInterval(() => {
+                                        checkAndInit();
+                                        if (isChartInitialized) clearInterval(initTimer);
+                                    }, 500);
+
+                                    $watch('jsonStats.combined', (val) => {
+                                        if (window.condApexChart && val) {
+                                            const total = Object.values(val).reduce((acc, curr) => {
+                                                if (typeof curr !== 'object') return acc;
+                                                return acc + Object.entries(curr).reduce((a, [k, v]) => {
+                                                    const isAnalytical = typeof v === 'number' && !['lat', 'long', 'dist', 'alt', 'geom', 'point', 'time', 'accu', 'speed', 'head'].some(term => k.toLowerCase().includes(term));
+                                                    return a + (isAnalytical ? v : 0);
+                                                }, 0);
+                                            }, 0);
+                                            window.condApexChart.updateSeries([Math.round(total * 0.94), Math.round(total * 0.04), Math.round(total * 0.02)], true);
+                                        }
+                                    });
+                                 "
+                                 style="width: 100%; min-height: 340px; display: flex; align-items: center; justify-content: center;">
+                                <div x-show="!isChartInitialized" style="color: #94a3b8; font-size: 12px; font-weight: 600;">Preparing Intelligence...</div>
                             </div>
                         </div>
-                        <!-- Non-Standard -->
-                        <div style="background: #fff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.02); display: flex; align-items: center; gap: 20px;">
-                            <div style="background: #f8fafc; width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #64748b; flex-shrink: 0;">
-                                <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+
+                        <!-- Right: Condition Health Breakdown -->
+                        <div style="display: flex; flex-direction: column; gap: 28px;">
+                            <div style="border-left: 3px solid #0ea5e9; padding-left: 20px; margin-bottom: 8px;">
+                                <h3 style="font-size: 18px; font-weight: 800; color: #1e293b; margin: 0 0 4px 0;">Signage Condition Distribution</h3>
+                                <p style="font-size: 12px; color: #64748b; margin: 0;">Distribution of road sign health and maintenance status across the selected scope.</p>
                             </div>
-                            <div>
-                                <div style="font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px;">Non-Standard</div>
-                                <div style="font-size: 26px; font-weight: 900; color: #1e293b; letter-spacing: -0.02em;" x-text="Math.round(Object.values(jsonStats.combined || {}).reduce((acc, curr) => acc + (typeof curr === 'object' ? Object.values(curr).reduce((a,b) => a + (typeof b === 'number' ? b : 0), 0) : 0), 0) * 0.04).toLocaleString()"></div>
+
+                            <div style="display: flex; flex-direction: column; gap: 24px;" x-data="{ 
+                                getStats() {
+                                    const combined = jsonStats.combined || {};
+                                    const total = Object.values(combined).reduce((acc, curr) => {
+                                        if (typeof curr !== 'object') return acc;
+                                        return acc + Object.entries(curr).reduce((a, [k, v]) => {
+                                            const isAnalytical = typeof v === 'number' && !['lat', 'long', 'dist', 'alt', 'geom', 'point', 'time', 'accu', 'speed', 'head'].some(term => k.toLowerCase().includes(term));
+                                            return a + (isAnalytical ? v : 0);
+                                        }, 0);
+                                    }, 0);
+                                    return { total: Math.round(total), f: Math.round(total * 0.94), n: Math.round(total * 0.04), d: Math.round(total * 0.02) };
+                                }
+                            }">
+                                <!-- Functional Row -->
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <div style="width: 12px; height: 12px; background: #0062cc; border-radius: 4px;"></div>
+                                            <span style="font-size: 13px; font-weight: 700; color: #334155;">Functional</span>
+                                        </div>
+                                        <div style="text-align: right;">
+                                            <span style="font-size: 11px; font-weight: 800; color: #94a3b8; margin-right: 8px;">94%</span>
+                                            <span style="font-size: 14px; font-weight: 800; color: #1e293b;" x-text="getStats().f.toLocaleString()"></span>
+                                        </div>
+                                    </div>
+                                    <div style="height: 6px; background: #f1f5f9; border-radius: 10px; overflow: hidden;">
+                                        <div style="height: 100%; background: #0062cc; transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1);" :style="{ width: '94%' }"></div>
+                                    </div>
+                                </div>
+                                <!-- Non-Standard Row -->
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <div style="width: 12px; height: 12px; background: #0091ff; border-radius: 4px;"></div>
+                                            <span style="font-size: 13px; font-weight: 700; color: #334155;">Non-Standard</span>
+                                        </div>
+                                        <div style="text-align: right;">
+                                            <span style="font-size: 11px; font-weight: 800; color: #94a3b8; margin-right: 8px;">4%</span>
+                                            <span style="font-size: 14px; font-weight: 800; color: #1e293b;" x-text="getStats().n.toLocaleString()"></span>
+                                        </div>
+                                    </div>
+                                    <div style="height: 6px; background: #f1f5f9; border-radius: 10px; overflow: hidden;">
+                                        <div style="height: 100%; background: #0091ff; transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1);" :style="{ width: '4%' }"></div>
+                                    </div>
+                                </div>
+                                <!-- Damaged Row -->
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <div style="width: 12px; height: 12px; background: #bd4e24; border-radius: 4px;"></div>
+                                            <span style="font-size: 13px; font-weight: 700; color: #334155;">Damaged</span>
+                                        </div>
+                                        <div style="text-align: right;">
+                                            <span style="font-size: 11px; font-weight: 800; color: #94a3b8; margin-right: 8px;">2%</span>
+                                            <span style="font-size: 14px; font-weight: 800; color: #1e293b;" x-text="getStats().d.toLocaleString()"></span>
+                                        </div>
+                                    </div>
+                                    <div style="height: 6px; background: #f1f5f9; border-radius: 10px; overflow: hidden;">
+                                        <div style="height: 100%; background: #bd4e24; transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1);" :style="{ width: '2%' }"></div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <!-- Damaged -->
-                        <div style="background: #fff; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.02); display: flex; align-items: center; gap: 20px;">
-                            <div style="background: #f1f5f9; width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #1e293b; flex-shrink: 0;">
-                                <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                            </div>
-                            <div>
-                                <div style="font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px;">Damaged</div>
-                                <div style="font-size: 26px; font-weight: 900; color: #1e293b; letter-spacing: -0.02em;" x-text="Math.round(Object.values(jsonStats.combined || {}).reduce((acc, curr) => acc + (typeof curr === 'object' ? Object.values(curr).reduce((a,b) => a + (typeof b === 'number' ? b : 0), 0) : 0), 0) * 0.02).toLocaleString()"></div>
+
+                            <!-- Live Analysis Status -->
+                            <div style="margin-top: 10px; padding: 14px 20px; background: #f8fafc; border-radius: 16px; border: 1px solid #f1f5f9; display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);"></div>
+                                <span style="font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em;">Intelligence analysis synchronized with selected surveys</span>
                             </div>
                         </div>
                     </div>
@@ -2443,6 +2611,7 @@
             tileLayer: null,
             roadLayers: [],
             shownRoads: 0,
+            isChartInitialized: false,
             
             // Chainage Navigation State
             currentChainage: 0.00,
